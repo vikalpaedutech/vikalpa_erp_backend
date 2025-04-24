@@ -25,7 +25,7 @@ import {app} from "./app.js";
 
 connectDb()
 .then(() => {
-   app.listen(process.env.PORT || 8052, () => {
+   app.listen(process.env.PORT || 8053, () => {
     console.log(`Sercer is running on port: ${process.env.PORT}`)
    }) 
 })
