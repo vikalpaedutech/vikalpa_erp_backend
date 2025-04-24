@@ -7,16 +7,17 @@ const ExpenseSchema = new Schema(
   {
     expenseId: { type: String, required: true, unique: true }, // Unique ID for each expense
     userId: { type: String, ref: "User", required: true }, // Reference to the user who created the expense
+    role: {type: String, ref: "User", required: true},
     //userModelRef: { type: String, required: true }, // Reference model name of the user (e.g., 'User', 'Admin', etc.)
     purposeOfExpense: {type: String, required: true},
-    descriptionExpense: { type: String, required: true }, // Description of the expense
+    descriptionExpense: { type: String, }, // Description of the expense
     expenseDate: { type: Date, required: true }, // Date of the expense made
     expenseType: { type: String, required: true }, // Type of expense (e.g., "Travel", "Office Supplies", "Lunch", etc.)
 
     //If selected expenseTYPE selected "Travel" from frontend"
     travelFrom : {type: String, },
     travelTo: {type: String,},
-    travelledDistrance: {type:Number},
+    travelledDistance: {type:Number},
 
      //If selected expenseTYPE selected "Food" from frontend"
      foodType: {type: String}, //Breakfast, Lunch, Dinner.
@@ -47,7 +48,7 @@ const ExpenseSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["Submitted", "Pending", "Approved", "Rejected", "Paid"],
+      enum: ["Submitted", "Pending", "Verified",  "Approved", "Rejected", "Paid"],
       default: "Pending", // Status of the expense
     },
 

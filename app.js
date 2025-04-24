@@ -64,7 +64,7 @@ app.use(cookieParser());
 
 //Below method runs every once in a day at a fixed time for studentAttendanceDump.
 //cronAttendance
-//createAttendanceRecords();
+ //createAttendanceRecords();
 
 //____________________________________
 
@@ -82,7 +82,7 @@ import billsRouter from "./routes/bills.route.js";
 import empLeaveRouter from "./routes/empLeave.route.js";
 import userRouter from "./routes/user.route.js";
 import studentDisciplinaryRouter from "./routes/studentDisciplinary.route.js";
-
+import centerOrSchoolDisciplinaryRouter from "./routes/centersOrSchoolsDisciplinary.route.js";
 
 
 
@@ -101,6 +101,7 @@ app.use("/api", billsRouter);
 app.use("/api", empLeaveRouter);
 app.use("/api", userRouter);
 app.use("/api", studentDisciplinaryRouter);
+app.use("/api", centerOrSchoolDisciplinaryRouter);
 //Exporting this express app.
 
 export {app};
