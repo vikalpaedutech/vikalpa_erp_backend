@@ -2,6 +2,7 @@
 
 import express from "express";
 import {createAttendanceRecords} from "./controllers/cronAttendance.controller.js"
+import { createAttendancePdfCronJob } from "./controllers/UploadAttendancePdf.controller.js";
 
 
 //Importing necessary packages.
@@ -66,6 +67,8 @@ app.use(cookieParser());
 //cronAttendance
  //createAttendanceRecords();
 
+// createAttendancePdfCronJob();
+
 //____________________________________
 
 
@@ -83,6 +86,7 @@ import empLeaveRouter from "./routes/empLeave.route.js";
 import userRouter from "./routes/user.route.js";
 import studentDisciplinaryRouter from "./routes/studentDisciplinary.route.js";
 import centerOrSchoolDisciplinaryRouter from "./routes/centersOrSchoolsDisciplinary.route.js";
+import UploadAttendancePdfRouter from "./routes/UploadAttendancePdf.route.js";
 
 
 
@@ -102,6 +106,8 @@ app.use("/api", empLeaveRouter);
 app.use("/api", userRouter);
 app.use("/api", studentDisciplinaryRouter);
 app.use("/api", centerOrSchoolDisciplinaryRouter);
+app.use("/api", UploadAttendancePdfRouter);
+
 //Exporting this express app.
 
 export {app};

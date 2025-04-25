@@ -130,9 +130,14 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
     console.log("I am inside attendance controller, updateAttendanceBySrnAndDate API");
 
     try {
+        console.log(" i am inside try block")
         // Extract studentSrn and date from query parameters
         const { studentSrn, date } = req.query;
        const { isAttendanceMarked } = req.body; // The field to update (isAttendanceMarked)
+
+          // Convert the date from the query param into a Date object
+          const attendanceDate = new Date(date)
+        
 
         console.log(studentSrn, date)
        // const isAttendanceMarked = true
@@ -143,8 +148,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
             return res.status(400).json({ status: "Error", message: "Missing studentSrn or date in query parameters" });
         }
 
-        // Convert the date from the query param into a Date object
-        const attendanceDate = new Date(date);
+     
 
         // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
         const attendance = await StudentAttendance.findOneAndUpdate(
