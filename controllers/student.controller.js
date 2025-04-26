@@ -54,6 +54,7 @@ export const getStudentIfisSlcTakenIsFalse = async (req, res) => {
         }
 
         res.status(200).json({ status: "Success", data: student });
+        console.log(student)
     } catch (error) {
         console.log("Error fetching student data from DB", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });

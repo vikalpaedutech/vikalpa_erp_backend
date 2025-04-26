@@ -36,21 +36,3 @@ export const AttendancePdf = mongoose.model("AttendancePdf", UploadAttendancePdf
 //__________________________________________________________________________________________________
 
 
-//Get API. By school ID
-
-export const GetDataBySchoolId = async (req, res) => {
-
-  const  {schoolId} = req.query;
-
-    try {
-            const response = await AttendancePdf.find(req.query)
-
-            res.status(200).json({status: "success", data: response})
-
-    } catch (error) {
-        console.log("Error fetching data", error)
-        
-        res.status(500).json({status: "failed", message: error})
-
-    }
-}
