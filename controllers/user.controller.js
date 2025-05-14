@@ -9,12 +9,13 @@ export const createUser = async (req, res) => {
     try {
         const { userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
                 isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
-                classId, studentId, permission, accessModules, isActive, profileImage } = req.body;
+                classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude } = req.body;
         
+                console.log(req.body)
         const user = await User.create({
             userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
             isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
-            classId, studentId, permission, accessModules, isActive, profileImage
+            classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude
         });
 
         res.status(201).json({ status: "Success", data: user });

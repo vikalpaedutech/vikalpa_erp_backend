@@ -3,7 +3,7 @@
 import express from "express";
 import {createAttendanceRecords} from "./controllers/cronAttendance.controller.js"
 import { createAttendancePdfCronJob } from "./controllers/UploadAttendancePdf.controller.js";
-
+import { cronJobUserAttendance } from "./controllers/userAttendance.controller.js";
 
 //Importing necessary packages.
 
@@ -66,8 +66,9 @@ app.use(cookieParser());
 //Below method runs every once in a day at a fixed time for studentAttendanceDump.
 //cronAttendance
  //createAttendanceRecords();
+//cronJobUserAttendance();
 
-// createAttendancePdfCronJob();
+// createAttendancePdfCronJob(); //This initializes the data in db.
 
 //____________________________________
 
@@ -87,7 +88,7 @@ import userRouter from "./routes/user.route.js";
 import studentDisciplinaryRouter from "./routes/studentDisciplinary.route.js";
 import centerOrSchoolDisciplinaryRouter from "./routes/centersOrSchoolsDisciplinary.route.js";
 import UploadAttendancePdfRouter from "./routes/UploadAttendancePdf.route.js";
-
+import userAttendanceRouter from "./routes/userAttendance.route.js";
 
 
 
@@ -107,6 +108,7 @@ app.use("/api", userRouter);
 app.use("/api", studentDisciplinaryRouter);
 app.use("/api", centerOrSchoolDisciplinaryRouter);
 app.use("/api", UploadAttendancePdfRouter);
+app.use("/api", userAttendanceRouter);
 
 //Exporting this express app.
 

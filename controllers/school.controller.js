@@ -80,10 +80,13 @@ export const getSchoolsByBlockId = async (req, res) => {
 
       
       const {blockId} = req.params;
+
+      const blockIdsArray = blockId.split(','); // ['11', '15', '14', '10', '16', '9', '13']
+
       console.log(" i am block id")
       console.log(blockId)
 
-      const school = await School.find({blockId})  //{blockId:{$in: [...blockId]}}
+      const school = await School.find( {blockId: {$in : blockIdsArray}})  //{blockId:{$in: [...blockId]}}
 
       res.status(201).json({status:"Success", data: school});
       console.log(school)

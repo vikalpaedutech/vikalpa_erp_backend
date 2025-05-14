@@ -51,11 +51,13 @@ export const getBlocksByDistrictId = async (req, res) => {
   try {
 
       
-      const {districtId} = req.params;
+      const {districtId} = req.query;
       console.log(" i am district id")
-      console.log(districtId)
+      console.log(req.query.districtId)
+      console.log(req.query)
+      
 
-      const block = await Block.find({ districtId: { $in: [...districtId]   } })
+      const block = await Block.find({ districtId: { $in: [...req.query.districtId]}})
 
       res.status(201).json({status:"Success", data: block});
       console.log(block)

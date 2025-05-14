@@ -30,15 +30,18 @@ export const createCenterOrSchoolDisciplinary = async (req, res) => {
 
 export const getCenterOrSchoolDisciplinaryDataByUserId = async (req, res) => {
 
-    const {userId} = req.params;
-    console.log(req.params)
+    // const {userId} = req.params;
+    const {userId, dateOfRecord, districtName, blockName, schoolName} = req.query;
+    // console.log(req.params)
+    console.log(req.query)
+    
     try {
         console.log("I am inside try block of getCenterOrSchoolDisciplinaryDataByUserId api");
 
-        const centerOrSchoolDiscipllinary = await CenterOrSchoolDisciplinary.find(req.params);
+        const centerOrSchoolDiscipllinary = await CenterOrSchoolDisciplinary.find(req.query);
 
         res.status(200).json({status: "Success", data: centerOrSchoolDiscipllinary})
-        console.log(centerOrSchoolDiscipllinary)
+        //console.log(centerOrSchoolDiscipllinary)
         
     } catch (error) {
         console.log("Error occured while posting centersOrSchoolDisciplinary record", error.message);

@@ -75,6 +75,8 @@ const UserSchema = new Schema(
     isActive: { type: Boolean, default: true },
     profileImage: { type: String },
     lastLogin: { type: Date },
+    longitude: {type: Number},
+    latitude: {type: Number}
   },
   { timestamps: true }
 );

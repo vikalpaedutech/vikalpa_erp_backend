@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/block', createPost);
 router.get("/block", getBlock);
-router.get("/block/:districtId", getBlocksByDistrictId);
+router.get("/block-by-id", getBlocksByDistrictId);
 
 
 export default router;

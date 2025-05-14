@@ -9,7 +9,7 @@ import { createCenterOrSchoolDisciplinary, getCenterOrSchoolDisciplinaryDataByUs
 const router = express();
 
 router.post('/centerOrSchoolDisciplinary', createCenterOrSchoolDisciplinary );
-router.get("/centerOrSchoolDisciplinary-by-userId/:userId",getCenterOrSchoolDisciplinaryDataByUserId )
+router.get("/centerOrSchoolDisciplinary-by-userId",getCenterOrSchoolDisciplinaryDataByUserId )
 
 
 

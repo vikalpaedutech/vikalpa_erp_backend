@@ -62,7 +62,7 @@ export const getStudentIfisSlcTakenIsFalse = async (req, res) => {
 };
 //________________________________________________________________________________
 
-//Below API shows all the students data with all the database fields.
+//Below API shows all the students dta with all the database fields.
 
 export const getAllStudents = async (req, res) => {
 
