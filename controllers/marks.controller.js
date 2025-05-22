@@ -46,10 +46,28 @@ export const createPost = async (req, res) => {
 
 // Below api is a cron job api. Which is created to initailize marks data in db, in marksandtext db so that user,
 //... can update students marks.
-export const createMarksRecordCron = async () => {
+export const createMarksRecordCron = async (req, res) => {
     console.log("I am inside the cron job function");
+
+  const {examId, classofStudent, medium} = req.body;
+
+console.log(examId)
+console.log(req.body)
     try {
-        const students = await Student.find({}); // Get all students
+
+          // Check if marks already exist for this examId
+        const existingMarks = await Marks.findOne({ examId: examId });
+        if (existingMarks) {
+            console.log(`Test is already created with this id: ${examId}`);
+           res.status(400).json({ message: `Test is already created with this examId: ${examId}` });
+          return;
+          }
+
+
+        const students = await Student.find({
+          classofStudent: classofStudent, 
+          medium: medium
+        }); // Get all students
         const examAndText = await ExamAndTest.find({});
 
 
@@ -73,7 +91,7 @@ export const createMarksRecordCron = async () => {
                 blockId: student.blockId,
                 schoolId: student.schoolId,
                 classofStudent: student.classofStudent,
-                examId: "test-1",
+                examId: examId,
                 marksObtained: "",
                 recordedBy: "",
                 remark: "", // Default status
@@ -127,7 +145,7 @@ export const getPost = async (req, res) => {
 
 // API to get marks data based on query params
 export const getAllMarksUsinQueryParams = async (req, res) => {
-    console.log("I am inside marks controller, getAllAttendanceUsinQueryParams API");
+    console.log("I am inside marks controller, getAllMarksUsinQueryParams API");
 
     const {
       studentSrn,
@@ -163,10 +181,10 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
         if (recordedBy) query.recordedBy = recordedBy;
         if (remark) query.remark = remark;
         if (marksUpdatedOn) query.marksUpdatedOn = marksUpdatedOn;
-       
+        if (examId) query.examId = examId;
 
       
-
+console.log(query)
         // Query the database for attendance records based on the constructed query
         const marks = await Marks.find(query);
 

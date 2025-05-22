@@ -1,7 +1,7 @@
 //Creating express app here
 
 import express from "express";
-import {createAttendanceRecords} from "./controllers/cronAttendance.controller.js"
+import {createAttendanceRecords} from "./controllers/studentAttendance.controller.js"
 import { createAttendancePdfCronJob } from "./controllers/UploadAttendancePdf.controller.js";
 import { cronJobUserAttendance } from "./controllers/userAttendance.controller.js";
 
@@ -89,7 +89,7 @@ import studentDisciplinaryRouter from "./routes/studentDisciplinary.route.js";
 import centerOrSchoolDisciplinaryRouter from "./routes/centersOrSchoolsDisciplinary.route.js";
 import UploadAttendancePdfRouter from "./routes/UploadAttendancePdf.route.js";
 import userAttendanceRouter from "./routes/userAttendance.route.js";
-
+import StudentRelatedCallingsRouter from "./routes/StudentRelatedCallings.route.js"
 
 
 
@@ -109,6 +109,7 @@ app.use("/api", studentDisciplinaryRouter);
 app.use("/api", centerOrSchoolDisciplinaryRouter);
 app.use("/api", UploadAttendancePdfRouter);
 app.use("/api", userAttendanceRouter);
+app.use("/api", StudentRelatedCallingsRouter);
 
 //Exporting this express app.
 

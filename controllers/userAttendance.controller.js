@@ -7,7 +7,23 @@ import { set } from "mongoose";
 // Function to create attendance records
 export const cronJobUserAttendance = async () => {
     console.log("I am inside the cron job function of user attedndance");
+
+   
     try {
+        
+         // Step 1: Get current date at midnight UTC (00:00:00)
+        const currentDate = new Date();
+        currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
+
+        // Step 2: Check if attendance for current date already exists
+        const existingAttendance = await UserAttendance.findOne({ date: currentDate });
+
+        if (existingAttendance) {
+            console.log("Attendance already created");
+            return res.status(400).json({ message: "Attendance already created for today" });
+        }
+
+
         const users = await User.find({}); // Get all students
 
         console.log(users);
@@ -40,6 +56,7 @@ export const cronJobUserAttendance = async () => {
 
         console.log('Attendance records created for all users');
     } catch (error) {
+        
         console.error('Error during user attendance dump: ', error);
     }
 };

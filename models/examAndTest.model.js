@@ -13,7 +13,9 @@ const ExamAndTestSchema = new Schema(
     maxMarks: { type: Number, required: true }, //Mas marks. Optional
     passingMarks: { type: Number,  }, //Passing marks
     batch: { type: String }, // batch of students
-    classofStudent: { type: String, required: true }, //Class like 8, 10
+    classofStudent: { type: String, required: true }, //Class like 8, 10,
+    status: {type:String, default:"Pending"} //Shows the status as Pending, Complete for marks updation. If user has completely updated amrks then...
+    //status is upated to complete so that the test id does not appear in the drop down menu if completed
   },
   { timestamps: true }
 );
