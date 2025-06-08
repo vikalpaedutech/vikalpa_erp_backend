@@ -65,7 +65,7 @@ app.use(cookieParser());
 
 //Below method runs every once in a day at a fixed time for studentAttendanceDump.
 //cronAttendance
- //createAttendanceRecords();
+//  createAttendanceRecords();
 //cronJobUserAttendance();
 
 // createAttendancePdfCronJob(); //This initializes the data in db.
@@ -90,8 +90,8 @@ import centerOrSchoolDisciplinaryRouter from "./routes/centersOrSchoolsDisciplin
 import UploadAttendancePdfRouter from "./routes/UploadAttendancePdf.route.js";
 import userAttendanceRouter from "./routes/userAttendance.route.js";
 import StudentRelatedCallingsRouter from "./routes/StudentRelatedCallings.route.js"
-
-
+import ConcernsRouter from "./routes/Concerns.route.js"
+import dashboardRouter from './routes/dashboard.route.js'
 
 //using routes for route.g
 
@@ -110,7 +110,8 @@ app.use("/api", centerOrSchoolDisciplinaryRouter);
 app.use("/api", UploadAttendancePdfRouter);
 app.use("/api", userAttendanceRouter);
 app.use("/api", StudentRelatedCallingsRouter);
-
+app.use("/api", ConcernsRouter);
+app.use("/api", dashboardRouter)
 //Exporting this express app.
 
 export {app};

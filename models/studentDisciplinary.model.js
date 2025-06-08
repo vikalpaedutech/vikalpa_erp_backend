@@ -13,9 +13,11 @@ const StudentDisciplinarySchema = new Schema (
         blockId: { type: String, ref: "Block", required: true },
         schoolId: { type: String, ref: "School", required: true },
         subject: {type: String},
-        disciplinaryOrInteraction: {type: String}, // this holds the values like Disciplinary issue, Interaction
-        disciplinaryOrInteractiionRemark: {type: String},
+        status: {type: String}, // this holds the values like Disciplinary issue, Interaction
         remark: {type: String},
+        classWorkChecking: {type: String},
+        homeWorkChecking: {type: String},
+        comment: {type: String},
         userId: {type: String, ref:"User"}
     },
     {timestamps: true}

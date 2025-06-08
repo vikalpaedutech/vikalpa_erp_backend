@@ -16,9 +16,12 @@ export const createDisciplinaryOrInteraction = async (req, res) => {
     blockId,
     schoolId,
     subject,
-    disciplinaryOrInteraction, // this holds the values like Disciplinary issue, Interaction
-    disciplinaryOrInteractiionRemark,
+    status, // this holds the values like Disciplinary issue, Interaction
     remark,
+    classWorkChecking,
+    homeWorkChecking,
+
+    comment,
     userId
 
 

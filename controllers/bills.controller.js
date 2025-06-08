@@ -102,7 +102,7 @@ export const createPost = async (req, res) => {
 
   try {
     const {
-      expenseId, userId, role, purposeOfExpense, descriptionExpense,
+       userId, role, purposeOfExpense, descriptionExpense,
       expenseDate, expenseType, travelFrom, travelTo, travelledDistance,
       foodType, accomodationDate, stayedForDays, otherItemName,
       otherItemPurchasingPurpose, otherItemDescription, expenseAmount,
@@ -120,7 +120,7 @@ const fileName = `${Date.now()}-${nameWithoutExt}.${fileExt}`;
     const fileUrl = await uploadToDOStorage(file.buffer, fileName, file.mimetype);
 
     const expense = await Expense.create({
-      expenseId,
+      
       userId,
       role,
       purposeOfExpense,

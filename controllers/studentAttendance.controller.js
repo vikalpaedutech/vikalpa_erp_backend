@@ -8,7 +8,7 @@ import { StudentAttendance } from "../models/studentAttendance.model.js";
 //Student Attendance Cron Job
 
 // Function to create attendance records
-export const createAttendanceRecords = async () => {
+export const createAttendanceRecords = async (req, res) => {
     console.log("I am inside the cron job function");
     try {
 
@@ -20,7 +20,7 @@ export const createAttendanceRecords = async () => {
                 currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
         
                 // Step 2: Check if attendance for current date already exists
-                const existingAttendance = await Student.findOne({ date: currentDate });
+                const existingAttendance = await StudentAttendance.findOne({ date: currentDate });
         
                 if (existingAttendance) {
                     console.log("Attendance already created");
@@ -28,11 +28,6 @@ export const createAttendanceRecords = async () => {
                 }
 
         //---------------------------------------------------------------------------
-
-
-
-
-
 
         const students = await Student.find({}); // Get all students
 
@@ -46,28 +41,35 @@ export const createAttendanceRecords = async () => {
             
             const attendanceRecord = new StudentAttendance({
                 studentSrn: student.studentSrn,
-                firstName: student.firstName ,
+                //firstName: student.firstName ,
                 //lastName: student.lastName,
-                fatherName: student.fatherName,
+                //fatherName: student.fatherName,
                 date: new Date().toISOString().split("T")[0], // => "2025-04-10",
-                districtId: student.districtId,
-                blockId: student.blockId,
-                schoolId: student.schoolId,
-                classofStudent: student.classofStudent,
-                batch: student.batch,
+                //districtId: student.districtId,
+                //blockId: student.blockId,
+                //schoolId: student.schoolId,
+                //classofStudent: student.classofStudent,
+                //batch: student.batch,
                 status: 'Absent', // Default status
                 isAttendanceMarked: false, // Not marked yet
-                isAttendanceUpdated: false, // Not updated yet
+                //isAttendanceUpdated: false, // Not updated yet
                 TA: student.singleSideDistance * student.bothSideDistance, // Example calculation for TA
+                absenteeCallingStatus: "Not-called",
+                callingRemark1: null,
+                callingRemark2: null,
+                comments: null,
             });
 
             await attendanceRecord.save(); // Save the attendance data
+            
+            
             console.log(`Attendance saved for SRN: ${student.studentSrn}`);
         }
-
+        res.status(200).json({status:"success", message:"Attendance instance created successfully"})
         console.log('Attendance records created for all students');
     } catch (error) {
         console.error('Error during attendance dump: ', error);
+        res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
     }
 };
 
@@ -118,6 +120,7 @@ export const createPost = async (req, res) => {
 
 
 // API to get attendance based on query params
+// API to get attendance based on query params
 export const getAllAttendance = async (req, res) => {
     console.log("I am inside attendance controller, getAllAttendance API");
 
@@ -137,6 +140,17 @@ export const getAllAttendance = async (req, res) => {
         isAttendanceMarked,
         isAttendanceUpdated
     } = req.query;
+
+    // Normalize values to arrays if needed
+    const districtIds = Array.isArray(districtId) ? districtId : districtId?.split(',') || [];
+    const statusList = Array.isArray(status) ? status : status?.split(',') || [];
+    const classes = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
+
+    console.log(req.query)
+    console.log(statusList)
+    console.log(districtIds)
+    console.log(classes)
+    console.log(districtId)
 
     try {
         // Build query object based on the provided query params
@@ -175,7 +189,33 @@ export const getAllAttendance = async (req, res) => {
         }
 
         // Query the database for attendance records based on the constructed query
-        const attendanceRecords = await StudentAttendance.find(query);
+
+        const pipeline = [
+            {
+                $lookup: {
+                    from: "students",
+                    localField: "studentSrn",
+                    foreignField: "studentSrn",
+                    as: "studentDetails"
+                }
+            },
+            {
+                $unwind: "$studentDetails"
+            },
+            {
+                $match: {
+                    ...(districtIds.length && { "studentDetails.districtId": { $in: districtIds } }), // query.districtId ,
+                    ...(query.blockId && { "studentDetails.blockId": query.blockId }),
+                    ...(query.schoolId && { "studentDetails.schoolId": query.schoolId }),
+                    ...(query.date && { "date": query.date }),
+                    ...(classes.length && { "studentDetails.classofStudent": { $in: classes } }), // query.classofStudent,
+                    ...(statusList.length && { "status": { $in: statusList } }),
+                    "studentDetails.isSlcTaken": false,
+                }
+            }
+        ]
+
+        const attendanceRecords = await StudentAttendance.aggregate(pipeline);
 
         if (!attendanceRecords || attendanceRecords.length === 0) {
             return res.status(404).json({
@@ -198,6 +238,7 @@ export const getAllAttendance = async (req, res) => {
     }
 };
 
+
 //_________________________________________________________________________________________________
 
 
@@ -211,7 +252,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
         console.log(" i am inside try block")
         // Extract studentSrn and date from query parameters
         const { studentSrn, date } = req.query;
-       const { isAttendanceMarked } = req.body; // The field to update (isAttendanceMarked)
+       const { isAttendanceMarked, absenteeCallingStatus, callingRemark1 } = req.body; // The field to update (isAttendanceMarked)
 
           // Convert the date from the query param into a Date object
           const attendanceDate = new Date(date)
@@ -219,19 +260,32 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
 
         console.log(studentSrn, date)
        // const isAttendanceMarked = true
-        console.log("i am coming from frontend", isAttendanceMarked)
+        console.log("i am coming from frontend", absenteeCallingStatus)
 
         // Ensure both studentSrn and date are provided
         if (!studentSrn || !date) {
             return res.status(400).json({ status: "Error", message: "Missing studentSrn or date in query parameters" });
         }
+        
+        //Below block updates the student attendance status to "Present" or "Absent".
+        let status;
 
-     
+        if (isAttendanceMarked === true){
+            status = "Present"
+        } else {
+            status = "Absent"
+        }
 
-        // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
+        //------------------------------------------------------------------------
+        
+        //This block updates the absentee-calling fields.
+        if (absenteeCallingStatus){
+
+
+             // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
         const attendance = await StudentAttendance.findOneAndUpdate(
             { studentSrn, date },  // Find by studentSrn and date
-            { isAttendanceMarked }, // Update the field
+            { absenteeCallingStatus, callingRemark1 }, // Update the field
             { new: true, runValidators: true } // Return the updated document and validate it
         );
 
@@ -242,6 +296,35 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
 
         // Return the updated attendance record
         res.status(200).json({ status: "Success", data: attendance });
+
+
+        } 
+        //This field updates marked attendance field
+        else {
+
+          //If student is marked present, then absenteeCallingStatus, and callingRemark1 is set to default value
+            const absenteeCallingStatus = "Not-called"
+            const callingRemark1 = null
+
+             // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
+        const attendance = await StudentAttendance.findOneAndUpdate(
+            { studentSrn, date },  // Find by studentSrn and date
+            { isAttendanceMarked, status, absenteeCallingStatus, callingRemark1  }, // Update the field
+            { new: true, runValidators: true } // Return the updated document and validate it
+        );
+
+        // If no record was found
+        if (!attendance) {
+            return res.status(404).json({ status: "Error", message: "Attendance record not found for the given student and date" });
+        }
+
+        // Return the updated attendance record
+        res.status(200).json({ status: "Success", data: attendance });
+
+
+        }
+
+       
     } catch (error) {
         console.log("Error updating attendance", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
