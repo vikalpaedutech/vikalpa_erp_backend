@@ -25,6 +25,39 @@ export const createUser = async (req, res) => {
     }
 };
 
+//--------------------------------------------------------------
+
+
+// Update an existing user (PATCH)
+export const patchUser = async (req, res) => {
+    console.log("I am inside user controller, patch user API");
+
+    try {
+        const { userId } = req.params; // Assuming userId is passed in the URL params
+        const updateData = req.body;
+
+        console.log(req.body)
+        console.log("Updating user:", userId);
+        console.log("Update data:", updateData);
+
+        const updatedUser = await User.findOneAndUpdate(
+            { userId },              // Query condition
+            { $set: updateData },    // Fields to update
+            { new: true }            // Return the updated document
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ status: "Error", message: "User not found" });
+        }
+
+        res.status(200).json({ status: "Success", data: updatedUser });
+    } catch (error) {
+        console.log("Error updating user:", error.message);
+        res.status(500).json({ status: "Error", message: "Server error" });
+    }
+};
+//----------------------------------------------
+
 // Get all users
 export const getAllUsers = async (req, res) => {
     console.log("I am inside user controller, getAllUsers API");

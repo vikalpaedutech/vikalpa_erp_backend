@@ -8,6 +8,7 @@ const ConcernsSchema = new Schema(
         concernId: {type: String},
         userId: {type: String},
         concernType: {type: String}, //School, Tech, Individual.
+        schoolId: {type: String, required: true}, //School Id for which the concern is being raised
         concern: {type: String}, // remark related to concernType.
         classOfConcern: {type: String}, //Class (9, 10) for which concern was generated.
         remark: {type: String}, // concern reason will go here.

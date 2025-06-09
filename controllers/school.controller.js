@@ -100,3 +100,33 @@ export const getSchoolsByBlockId = async (req, res) => {
 }
 //_________________________________________________________________________________
 
+//Get API for Schools by blockId
+export const getSchoolsBySchoolId = async (req, res) => {
+
+  console.log("i am inside school controller, getschoolsbyschoolid api")
+
+  try {
+
+      
+      const {schoolId} = req.query;
+      console.log(req.query)
+
+      const schoolIdsArray = schoolId.split(','); // ['11', '15', '14', '10', '16', '9', '13']
+
+      console.log(" i am school id")
+      console.log(schoolIdsArray)
+
+      const school = await School.find( {schoolId: {$in : schoolIdsArray}})  //{blockId:{$in: [...blockId]}}
+
+      res.status(201).json({status:"Success", data: school});
+      console.log(school)
+      
+  } catch (error) {
+
+      res.status(500).json({status: "Failed", message: error.message});
+      
+  }
+
+}
+//_________________________________________________________________________________
+

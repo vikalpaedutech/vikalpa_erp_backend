@@ -2,7 +2,7 @@
 
 import express from "express";
 
-import {createPost, getSchool, getSchoolsByBlockId} from "../controllers/school.controller.js";
+import {createPost, getSchool, getSchoolsByBlockId, getSchoolsBySchoolId} from "../controllers/school.controller.js";
 
 //creating express router.
 
@@ -15,6 +15,8 @@ router.post('/school', createPost);
 router.get('/school', getSchool);
 
 router.get('/school-by-blockid/:blockId', getSchoolsByBlockId);
+
+router.get('/school-by-schoolId', getSchoolsBySchoolId);
 
 
 export default router;

@@ -19,42 +19,81 @@ export const uploadFile = multer({ storage }).single('file');
 //Post API 
 
 export const createConcern = async (req, res) => {
-console.log('I am inside createConcern controller')
+    console.log('I am inside createConcern controller');
 
     try {
-            const {
-                concernId, userId, concernType, concern, classOfConcern, remark, concernStatusBySubmitter, dateOfSubmission, 
-                concernStatusByResolver, dateOfResolution, totalDaysOfLeaveAppliedFor, leavePeriodFrom,
-                leavePeriodTo, leaveApprovalHR, subjectOfLeave, leaveBody, comment
-            } = req.body;
+        const {
+            concernId, userId, concernType, schoolId, concern, classOfConcern, remark, concernStatusBySubmitter,
+            dateOfSubmission, concernStatusByResolver, dateOfResolution, totalDaysOfLeaveAppliedFor, leavePeriodFrom,
+            leavePeriodTo, leaveApprovalHR, subjectOfLeave, leaveBody, comment
+        } = req.body;
 
-            const file = req.file
-            if(!file){
-                return res.status(400).json({status:"Error", message: "No file uploaded"})
-            }
+       
+        let fileName = null;
+        let fileUrl = null;
 
-             const fileExt = file.originalname.split('.').pop(); // get extension like pdf, jpg
+        const file = req.file;
+        if (file) {
+            const fileExt = file.originalname.split('.').pop();
             const nameWithoutExt = file.originalname.replace(/\.[^/.]+$/, "");
-            const fileName = `${Date.now()}-${nameWithoutExt}.${fileExt}`;    
-            const fileUrl = await uploadToDOStorage(file.buffer, fileName, file.mimetype);
+            fileName = `${Date.now()}-${nameWithoutExt}.${fileExt}`;
+            fileUrl = await uploadToDOStorage(file.buffer, fileName, file.mimetype);
+        }
+        console.log(req.body)
 
-            const concerns = await Concern.create(
-                {
-                    concernId, userId, concernType, concern, classOfConcern, remark, concernStatusBySubmitter, dateOfSubmission, 
-                concernStatusByResolver, dateOfResolution, totalDaysOfLeaveAppliedFor, leavePeriodFrom,
-                leavePeriodTo, leaveApprovalHR, subjectOfLeave, leaveBody, comment, fileName, fileUrl 
-                }
-                
 
-            )
+         console.log("📦 Insert payload being sent to DB:", {
+    concernId,
+    userId,
+    concernType,
+    schoolId,
+    concern,
+    classOfConcern,
+    remark,
+    concernStatusBySubmitter,
+    dateOfSubmission,
+    concernStatusByResolver,
+    dateOfResolution,
+    totalDaysOfLeaveAppliedFor,
+    leavePeriodFrom,
+    leavePeriodTo,
+    leaveApprovalHR,
+    subjectOfLeave,
+    leaveBody,
+    comment,
+    fileName,
+    fileUrl,
+});
+        const concerns = await Concern.create({
+            concernId,
+            userId,
+            concernType,
+            schoolId,
+            concern,
+            classOfConcern,
+            remark,
+            concernStatusBySubmitter,
+            dateOfSubmission,
+            concernStatusByResolver,
+            dateOfResolution,
+            totalDaysOfLeaveAppliedFor,
+            leavePeriodFrom,
+            leavePeriodTo,
+            leaveApprovalHR,
+            subjectOfLeave,
+            leaveBody,
+            comment,
+            fileName,
+            fileUrl,
+        });
 
-            res.status(201).json({ status: "Success", data: concerns });
+        res.status(201).json({ status: "Success", data: concerns });
     } catch (error) {
-            console.error("Error creating expense:", error.message);
-            res.status(500).json({ status: "Error", message: error.message });
+        console.error("Error creating school concern:", error.message);
+        res.status(500).json({ status: "Error", message: error.message });
     }
+};
 
-}
 
 //Get API. Get Concerns by userId.
 
