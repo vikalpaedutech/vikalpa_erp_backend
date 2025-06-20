@@ -1,5 +1,5 @@
 import express from "express";
-import { createPost, uploadFile, getAllBills, getPendingBills, getVerifiedBills, getApprovedBills, getRejectedBills,
+import { createPost, uploadFile, getAllBills, getPendingAndVerifiedBillsByAci, getVerifiedBills, getApprovedBills, getRejectedBills,
     getBillsDataByQueryParams, patchBillsDataVerification, patchBillsDataApproval, 
 
  } from "../controllers/bills.controller.js";
@@ -11,7 +11,7 @@ router.post("/create-expense", uploadFile, createPost);
 
 router.get("/get-all-bills", getAllBills);
 
-router.get("/get-pending-bills", getPendingBills);
+router.get("/get-pending-bills", getPendingAndVerifiedBillsByAci);
 
 router.get("/get-approved-bills", getApprovedBills);
 

@@ -27,7 +27,7 @@ export const createDisciplinaryOrInteraction = async (req, res) => {
 
 } = req.body
 
-
+console.log(req.body)
 try {
     
     const studentDisciplinaryOrInteraction = await StudentDisciplinary.create(req.body)

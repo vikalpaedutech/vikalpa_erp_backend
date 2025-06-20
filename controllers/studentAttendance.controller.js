@@ -143,6 +143,9 @@ export const getAllAttendance = async (req, res) => {
 
     // Normalize values to arrays if needed
     const districtIds = Array.isArray(districtId) ? districtId : districtId?.split(',') || [];
+    
+    const schoolIds = Array.isArray(schoolId) ? schoolId : schoolId?.split(',') || [];
+    
     const statusList = Array.isArray(status) ? status : status?.split(',') || [];
     const classes = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
 
@@ -150,7 +153,7 @@ export const getAllAttendance = async (req, res) => {
     console.log(statusList)
     console.log(districtIds)
     console.log(classes)
-    console.log(districtId)
+    console.log(schoolIds)
 
     try {
         // Build query object based on the provided query params
@@ -169,24 +172,24 @@ export const getAllAttendance = async (req, res) => {
         if (isAttendanceMarked !== undefined) query.isAttendanceMarked = isAttendanceMarked;
         if (isAttendanceUpdated !== undefined) query.isAttendanceUpdated = isAttendanceUpdated;
 
-        // Handle date range filtering if both startDate and endDate are provided
-        if (startDate && endDate) {
-            // Convert the date strings to Date objects
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+        // // Handle date range filtering if both startDate and endDate are provided
+        // if (startDate && endDate) {
+        //     // Convert the date strings to Date objects
+        //     const start = new Date(startDate);
+        //     const end = new Date(endDate);
 
-            // Check if the dates are valid and construct the query
-            if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-                // Make sure end includes the full day (till 23:59:59.999)
-                end.setHours(23, 59, 59, 999);
-                query.date = { $gte: start, $lte: end };
-            } else {
-                return res.status(400).json({
-                    status: "Error",
-                    message: "Invalid date range provided"
-                });
-            }
-        }
+        //     // Check if the dates are valid and construct the query
+        //     if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        //         // Make sure end includes the full day (till 23:59:59.999)
+        //         end.setHours(23, 59, 59, 999);
+        //         query.date = { $gte: start, $lte: end };
+        //     } else {
+        //         return res.status(400).json({
+        //             status: "Error",
+        //             message: "Invalid date range provided"
+        //         });
+        //     }
+        // }
 
         // Query the database for attendance records based on the constructed query
 
@@ -206,11 +209,12 @@ export const getAllAttendance = async (req, res) => {
                 $match: {
                     ...(districtIds.length && { "studentDetails.districtId": { $in: districtIds } }), // query.districtId ,
                     ...(query.blockId && { "studentDetails.blockId": query.blockId }),
-                    ...(query.schoolId && { "studentDetails.schoolId": query.schoolId }),
-                    ...(query.date && { "date": query.date }),
+                    ...(schoolIds.length && { "studentDetails.schoolId": { $in: schoolIds } }),
+                    // ...(query.date && { "date": query.date }),
                     ...(classes.length && { "studentDetails.classofStudent": { $in: classes } }), // query.classofStudent,
                     ...(statusList.length && { "status": { $in: statusList } }),
                     "studentDetails.isSlcTaken": false,
+                    "date":query.date
                 }
             }
         ]
@@ -261,6 +265,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
         console.log(studentSrn, date)
        // const isAttendanceMarked = true
         console.log("i am coming from frontend", absenteeCallingStatus)
+        console.log("i am coming from frontend is attendance marked", isAttendanceMarked)
 
         // Ensure both studentSrn and date are provided
         if (!studentSrn || !date) {
@@ -300,7 +305,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
 
         } 
         //This field updates marked attendance field
-        else {
+        else if (isAttendanceMarked !== undefined) {
 
           //If student is marked present, then absenteeCallingStatus, and callingRemark1 is set to default value
             const absenteeCallingStatus = "Not-called"
@@ -322,7 +327,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
         res.status(200).json({ status: "Success", data: attendance });
 
 
-        }
+        } 
 
        
     } catch (error) {

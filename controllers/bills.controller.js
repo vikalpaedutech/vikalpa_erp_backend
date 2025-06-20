@@ -3,6 +3,7 @@ import { Expense } from "../models/bills.model.js";
 import { uploadToCloudinary } from "../utils/cloudinary.utils.js";
 import multer from "multer";
 import { response } from "express";
+import { User } from "../models/user.model.js";
 
 import { uploadToDOStorage } from "../utils/digitalOceanSpaces.utils.js";
 
@@ -105,7 +106,8 @@ export const createPost = async (req, res) => {
        userId, role, purposeOfExpense, descriptionExpense,
       expenseDate, expenseType, travelFrom, travelTo, travelledDistance,
       foodType, accomodationDate, stayedForDays, otherItemName,
-      otherItemPurchasingPurpose, otherItemDescription, expenseAmount,
+      otherItemPurchasingPurpose, otherItemDescription, expenseAmount, 
+      verification, approval
     } = req.body;
 
     const file = req.file;
@@ -139,6 +141,7 @@ const fileName = `${Date.now()}-${nameWithoutExt}.${fileExt}`;
       expenseAmount,
       fileName,
       fileUrl,
+      
     });
 
     res.status(201).json({ status: "Success", data: expense });
@@ -218,32 +221,68 @@ export const getAllBills = async (req, res) => {
 
 
 
-
-export const getPendingBills = async (req, res) => {
+//Get Pending Bills. ACI>> CC
+export const getPendingAndVerifiedBillsByAci = async (req, res) => {
   try {
-    const response = await Expense.aggregate([
+    const { userId, status } = req.query;
+
+    console.log(req.query)
+
+    if (!userId) {
+      return res.status(400).json({
+        status: "Failed",
+        message: "Missing userId (ACI)",
+      });
+    }
+
+    // Step 1: Find the ACI user and get their assigned districts
+    const aciUser = await User.findOne({ userId: userId, role: "ACI" });
+
+    if (!aciUser) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "ACI user not found",
+      });
+    }
+
+    const { assignedDistricts = [] } = aciUser;
+
+    // Step 2: Aggregate bills only from CCs under those districts
+    const bills = await Expense.aggregate([
       {
-        $match: { status: "Pending" }
+        $match: {
+          status: status,
+        },
       },
       {
         $lookup: {
-          from: "users",            // 👈 collection name (should be plural lowercase)
-          localField: "userId",     // 👈 field in Expense
-          foreignField: "userId",   // 👈 field in Users
-          as: "userDetails"         // 👈 result field
-        }
+          from: "users", // 👈 collection name (must be lowercase plural)
+          localField: "userId",
+          foreignField: "userId",
+          as: "userDetails",
+        },
       },
       {
-        $unwind: "$userDetails"     // 👈 flatten the array (each userId expected to match exactly one user)
-      }
+        $unwind: "$userDetails",
+      },
+      {
+        $match: {
+          "userDetails.role": "CC",
+          "userDetails.assignedDistricts": { $elemMatch: { $in: assignedDistricts } },
+        },
+      },
     ]);
 
-    res.status(200).json({ status: "Success", data: response });
+    res.status(200).json({ status: "Success", data: bills });
   } catch (error) {
-    console.error("Error Fetching data", error.message);
-    res.status(500).json({ status: "Failed", message: error.message });
+    console.error("Error fetching filtered bills for ACI:", error.message);
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
   }
 };
+
 //______________________________________________________________________________________
 
 

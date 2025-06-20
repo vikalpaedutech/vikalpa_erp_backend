@@ -9,7 +9,7 @@ const ExpenseSchema = new Schema(
     userId: { type: String, ref: "User", required: true }, // Reference to the user who created the expense
     role: {type: String, ref: "User", required: true},
     //userModelRef: { type: String, required: true }, // Reference model name of the user (e.g., 'User', 'Admin', etc.)
-    purposeOfExpense: {type: String, required: true},
+    purposeOfExpense: {type: String, required: true}, //Office, Orientating, Center Event, MB Center,  Stationary
     descriptionExpense: { type: String, }, // Description of the expense
     expenseDate: { type: Date, required: true }, // Date of the expense made
     expenseType: { type: String, required: true }, // Type of expense (e.g., "Travel", "Office Supplies", "Lunch", etc.)

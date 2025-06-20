@@ -174,11 +174,36 @@ export const deleteStudentBySrn = async (req, res) => {
 
 export const getStudentsByQueryParams = async (req, res) => {
 
-    const {studentSrn, rollNumber, firstName, fatherName, districtId, blockId, schoolId, classofStudent }= req.query
+    const {studentSrn, 
+        rollNumber, 
+        firstName, 
+        fatherName, 
+        districtId, 
+        blockId, 
+        schoolId, 
+        classofStudent 
+    }= req.query
+
+   const schoolIds = Array.isArray(schoolId) ? schoolId : schoolId?.split(',') || [];
+    const classofStudents = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
+    
+
     console.log("i am inside controller")
     console.log(req.query)
     try {
-        const request = await Student.find(req.query);
+
+         const query = {};
+         if(studentSrn) query.studentSrn = studentSrn;
+         if (rollNumber) query.rollNumber = rollNumber;
+         if (firstName) query.firstName = { $regex: `^${firstName}`, $options: "i" }; 
+         if (fatherName) query.fatherName = fatherName;
+         if (districtId) query.districtId = districtId;
+         if (blockId) query.blockId = blockId;
+         if (schoolIds) query.schoolId = {$in:schoolIds};
+         if (classofStudents) query.classofStudent = {$in:classofStudents};
+
+        console.log(query)
+        const request = await Student.find(query);
 
         res.status(200).json({status: "Success", data: request})
     } catch (error) {

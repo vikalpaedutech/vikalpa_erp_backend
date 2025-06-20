@@ -145,7 +145,8 @@ export const getPost = async (req, res) => {
 
 // API to get marks data based on query params
 export const getAllMarksUsinQueryParams = async (req, res) => {
-    console.log("I am inside marks controller, getAllMarksUsinQueryParams API");
+    
+  console.log("I am inside marks controller, getAllMarksUsinQueryParams API");
 
     const {
       studentSrn,
@@ -163,6 +164,11 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
 
     } = req.query;
 
+
+    const schoolIds = Array.isArray(schoolId) ? schoolId : schoolId?.split(',') || [];
+    const classofStudents = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
+    
+    
     try {
         // Build query object based on the provided query params
         const query = {};
@@ -173,11 +179,11 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
   
         if (districtId) query.districtId = districtId;
         if (blockId) query.blockId = blockId;
-        if (schoolId) query.schoolId = schoolId;
-        if (classofStudent) query.classofStudent = classofStudent;
+        if (schoolIds) query.schoolId = {$in:schoolIds};
+        if (classofStudents) query.classofStudent = {$in:classofStudents};
         if (examId) query.examId = examId;
         if (marksObtained) query.marksObtained = marksObtained;
-
+       
         if (recordedBy) query.recordedBy = recordedBy;
         if (remark) query.remark = remark;
         if (marksUpdatedOn) query.marksUpdatedOn = marksUpdatedOn;

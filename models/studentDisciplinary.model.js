@@ -15,6 +15,7 @@ const StudentDisciplinarySchema = new Schema (
         subject: {type: String},
         status: {type: String}, // this holds the values like Disciplinary issue, Interaction
         remark: {type: String},
+       
         classWorkChecking: {type: String},
         homeWorkChecking: {type: String},
         comment: {type: String},

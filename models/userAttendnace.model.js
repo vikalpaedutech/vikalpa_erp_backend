@@ -23,7 +23,15 @@ const userAttendanceSchema = new Schema(
   logoutLongitude: {type: Number, default: 0},
   logoutLatitude: {type: Number, default: 0},
   logoutCoordinateDifference: {type: Number},
+  fileName: {type: String}, //Uploaded file name
+  fileUrl: {type: String}, //User image
+  attendanceType: {type: String}, //center visit, wfh, govt. official visit, event.
+  visitingLocation: {type: String}, //visiting location, center name, 
+
   },
+
+ 
+
  
 
   {

@@ -27,6 +27,32 @@ export const createUser = async (req, res) => {
 
 //--------------------------------------------------------------
 
+// Partially update user by ID (PATCH)
+export const patchUserById = async (req, res) => {
+    console.log("I am inside user controller, patchUserById API");
+
+    try {
+        const { userId } = req.params;
+        console.log(req.params)
+        console.log(req.body)
+
+        const user = await User.findOneAndUpdate(
+            { userId },
+            req.body,  // Partially update with the request data
+            { new: true, runValidators: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ status: "Error", message: "User not found" });
+        }
+
+        res.status(200).json({ status: "Success", data: user });
+    } catch (error) {
+        console.log("Error partially updating user", error.message);
+        res.status(500).json({ status: "Error", message: "Server error" });
+    }
+};
+//--------------------------------------
 
 // Update an existing user (PATCH)
 export const patchUser = async (req, res) => {
@@ -130,6 +156,8 @@ export const updateUserById = async (req, res) => {
     try {
         const { userId } = req.params;
 
+        console.log(req.params)
+        console.log(req.body)
         const user = await User.findOneAndUpdate(
             { userId },
             req.body,  // Update with data from the request body
@@ -147,29 +175,7 @@ export const updateUserById = async (req, res) => {
     }
 };
 
-// Partially update user by ID (PATCH)
-export const patchUserById = async (req, res) => {
-    console.log("I am inside user controller, patchUserById API");
 
-    try {
-        const { userId } = req.params;
-
-        const user = await User.findOneAndUpdate(
-            { userId },
-            req.body,  // Partially update with the request data
-            { new: true, runValidators: true }
-        );
-
-        if (!user) {
-            return res.status(404).json({ status: "Error", message: "User not found" });
-        }
-
-        res.status(200).json({ status: "Success", data: user });
-    } catch (error) {
-        console.log("Error partially updating user", error.message);
-        res.status(500).json({ status: "Error", message: "Server error" });
-    }
-};
 
 // Delete user by ID (DELETE)
 export const deleteUserById = async (req, res) => {
@@ -234,3 +240,37 @@ export const toggleUserStatus = async (req, res) => {
     }
 };
 
+
+
+
+
+
+//PATCH USER BY USER CONTACT
+
+// Partially update user by ID (PATCH)
+export const patchUserByContact = async (req, res) => {
+    console.log("I am inside user controller, patchUserById API");
+
+    try {
+        const { contact1 } = req.params;
+        console.log(req.params)
+        console.log(req.body)
+
+        
+        const user = await User.findOneAndUpdate(
+            { contact1 },
+            req.body,  // Partially update with the request data
+            { new: true, runValidators: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ status: "Error", message: "User not found" });
+        }
+
+        res.status(200).json({ status: "Success", data: user });
+    } catch (error) {
+        console.log("Error partially updating user", error.message);
+        res.status(500).json({ status: "Error", message: "Server error" });
+    }
+};
+//---------------

@@ -12,7 +12,8 @@ import {
     deleteUserById,
     getUsersByRole,
     toggleUserStatus,
-    getUserByContact1, patchUser
+    getUserByContact1, patchUser,
+    patchUserByContact
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -38,8 +39,9 @@ router.patch("/user/:userId/status", toggleUserStatus);
 // DELETE route to delete user by userId
 router.delete("/user/:userId", deleteUserById);
 
+router.patch('/patch-user-by-contact/:contact1', patchUserByContact)
 
-router.patch('/user/:userId', patchUser);
+// router.patch('/user/:userId', patchUser);
 
 
 export default router;

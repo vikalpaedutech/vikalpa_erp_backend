@@ -8,7 +8,9 @@ const ConcernsSchema = new Schema(
         concernId: {type: String},
         userId: {type: String},
         concernType: {type: String}, //School, Tech, Individual.
-        schoolId: {type: String, required: true}, //School Id for which the concern is being raised
+        districtId: {type: String},
+        blockId: {type: String},
+        schoolId: {type: String,}, //School Id for which the concern is being raised
         concern: {type: String}, // remark related to concernType.
         classOfConcern: {type: String}, //Class (9, 10) for which concern was generated.
         remark: {type: String}, // concern reason will go here.
@@ -27,10 +29,24 @@ const ConcernsSchema = new Schema(
         comment: {type: String}, //Any manual remark related to concern.
         fileName: {type: String}, //Uploaded file name
         fileUrl: {type: String}, //Any type of required documents. Eg: medical letter, or any kind of letter related to schools and all.
+        studentSrn: {type: String}, //In case of student regarding concerns 
+        l1ApprovalOnLeave: {
+            approvedBy: { type: String, default: null },
+            approvedOn: { type: Date, default: null },
+            comment: { type: String, default: null }
+            }, //hERIARCHICHAL APPROVAL, CCs leave will be approved by ACI,
+        managerLevelApprovalOnLeave: {type: Object, default:{
+            approvedBy: { type: String, default: null },
+            approvedOn: { type: Date, default: null },
+            comment: { type: String, default: null }
+            },
+        },//Managers of respective departments will approve leaves
+    
+    techVisitorRemark: {type: String, default:null}}, 
         
 
         
-    },
+    
     {
         timestamps:true
     }

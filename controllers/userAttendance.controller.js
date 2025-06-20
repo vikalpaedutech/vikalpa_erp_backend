@@ -3,9 +3,15 @@ import cron from "node-cron";
 import { UserAttendance } from "../models/userAttendnace.model.js";
 import { User } from "../models/user.model.js";
 import { set } from "mongoose";
+import multer from "multer";
+import { uploadToDOStorage } from "../utils/digitalOceanSpacesUserAttendance.js";
+
+// Multer memory storage
+const storage = multer.memoryStorage();
+export const uploadFile = multer({ storage }).single('file');
 
 // Function to create attendance records
-export const cronJobUserAttendance = async () => {
+export const cronJobUserAttendance = async (req, res) => {
     console.log("I am inside the cron job function of user attedndance");
 
    
@@ -14,7 +20,7 @@ export const cronJobUserAttendance = async () => {
          // Step 1: Get current date at midnight UTC (00:00:00)
         const currentDate = new Date();
         currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
-
+console.log(currentDate)
         // Step 2: Check if attendance for current date already exists
         const existingAttendance = await UserAttendance.findOne({ date: currentDate });
 
@@ -45,7 +51,11 @@ export const cronJobUserAttendance = async () => {
                 logoutTime: "",
                 logoutLongitude:0,
                 logoutLatitude:0,
-                logoutCoordinateDifference:null
+                logoutCoordinateDifference:null,
+                fileName: null,
+                fileUrl:null,
+                attendanceType: null,
+                visitingLocation: null
 
 
             });
@@ -115,33 +125,103 @@ export const GetAttendanceByUserId = async (req, res) => {
 
 //Patch user attendance
 
-export const PatchUserAttendanceByUserId = async (req, res) => {
+// export const PatchUserAttendanceByUserId = async (req, res) => {
 
-    const {userId, date} = req.query;
-    const {attendance, longitude, latitude,  coordinateDifference, loginTime, logoutTime, logoutLongitude, logoutLatitude, logoutCoordinateDifference} = req.body;
-
-    
-
-    console.log(req.query);
-    console.log(req.body);
-    console.log(loginTime)
-    // console.log(req.body)
-
-try {
-
-    const attendance = await UserAttendance.findOneAndUpdate(req.query, {
-        $set: req.body
-    })
-
-    res.status(200).json({ status: "Success", data: attendance });
-
+//     const {userId, date} = req.query;
+//     const {attendance, longitude, latitude,  coordinateDifference, loginTime, logoutTime, logoutLongitude, logoutLatitude, logoutCoordinateDifference} = req.body;
 
     
-} catch (error) {
-    console.error("Error occurred:", error.message);
-    res.status(500).json({ status: "Failed", message: error.message });
-}
 
-}
+//     console.log(req.query);
+//     console.log(req.body);
+//     console.log(loginTime)
+//     // console.log(req.body)
+
+// try {
+
+//     const attendance = await UserAttendance.findOneAndUpdate(req.query, {
+//         $set: req.body
+//     })
+
+//     res.status(200).json({ status: "Success", data: attendance });
+
+
+    
+// } catch (error) {
+//     console.error("Error occurred:", error.message);
+//     res.status(500).json({ status: "Failed", message: error.message });
+// }
+
+// }
 
 //___________________________________________________
+
+
+
+// Patch attendance with image upload
+export const PatchUserAttendanceByUserId = async (req, res) => {
+  const { userId, date } = req.query;
+
+  let {
+    attendance,
+    longitude,
+    latitude,
+    coordinateDifference,
+    loginTime,
+    logoutTime,
+    logoutLongitude,
+    logoutLatitude,
+    logoutCoordinateDifference,
+    attendanceType,
+    visitingLocation
+  } = req.body;
+
+  // ✅ Handle coordinateDifference null or 'null' cases
+  const safeCoordinateDifference =
+    coordinateDifference === null ||
+    coordinateDifference === "null" ||
+    coordinateDifference === undefined
+      ? 0
+      : Number(coordinateDifference);
+
+  console.log("🧾 Request Body:", req.body);
+  console.log("📁 File:", req.file);
+
+  try {
+    let fileUrl = null;
+    let fileName = null;
+
+    if (req.file) {
+      const mimeType = req.file.mimetype;
+      fileName = `attendance-${userId}-${Date.now()}.jpg`;
+      fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
+    }
+
+    const updatePayload = {
+      ...(attendance && { attendance }),
+      ...(longitude && { longitude }),
+      ...(latitude && { latitude }),
+      ...(safeCoordinateDifference !== null && { coordinateDifference: safeCoordinateDifference }),
+      ...(loginTime && { loginTime }),
+      ...(logoutTime && { logoutTime }),
+      ...(logoutLongitude && { logoutLongitude }),
+      ...(logoutLatitude && { logoutLatitude }),
+      ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
+      ...(fileUrl && { fileUrl }),
+      ...(fileName && { fileName }),
+      attendanceType: attendanceType ? attendanceType : "NA", // ✅ added
+      visitingLocation: visitingLocation ? visitingLocation : "NA", // ✅ added
+    };
+
+    const updated = await UserAttendance.findOneAndUpdate(
+      { userId, date },
+      { $set: updatePayload },
+      { new: true }
+    );
+
+    res.status(200).json({ status: "Success", data: updated });
+  } catch (error) {
+    console.error("❌ Attendance Update Error:", error.message);
+    res.status(500).json({ status: "Failed", message: error.message });
+  }
+};
