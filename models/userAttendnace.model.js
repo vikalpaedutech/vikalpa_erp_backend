@@ -43,3 +43,5 @@ export const UserAttendance = mongoose.model(
   "UserAttendance",
   userAttendanceSchema
 );
+
+

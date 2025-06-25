@@ -159,6 +159,8 @@ export const GetAttendanceByUserId = async (req, res) => {
 
 
 // Patch attendance with image upload
+
+
 export const PatchUserAttendanceByUserId = async (req, res) => {
   const { userId, date } = req.query;
 
@@ -225,3 +227,93 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
     res.status(500).json({ status: "Failed", message: error.message });
   }
 };
+
+
+
+
+
+
+
+
+
+// Patch attendance with image upload
+
+
+
+// export const PatchUserAttendanceByUserId = async (req, res) => {
+//   const { userId, date } = req.query;
+
+//   let {
+//     attendance,
+//     longitude,
+//     latitude,
+//     coordinateDifference,
+//     loginTime,
+//     logoutTime,
+//     logoutLongitude,
+//     logoutLatitude,
+//     logoutCoordinateDifference,
+//     attendanceType,
+//     visitingLocation
+//   } = req.body;
+
+//   // ✅ Handle coordinateDifference null or 'null' cases
+//   const safeCoordinateDifference =
+//     coordinateDifference === null ||
+//     coordinateDifference === "null" ||
+//     coordinateDifference === undefined
+//       ? 0
+//       : Number(coordinateDifference);
+
+//   // ✅ Handle longitude and latitude null or 'null' cases
+//   const safeLongitude =
+//     longitude === null || longitude === "null" || longitude === undefined
+//       ? 0
+//       : Number(longitude);
+
+//   const safeLatitude =
+//     latitude === null || latitude === "null" || latitude === undefined
+//       ? 0
+//       : Number(latitude);
+
+//   console.log("🧾 Request Body:", req.body);
+//   console.log("📁 File:", req.file);
+
+//   try {
+//     let fileUrl = null;
+//     let fileName = null;
+
+//     if (req.file) {
+//       const mimeType = req.file.mimetype;
+//       fileName = `attendance-${userId}-${Date.now()}.jpg`;
+//       fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
+//     }
+
+//     const updatePayload = {
+//       ...(attendance && { attendance }),
+//       ...(safeLongitude !== null && { longitude: safeLongitude }),
+//       ...(safeLatitude !== null && { latitude: safeLatitude }),
+//       ...(safeCoordinateDifference !== null && { coordinateDifference: safeCoordinateDifference }),
+//       ...(loginTime && { loginTime }),
+//       ...(logoutTime && { logoutTime }),
+//       ...(logoutLongitude && { logoutLongitude }),
+//       ...(logoutLatitude && { logoutLatitude }),
+//       ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
+//       ...(fileUrl && { fileUrl }),
+//       ...(fileName && { fileName }),
+//       attendanceType: attendanceType ? attendanceType : "NA", // ✅ added
+//       visitingLocation: visitingLocation ? visitingLocation : "NA", // ✅ added
+//     };
+
+//     const updated = await UserAttendance.findOneAndUpdate(
+//       { userId, date },
+//       { $set: updatePayload },
+//       { new: true }
+//     );
+
+//     res.status(200).json({ status: "Success", data: updated });
+//   } catch (error) {
+//     console.error("❌ Attendance Update Error:", error.message);
+//     res.status(500).json({ status: "Failed", message: error.message });
+//   }
+// };
