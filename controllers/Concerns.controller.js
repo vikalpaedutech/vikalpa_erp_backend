@@ -252,9 +252,12 @@ export const getIndividualLeave = async (req, res) => {
   console.log("I am inside get individual leave")
 
   try {
-    const { userId, concernType, } = req.query;
+    const { userId, concernType, conditionalRole, role } = req.query;
 
     console.log(req.query)
+
+    console.log(conditionalRole.split(","))
+    
 
     if (!userId) {
       return res.status(400).json({
@@ -264,7 +267,7 @@ export const getIndividualLeave = async (req, res) => {
     }
 
     // Step 1: Find the ACI user and get their assigned districts
-    const aciUser = await User.findOne({ userId: userId, role: "ACI", });
+    const aciUser = await User.findOne({ userId: userId, role: role, });
 
     if (!aciUser) {
       return res.status(404).json({
@@ -294,11 +297,13 @@ export const getIndividualLeave = async (req, res) => {
         $unwind: "$userDetails",
       },
       {
-        $match: {
-          "userDetails.role": "CC",
-          "userDetails.assignedDistricts": { $elemMatch: { $in: assignedDistricts } },
-        },
-      },
+  $match: {
+   "userDetails.role": {
+  $in: conditionalRole.split(",").map(role => role.trim()),
+},
+    "userDetails.assignedDistricts": { $elemMatch: { $in: assignedDistricts } },
+  },
+},
     ]);
 
     res.status(200).json({ status: "Success", data: concerns });
@@ -339,7 +344,8 @@ export const PatchConcernsByQueryParams = async (req, res) =>{
 
     l1ApprovalOnLeave,
 
-    techVisitorRemark
+    techVisitorRemark,
+
   } = req.body;
 
 

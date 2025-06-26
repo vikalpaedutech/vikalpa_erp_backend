@@ -31,11 +31,13 @@ const ConcernsSchema = new Schema(
         fileUrl: {type: String}, //Any type of required documents. Eg: medical letter, or any kind of letter related to schools and all.
         studentSrn: {type: String}, //In case of student regarding concerns 
         l1ApprovalOnLeave: {
+            status: {type:String, default: "Pending"}, //Pending, Approved, Rejected
             approvedBy: { type: String, default: null },
             approvedOn: { type: Date, default: null },
             comment: { type: String, default: null }
             }, //hERIARCHICHAL APPROVAL, CCs leave will be approved by ACI,
         managerLevelApprovalOnLeave: {type: Object, default:{
+            status: {type:String, default: "Pending"}, //Pending, Approved, Rejected
             approvedBy: { type: String, default: null },
             approvedOn: { type: Date, default: null },
             comment: { type: String, default: null }
