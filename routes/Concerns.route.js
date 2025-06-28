@@ -2,7 +2,7 @@
 
 import express from "express";
 
-import {uploadFile, createConcern, getConcernsByQueryParameters, PatchConcernsByQueryParams, getIndividualConcerns, getIndividualLeave } from "../controllers/Concerns.controller.js";
+import {uploadFile, createConcern, getConcernsByQueryParameters, PatchConcernsByQueryParams, getIndividualConcerns, getIndividualLeave, getConcernsPipeLineMethod } from "../controllers/Concerns.controller.js";
 
 const router = express();
 
@@ -11,4 +11,7 @@ router.get('/get-concerns-by-query-parameters', getConcernsByQueryParameters)
 router.patch('/patch-concern-by-query-parameters', PatchConcernsByQueryParams)
 router.get('/get-individual-concerns', getIndividualConcerns)
 router.get('/get-individual-leave', getIndividualLeave)
+router.get('/get-concerns', getConcernsPipeLineMethod)
+
+
 export default router;
