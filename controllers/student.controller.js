@@ -54,7 +54,7 @@ export const getStudentIfisSlcTakenIsFalse = async (req, res) => {
         }
 
         res.status(200).json({ status: "Success", data: student });
-        console.log(student)
+        // console.log(student)
     } catch (error) {
         console.log("Error fetching student data from DB", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
@@ -174,6 +174,8 @@ export const deleteStudentBySrn = async (req, res) => {
 
 export const getStudentsByQueryParams = async (req, res) => {
 
+    console.log('I am inside get students by query params')
+
     const {studentSrn, 
         rollNumber, 
         firstName, 
@@ -181,15 +183,18 @@ export const getStudentsByQueryParams = async (req, res) => {
         districtId, 
         blockId, 
         schoolId, 
-        classofStudent 
+        classofStudent,
+        isSlcTaken
     }= req.query
+
+
+console.log(req.query)
+
 
    const schoolIds = Array.isArray(schoolId) ? schoolId : schoolId?.split(',') || [];
     const classofStudents = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
     
 
-    console.log("i am inside controller")
-    console.log(req.query)
     try {
 
          const query = {};
