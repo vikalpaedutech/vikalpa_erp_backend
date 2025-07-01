@@ -33,8 +33,21 @@ export const patchUserById = async (req, res) => {
 
     try {
         const { userId } = req.params;
+        const {longitude, latitude} = req.body;
         console.log(req.params)
-        console.log(req.body)
+       
+         console.log(req.body)
+
+        
+
+        if (longitude === null && latitude === null) {
+            
+        res.status(404).json({ status: "Error", message: "Coordinates not updated" });
+
+        return ;
+        }
+
+        
 
         const user = await User.findOneAndUpdate(
             { userId },
@@ -42,9 +55,10 @@ export const patchUserById = async (req, res) => {
             { new: true, runValidators: true }
         );
 
-        if (!user) {
+         if (!user) {
             return res.status(404).json({ status: "Error", message: "User not found" });
         }
+       
 
         res.status(200).json({ status: "Success", data: user });
     } catch (error) {

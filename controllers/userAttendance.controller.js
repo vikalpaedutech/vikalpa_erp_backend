@@ -220,7 +220,7 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
       { $set: updatePayload },
       { new: true }
     );
-
+    
     res.status(200).json({ status: "Success", data: updated });
   } catch (error) {
     console.error("❌ Attendance Update Error:", error.message);
