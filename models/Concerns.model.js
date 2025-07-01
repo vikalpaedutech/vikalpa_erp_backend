@@ -3,7 +3,12 @@
 import mongoose, {Schema} from "mongoose";
 
 
+//Below schema is for the Concern Schema.
+
 const ConcernsSchema = new Schema(
+
+    
+
     {
         concernId: {type: String},
         userId: {type: String},

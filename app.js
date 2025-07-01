@@ -92,6 +92,7 @@ import userAttendanceRouter from "./routes/userAttendance.route.js";
 import StudentRelatedCallingsRouter from "./routes/StudentRelatedCallings.route.js"
 import ConcernsRouter from "./routes/Concerns.route.js"
 import dashboardRouter from './routes/dashboard.route.js'
+import notificationRouter from "./routes/Notifications.route.js"
 
 //using routes for route.g
 
@@ -112,6 +113,10 @@ app.use("/api", userAttendanceRouter);
 app.use("/api", StudentRelatedCallingsRouter);
 app.use("/api", ConcernsRouter);
 app.use("/api", dashboardRouter)
+app.use("/api", notificationRouter)
+
+
+
 //Exporting this express app.
 
 export {app};

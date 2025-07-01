@@ -43,10 +43,17 @@ export const createConcern = async (req, res) => {
       leaveBody,
       comment,
       studentSrn,
+      uri1, 
+      uri2,
+      uri3,
+      conditionalRole,
+      role
     } = req.body;
 
     console.log(concernId);
-    console.log(typeof studentSrn);
+    console.log(userId)
+  
+    console.log(req.body)
 
     // ✅ Check if concernId already exists
 
@@ -113,14 +120,22 @@ export const createConcern = async (req, res) => {
       studentSrn,
     });
 
+    const raisedByUserId = userId;
+    console.log("I am raised by user id:", raisedByUserId)
+
     //Creating notification
     await createNotificationForConcern({
       concernType,
       concernId,
-      raisedBy: userId,
+      role,
+      raisedByUserId,
       isNotified: true,
       isSomeOneReverted: false,
       notificationDate: new Date(),
+      uri1, 
+      uri2,
+      uri3,
+      conditionalRole
     });
 
     res.status(201).json({ status: "Success", data: concerns });

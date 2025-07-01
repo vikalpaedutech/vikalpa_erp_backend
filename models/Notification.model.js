@@ -2,7 +2,8 @@
 import mongoose from "mongoose";
 
 const NotificationSchema = new mongoose.Schema({
-  userId: { type: String, required: true }, // Receiver of notification
+  userId: { type: String, required: true }, // Receiver of notification,
+  role: {type: String},
   concernId: String,
   concernType: String,
   concernText: String,
@@ -11,6 +12,9 @@ const NotificationSchema = new mongoose.Schema({
   isRead: { type: Boolean, default: false },
   isSomeoneReverted: { type: Boolean, default: false },
   notificationDate: { type: Date, default: Date.now },
+  uri1: {type: String, default:"NA"},
+  uri2: {type: String, default:"NA"},
+  uri3: {type: String, default: "NA"}
 });
 
 
