@@ -143,7 +143,7 @@ export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
                                 {
                                     $eq: [
                                         { $arrayElemAt: ["$attendance.absenteeCallingStatus", 0] },
-                                        "Not-connected"
+                                        "Not-Connected"
                                     ]
                                 },
                                 1,
