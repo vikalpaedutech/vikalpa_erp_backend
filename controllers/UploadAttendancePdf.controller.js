@@ -77,7 +77,7 @@ export const GetDataBySchoolId = async (req, res) => {
   
               res.status(200).json({status: "success", data: response})
 
-              console.log(response)
+              // console.log(response)
   
       } catch (error) {
           console.log("Error fetching data", error)
@@ -102,6 +102,10 @@ export const PatchAttendancePdf = async (req, res) => {
     const { schoolId, classofStudent, dateOfUpload } = req.query;
     const file = req.file;
     const {userId} = req.body;
+
+    console.log(req.body)
+    console.log(req.query)
+    console.log(req.file)
 
     if (!schoolId || !classofStudent || !dateOfUpload) {
       return res.status(400).json({ status: "Error", message: "Missing query parameters" });
@@ -135,6 +139,8 @@ export const PatchAttendancePdf = async (req, res) => {
       message: "PDF uploaded and attendance record updated",
       data: record,
     });
+
+   
 
   } catch (error) {
     console.error("Error uploading PDF:", error.message);

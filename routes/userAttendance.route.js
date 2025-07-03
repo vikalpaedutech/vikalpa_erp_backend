@@ -4,14 +4,14 @@ import express from "express"
 
 const router = express();
 
-import {uploadFile, cronJobUserAttendance, GetAttendanceByUserId, PatchUserAttendanceByUserId } from "../controllers/userAttendance.controller.js";
+import {uploadFile, cronJobUserAttendance, GetAttendanceByUserId, PatchUserAttendanceByUserId, getFilteredUserAttendanceSummary, patchUserAttendanceWithoutImage } from "../controllers/userAttendance.controller.js";
 import { GetNotificationByUserIdOnQueryParams } from "../utils/notificatino.utils.js";
 
 router.get('/attendanceby-userid', GetAttendanceByUserId);
 router.patch('/updatedattendanceby-userid', uploadFile, PatchUserAttendanceByUserId)
 router.post('/initiate-user-attendance', cronJobUserAttendance );
-
-
+router.post('/user-attendance-summary', getFilteredUserAttendanceSummary )
+router.patch('/patch-user-attendance-without-image', patchUserAttendanceWithoutImage)
 
 //NOTIFICATION CONTROLLER
 

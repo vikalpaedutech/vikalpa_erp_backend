@@ -94,6 +94,8 @@ import ConcernsRouter from "./routes/Concerns.route.js"
 import dashboardRouter from './routes/dashboard.route.js'
 import notificationRouter from "./routes/Notifications.route.js"
 
+import district_block_buniyaadCentersRoute from "./routes/district_block_buniyaadCenter.route.js"
+
 //using routes for route.g
 
 app.use('/api', districtRouter);
@@ -114,6 +116,8 @@ app.use("/api", StudentRelatedCallingsRouter);
 app.use("/api", ConcernsRouter);
 app.use("/api", dashboardRouter)
 app.use("/api", notificationRouter)
+app.use("/api", district_block_buniyaadCentersRoute)
+
 
 
 

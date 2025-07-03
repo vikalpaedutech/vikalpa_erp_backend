@@ -55,7 +55,8 @@ console.log(currentDate)
                 fileName: null,
                 fileUrl:null,
                 attendanceType: null,
-                visitingLocation: null
+                visitingLocation: null,
+                attendanceMarkedBy: null,
 
 
             });
@@ -317,3 +318,159 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
 //     res.status(500).json({ status: "Failed", message: error.message });
 //   }
 // };
+
+
+
+
+
+
+//Get Attendance Data by SchoolIds, Roles, and Districts.
+
+
+export const getFilteredUserAttendanceSummary = async (req, res) => {
+  try {
+    const { roles, departments, districtIds, schoolIds, date } = req.body;
+
+    const matchConditions = {
+      role: { $in: roles },
+      department: { $in: departments },
+      districtIds: { $elemMatch: { $in: districtIds } },
+      userId: { $not: /^Dummy/i }, // 👈 exclude dummy userId
+      name: { $not: /^Dummy/i },   // 👈 optional: exclude dummy name too
+    };
+
+    console.log(req.body);
+
+    if (schoolIds?.length) {
+      matchConditions.schoolIds = { $elemMatch: { $in: schoolIds } };
+    }
+
+    const selectedDate = date || new Date().toISOString().split("T")[0];
+
+    const result = await User.aggregate([
+      {
+        $match: matchConditions,
+      },
+      {
+        $lookup: {
+          from: "userattendances",
+          let: { userId: "$userId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$userId", "$$userId"] },
+                    { $eq: ["$date", new Date(selectedDate)] },
+                  ],
+                },
+              },
+            },
+            { $limit: 1 },
+          ],
+          as: "latestAttendance",
+        },
+      },
+      {
+        $unwind: {
+          path: "$latestAttendance",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          userId: 1,
+          name: 1,
+          contact1:1,
+          role: 1,
+          department: 1,
+          districtIds: 1,
+          schoolIds: 1,
+          attendance: "$latestAttendance.attendance",
+          attendanceDate: "$latestAttendance.date",
+          loginTime: "$latestAttendance.loginTime",
+          logoutTime: "$latestAttendance.logoutTime",
+          attendanceType: "$latestAttendance.attendanceType",
+          visitingLocation: "$latestAttendance.visitingLocation",
+        },
+      },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      message: "Filtered user attendance fetched successfully",
+      data: result,
+    });
+  } catch (err) {
+    console.error("Error in fetching user attendance summary", err);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+
+
+
+
+
+//Patch attendance status in db. without image.
+
+export const patchUserAttendanceWithoutImage = async (req, res) => {
+  const { userId, date } = req.query;
+
+  const {
+    attendance,
+    attendanceMarkedBy,
+    attendanceType,
+    visitingLocation
+  } = req.body;
+
+
+  console.log(req.query)
+  console.log(req.body)
+
+  if (!userId || !date) {
+    return res.status(400).json({
+      status: "Failed",
+      message: "Missing required fields: userId or date",
+    });
+  }
+
+  try {
+    const updatePayload = {
+      ...(attendance && { attendance }),
+      ...(attendanceMarkedBy && { attendanceMarkedBy }),
+      attendanceType: attendanceType || "NA",
+      visitingLocation: visitingLocation || "NA",
+    };
+
+    const updated = await UserAttendance.findOneAndUpdate(
+      { userId, date },
+      { $set: updatePayload },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        status: "Failed",
+        message: "Attendance record not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "Success",
+      message: "Attendance updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    console.error("❌ Attendance Update Error:", error.message);
+    return res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+

@@ -27,6 +27,7 @@ const userAttendanceSchema = new Schema(
   fileUrl: {type: String}, //User image
   attendanceType: {type: String}, //center visit, wfh, govt. official visit, event.
   visitingLocation: {type: String}, //visiting location, center name, 
+  attendanceMarkedBy: {type: String, default: null}, //Who is updating attendance.
 
   },
 
