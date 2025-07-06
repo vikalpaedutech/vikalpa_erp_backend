@@ -22,12 +22,12 @@ export const createPost = async (req, res) => {
     console.log(req.body)
 
     const newEntry = await District_Block_School.create({
-      districtId:districtId,
-      districtName:districtName,
-      blockId:blockId,
-      blockName:blockName,
-      centerId: centerId,
-      centerName:centerName
+      districtId,
+      districtName,
+      blockId,
+      blockName,
+      centerId,
+      centerName
     });
 
     res.status(201).json({

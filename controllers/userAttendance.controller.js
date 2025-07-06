@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { set } from "mongoose";
 import multer from "multer";
 import { uploadToDOStorage } from "../utils/digitalOceanSpacesUserAttendance.js";
+import { compareSync } from "bcryptjs";
 
 // Multer memory storage
 const storage = multer.memoryStorage();
@@ -416,7 +417,7 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
 
 
 
-//Patch attendance status in db. without image.
+//Patch attendance status in db. without image.//This is mared by ACI if the user is absent.
 
 export const patchUserAttendanceWithoutImage = async (req, res) => {
   const { userId, date } = req.query;
@@ -474,3 +475,73 @@ export const patchUserAttendanceWithoutImage = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+//Get user attendance data of a single month. And user can filter out a data...
+//...of any month within a year.
+
+// export const GetAttendanceDataOfUsersByMonthAndYear = async (req, res) =>{
+
+//   const {userId} = req.query
+//   const {date} = req.body
+
+//   try {
+    
+//   } catch (error) {
+    
+//   }
+// }
+
+
+
+export const GetAttendanceDataOfUsersByMonthAndYear = async (req, res) => {
+  const { userId } = req.query;
+  const { month, year } = req.body;
+  
+console.log('i am inside get user attendance')  
+console.log(req.body)
+console.log(req.query)
+
+  if (!userId || !month || !year) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required fields: userId, month, or year",
+    });
+  }
+
+  try {
+    // Calculate start and end date of the month
+    const startDate = new Date(year, month - 1, 1); // month is 0-based
+    const endDate = new Date(year, month, 0, 23, 59, 59, 999); // last day of month
+
+    // Find attendance for user within the date range
+    const attendanceRecords = await UserAttendance.find({
+      userId,
+      date: {
+        $gte: startDate,
+        $lte: endDate,
+      },
+    }).sort({ date: 1 }); // Sort by date ascending
+
+    return res.status(200).json({
+      success: true,
+      message: "Attendance data fetched successfully",
+      data: attendanceRecords,
+      range: {
+        from: startDate.toISOString().split("T")[0],
+        to: endDate.toISOString().split("T")[0],
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching attendance data:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error while fetching attendance data",
+      error: error.message,
+    });
+  }
+};

@@ -10,8 +10,8 @@ const ConcernsSchema = new Schema(
     
 
     {
-        concernId: {type: String},
-        userId: {type: String},
+        concernId: {type: String}, //Each concern have unique id.
+        userId: {type: String}, //User id who raises concern
         concernType: {type: String}, //School, Tech, Individual.
         districtId: {type: String},
         blockId: {type: String},
@@ -22,7 +22,7 @@ const ConcernsSchema = new Schema(
         concernStatusBySubmitter: {type: String}, //once the concern is acted upon, submitter updates this as Resolved, or Not-Resolved.
         dateOfSubmission: {type: Date}, //date when concern was reaised
         
-        concernStatusByResolver: {type: String}, //person who is responsible 
+        concernStatusByResolver: {type: String}, //person who is responsible. eg; Resolved, Working on it, 
         dateOfResolution: {type: Date}, //Date when concern was resolved
         // to resovle concern will update from his end if he has resolved it or not. This is also be used to approve leaves from respective manager.
         totalDaysOfLeaveAppliedFor: {type: Number}, 
@@ -31,7 +31,8 @@ const ConcernsSchema = new Schema(
         leaveApprovalHR: {type: String}, //HR's approval on leaves
         subjectOfLeave: {type: String}, //Leave subject as in mail
         leaveBody: {type: String}, //description of leave.
-        comment: {type: String}, //Any manual remark related to concern.
+        comment: {type: String}, //Any manual remark related to concern. for who raises concerns.
+        commentByResolver: {type: String, default: null}, //Comment by resolver
         fileName: {type: String}, //Uploaded file name
         fileUrl: {type: String}, //Any type of required documents. Eg: medical letter, or any kind of letter related to schools and all.
         studentSrn: {type: String}, //In case of student regarding concerns 
@@ -46,10 +47,24 @@ const ConcernsSchema = new Schema(
             approvedBy: { type: String, default: null },
             approvedOn: { type: Date, default: null },
             comment: { type: String, default: null }
-            },
+            }, 
         },//Managers of respective departments will approve leaves
+
+
+
+       //For tech concerns 
     
-    techVisitorRemark: {type: String, default:null}}, 
+
+        actionRecommended: {type: String, default: null}, //it will be action recommended ont the tech equipment like new required, or fixing required like that
+        activityOfPersonWhoResolvesTechConcerns: {type: String, default: null}, //activity like visited, resovled via call like that
+    techVisitorRemark: {type: String, default:null}}, //Basically a string data which describes ho 
+    // the solver solved the concern
+
+
+   
+    
+
+    
         
 
         

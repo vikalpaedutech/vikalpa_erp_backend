@@ -47,7 +47,8 @@ export const createConcern = async (req, res) => {
       uri2,
       uri3,
       conditionalRole,
-      role
+      role,
+      actionRecommended
     } = req.body;
 
     console.log(concernId);
@@ -118,6 +119,7 @@ export const createConcern = async (req, res) => {
       fileName,
       fileUrl,
       studentSrn,
+      actionRecommended
     });
 
     const raisedByUserId = userId;
@@ -511,6 +513,10 @@ export const PatchConcernsByQueryParams = async (req, res) => {
     l1ApprovalOnLeave,
 
     techVisitorRemark,
+    actionRecommended,
+    activityOfPersonWhoResolvesTechConcerns,
+    comment,
+    commentByResolver
   } = req.body;
 
   console.log(req.query);

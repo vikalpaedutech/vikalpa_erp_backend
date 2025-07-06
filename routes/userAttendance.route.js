@@ -4,7 +4,7 @@ import express from "express"
 
 const router = express();
 
-import {uploadFile, cronJobUserAttendance, GetAttendanceByUserId, PatchUserAttendanceByUserId, getFilteredUserAttendanceSummary, patchUserAttendanceWithoutImage } from "../controllers/userAttendance.controller.js";
+import {uploadFile, cronJobUserAttendance, GetAttendanceByUserId, PatchUserAttendanceByUserId, getFilteredUserAttendanceSummary, patchUserAttendanceWithoutImage, GetAttendanceDataOfUsersByMonthAndYear } from "../controllers/userAttendance.controller.js";
 import { GetNotificationByUserIdOnQueryParams } from "../utils/notificatino.utils.js";
 
 router.get('/attendanceby-userid', GetAttendanceByUserId);
@@ -16,6 +16,8 @@ router.patch('/patch-user-attendance-without-image', patchUserAttendanceWithoutI
 //NOTIFICATION CONTROLLER
 
 router.get('/get-notification', GetNotificationByUserIdOnQueryParams)
+
+router.post('/individual-user-attendance-dash', GetAttendanceDataOfUsersByMonthAndYear)
 
 
 export default router;
