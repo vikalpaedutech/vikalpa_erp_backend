@@ -37,6 +37,8 @@ console.log(currentDate)
 
         console.log(`Found ${users.length} students`);
 
+        
+
         // Loop through students and create attendance records
         for (const user of users) {
             console.log(`Processing student with user id: ${user.userId}`);

@@ -232,6 +232,131 @@ export const getConcernsByQueryParameters = async (req, res) => {
 
 //Get School and Tech COncerns  for ACI/Community/Incharge API. Dynamically fetches individual concers
 
+// export const getConcernsPipeLineMethod = async (req, res) => {
+//   console.log("I am insied get concerns by pipeline method");
+//   try {
+//     const {
+//       userId,
+//       concernType,
+//       conditionalRole,
+//       role,
+//       conditionalDepartment,
+//     } = req.query;
+
+//     console.log(req.query);
+
+//     if (!userId) {
+//       return res.status(400).json({
+//         status: "Failed",
+//         message: "Missing userId (ACI)",
+//       });
+//     }
+
+//     // Step 1: Find the ACI user and get their assigned districts
+//     const aciUser = await User.findOne({ userId: userId, role: role });
+
+//     if (!aciUser) {
+//       return res.status(404).json({
+//         status: "Failed",
+//         message: "ACI user not found",
+//       });
+//     }
+
+//     const { assignedDistricts = [] } = aciUser;
+
+//     // Step 2: Aggregate bills only from CCs under those districts
+//     const concerns = await Concern.aggregate([
+//       {
+//         $match: {
+//           concernType: concernType,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users", // 👈 collection name (must be lowercase plural)
+//           localField: "userId",
+//           foreignField: "userId",
+//           as: "userDetails",
+//         },
+//       },
+//       {
+//         $unwind: "$userDetails",
+//       },
+
+//       {
+//         $match: {
+//           "userDetails.role": {
+//             $in: conditionalRole.split(",").map((role) => role.trim()),
+//           },
+//           "userDetails.department": {
+//             $in: conditionalDepartment.split(",").map((role) => role.trim()),
+//           },
+//           "userDetails.assignedDistricts": {
+//             $elemMatch: { $in: assignedDistricts },
+//           },
+//         },
+//       },
+
+//       //Joining distrcits
+//       {
+//           $lookup:{
+//             from: "districts",
+//             localField: "districtId",
+//             foreignField:"districtId",
+//             as: "districtDetails"
+//           },
+//       },
+//       {$unwind: {path:"$districtDetails", preserveNullAndEmptyArrays:true}},
+
+//       //joining blocks
+
+//       {
+
+//         $lookup:{
+//           from:"blocks",
+//           localField:"blockId",
+//           foreignField:"blockId",
+//           as:"blockDetails"
+//         }
+//       },
+//       {$unwind:{path:"$blockDetails", preserveNullAndEmptyArrays:true}},
+
+//       //joining schools
+
+//       {
+//         $lookup:{
+//           from:"schools",
+//           localField:"schoolId",
+//           foreignField:"schoolId",
+//           as:"schoolDetails"
+//         }
+//       },
+//       {$unwind:{path:"$schoolDetails", preserveNullAndEmptyArrays:true}}
+
+//     ]);
+
+//     res.status(200).json({ status: "Success", data: concerns });
+//     console.log(concerns);
+//   } catch (error) {
+//     console.error("Error fetching filtered bills for ACI:", error.message);
+//     res.status(500).json({
+//       status: "Failed",
+//       message: error.message,
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
 export const getConcernsPipeLineMethod = async (req, res) => {
   console.log("I am insied get concerns by pipeline method");
   try {
@@ -241,6 +366,10 @@ export const getConcernsPipeLineMethod = async (req, res) => {
       conditionalRole,
       role,
       conditionalDepartment,
+      districtId,  
+      blockId,     
+      schoolId,
+      classOfConcern    
     } = req.query;
 
     console.log(req.query);
@@ -264,7 +393,7 @@ export const getConcernsPipeLineMethod = async (req, res) => {
 
     const { assignedDistricts = [] } = aciUser;
 
-    // Step 2: Aggregate bills only from CCs under those districts
+    // Step 2: Aggregate concerns only from CCs under those districts
     const concerns = await Concern.aggregate([
       {
         $match: {
@@ -273,7 +402,7 @@ export const getConcernsPipeLineMethod = async (req, res) => {
       },
       {
         $lookup: {
-          from: "users", // 👈 collection name (must be lowercase plural)
+          from: "users",
           localField: "userId",
           foreignField: "userId",
           as: "userDetails",
@@ -289,62 +418,81 @@ export const getConcernsPipeLineMethod = async (req, res) => {
             $in: conditionalRole.split(",").map((role) => role.trim()),
           },
           "userDetails.department": {
-            $in: conditionalDepartment.split(",").map((role) => role.trim()),
+            $in: conditionalDepartment.split(",").map((dep) => dep.trim()),
           },
           "userDetails.assignedDistricts": {
             $elemMatch: { $in: assignedDistricts },
           },
+          // "userDetails.classOfConcern": {
+          //   $elemMatch: { $in: classOfConcern },
+          // },
+          ...(districtId && { districtId: districtId }),     
+          ...(blockId && { blockId: blockId }),               
+          ...(schoolId && { schoolId: schoolId }),   
+          ...(classOfConcern && { classOfConcern: classOfConcern }),          
         },
       },
 
-      //Joining distrcits
+      // Join districts
       {
-          $lookup:{
-            from: "districts",
-            localField: "districtId",
-            foreignField:"districtId",
-            as: "districtDetails"
-          },
+        $lookup: {
+          from: "districts",
+          localField: "districtId",
+          foreignField: "districtId",
+          as: "districtDetails"
+        },
       },
-      {$unwind: {path:"$districtDetails", preserveNullAndEmptyArrays:true}},
-
-      //joining blocks
-
       {
-
-        $lookup:{
-          from:"blocks",
-          localField:"blockId",
-          foreignField:"blockId",
-          as:"blockDetails"
+        $unwind: {
+          path: "$districtDetails",
+          preserveNullAndEmptyArrays: true
         }
       },
-      {$unwind:{path:"$blockDetails", preserveNullAndEmptyArrays:true}},
 
-      //joining schools
-
+      // Join blocks
       {
-        $lookup:{
-          from:"schools",
-          localField:"schoolId",
-          foreignField:"schoolId",
-          as:"schoolDetails"
+        $lookup: {
+          from: "blocks",
+          localField: "blockId",
+          foreignField: "blockId",
+          as: "blockDetails"
         }
       },
-      {$unwind:{path:"$schoolDetails", preserveNullAndEmptyArrays:true}}
+      {
+        $unwind: {
+          path: "$blockDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
 
+      // Join schools
+      {
+        $lookup: {
+          from: "schools",
+          localField: "schoolId",
+          foreignField: "schoolId",
+          as: "schoolDetails"
+        }
+      },
+      {
+        $unwind: {
+          path: "$schoolDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      }
     ]);
 
     res.status(200).json({ status: "Success", data: concerns });
-    console.log(concerns);
+    // console.log(concerns);
   } catch (error) {
-    console.error("Error fetching filtered bills for ACI:", error.message);
+    console.error("Error fetching filtered concerns for ACI:", error.message);
     res.status(500).json({
       status: "Failed",
       message: error.message,
     });
   }
 };
+
 
 //---------------------------------------------------------------------
 
