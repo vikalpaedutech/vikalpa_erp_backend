@@ -13,12 +13,38 @@ import multer from "multer";
 //Createing a cron job for initializing attendance data in backend. So that i can track, 
 //... both uploaded pdf (which has url and bollean type true) and not uploaded pdf.
 
-export const createAttendancePdfCronJob = async () => {
+export const createAttendancePdfCronJob = async (req, res) => {
     console.log("Running Attendance PDF Initialization Cron Job");
-  
+
+  const {date} = req.body;
+    console.log(date)
+
+
+
     try {
-      const today = new Date();
-      const startOfToday = new Date(today.setHours(0, 0, 0, 0));
+
+
+      //Checks for duplicacy and if there is duplicacy then stops further executino
+      
+                // Step 1: Get current date at midnight UTC (00:00:00)
+                      const currentDate = date ? new Date(date) : new Date();
+                      currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
+              
+                      // Step 2: Check if attendance for current date already exists
+                      const existingAttendance = await AttendancePdf.findOne({ date: currentDate });
+              
+                      if (existingAttendance) {
+                          console.log("Attendance Pdf already created");
+                          return res.status(400).json({ message: "Attendance already created for today" });
+                      }
+      
+              //---------------------------------------------------------------------------
+      
+
+
+
+      // const today = new Date();
+      // const startOfToday = new Date(today.setHours(0, 0, 0, 0));
   
       for (const school of DistrictBlockSchool) {
         const classes = ["9", "10"]; // Class 9 and 10
@@ -29,9 +55,15 @@ export const createAttendancePdfCronJob = async () => {
             schoolId: school.schoolId,
             classofStudent,
             dateOfUpload: {
-              $gte: startOfToday,
+              $gte: currentDate,
             },
           });
+
+         if (alreadyExists) {
+                    console.log("Attendance pdf already created");
+                    return res.status(400).json({ message: "Attendance pdf already created for this date" });
+                }
+
   
           if (!alreadyExists) {
             const newRecord = new AttendancePdf({
@@ -47,10 +79,12 @@ export const createAttendancePdfCronJob = async () => {
               isPdfUploaded: false,
               fileName: "",
               fileUrl: "",
+              dateOfUpload: date || new Date().toISOString().split("T")[0],
             });
   
             await newRecord.save();
             console.log(`Initialized attendance for ${school.schoolName} - Class ${classofStudent}`);
+            
           } else {
             console.log(`Already exists: ${school.schoolName} - Class ${classofStudent}`);
           }
@@ -58,6 +92,7 @@ export const createAttendancePdfCronJob = async () => {
       }
   
       console.log("Attendance PDF initialization complete.");
+      res.status(200).json({status:"success", message:"Attendance instance created successfully"})
     } catch (error) {
       console.error("Error in Attendance Cron Job:", error);
     }

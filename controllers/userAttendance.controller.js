@@ -12,32 +12,173 @@ const storage = multer.memoryStorage();
 export const uploadFile = multer({ storage }).single('file');
 
 // Function to create attendance records
+// export const cronJobUserAttendance = async (req, res) => {
+//     console.log("I am inside the cron job function of user attedndance");
+
+    
+//     const {date} = req.body;
+//     console.log(date)
+   
+//     try {
+        
+//          // Step 1: Get current date at midnight UTC (00:00:00)
+//         const currentDate = new Date();
+//         currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
+// console.log(currentDate)
+//         // Step 2: Check if attendance for current date already exists
+//         const existingAttendance = await UserAttendance.findOne({ date: currentDate });
+
+//         if (existingAttendance) {
+//             console.log("Attendance already created");
+//             return res.status(400).json({ message: "Attendance already created for today" });
+//         }
+
+
+//         const users = await User.find({}); // Get all students
+
+//         console.log(users);
+
+//         console.log(`Found ${users.length} students`);
+
+        
+
+//         // Loop through students and create attendance records
+//         for (const user of users) {
+//             console.log(`Processing student with user id: ${user.userId}`);
+            
+//             const userAttendanceRecord = new UserAttendance({
+//                 userId: user.userId,
+//                 date: new Date().toISOString().split("T")[0], // => "2025-04-10",
+//                 attendance: 'Absent', // Default status
+//                 longitude:0,
+//                 latitude:0,
+//                 coordinateDifference: null,
+//                 loginTime: "",
+//                 logoutTime: "",
+//                 logoutLongitude:0,
+//                 logoutLatitude:0,
+//                 logoutCoordinateDifference:null,
+//                 fileName: null,
+//                 fileUrl:null,
+//                 attendanceType: null,
+//                 visitingLocation: null,
+//                 attendanceMarkedBy: null,
+
+
+//             });
+
+//             await userAttendanceRecord.save(); // Save the attendance data
+//             console.log(`Attendance saved for user id: ${user.userId}`);
+//         }
+
+//         console.log('Attendance records created for all users');
+//     } catch (error) {
+        
+//         console.error('Error during user attendance dump: ', error);
+//     }
+// };
+
+
+// export const cronJobUserAttendance = async (req, res) => {
+//     console.log("I am inside the cron job function of user attedndance");
+
+//     const {date} = req.body;
+//     console.log(date)
+
+//     try {
+
+//         //Checks for duplicacy and if there is duplicacy then stops further executino
+
+//           // Step 1: Get current date at midnight UTC (00:00:00)
+//                 const currentDate = date ? new Date(date) : new Date();
+//                 currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
+
+//                 // Step 2: Check if attendance for current date already exists
+//                 const existingAttendance = await UserAttendance.findOne({ date: currentDate });
+
+//                 if (existingAttendance) {
+//                     console.log("Attendance already created");
+//                     return res.status(400).json({ message: "Attendance already created for today" });
+//                 }
+
+//         //---------------------------------------------------------------------------
+
+//         const users = await User.find({}); // Get all students
+
+//         console.log(users);
+
+//         console.log(`Found ${users.length} students`);
+
+//         // Loop through students and create attendance records
+//         for (const user of users) {
+//             console.log(`Processing student with user id: ${user.userId}`);
+            
+//             const userAttendanceRecord = new UserAttendance({
+//                 userId: user.userId,
+//                 date: date || new Date().toISOString().split("T")[0], // => "2025-04-10",
+//                 attendance: 'Absent', // Default status
+//                 longitude:0,
+//                 latitude:0,
+//                 coordinateDifference: null,
+//                 loginTime: "",
+//                 logoutTime: "",
+//                 logoutLongitude:0,
+//                 logoutLatitude:0,
+//                 logoutCoordinateDifference:null,
+//                 fileName: null,
+//                 fileUrl:null,
+//                 attendanceType: null,
+//                 visitingLocation: null,
+//                 attendanceMarkedBy: null,
+//             });
+
+//             await userAttendanceRecord.save(); // Save the attendance data
+            
+//             console.log(`Attendance saved for user id: ${user.userId}`);
+//         }
+//         res.status(200).json({status:"success", message:"Attendance instance created successfully"})
+//         console.log('Attendance records created for all users');
+//     } catch (error) {
+//         console.error('Error during user attendance dump: ', error);
+//         res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
+//     }
+// };
+
+
+
+
+
+
+
 export const cronJobUserAttendance = async (req, res) => {
     console.log("I am inside the cron job function of user attedndance");
 
-   
+    const {date} = req.body;
+    console.log(date)
+
     try {
-        
-         // Step 1: Get current date at midnight UTC (00:00:00)
-        const currentDate = new Date();
-        currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
-console.log(currentDate)
-        // Step 2: Check if attendance for current date already exists
-        const existingAttendance = await UserAttendance.findOne({ date: currentDate });
 
-        if (existingAttendance) {
-            console.log("Attendance already created");
-            return res.status(400).json({ message: "Attendance already created for today" });
-        }
+        //Checks for duplicacy and if there is duplicacy then stops further executino
 
+          // Step 1: Get current date at midnight UTC (00:00:00)
+                const currentDate = date ? new Date(date) : new Date();
+                currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
 
-        const users = await User.find({}); // Get all students
+                // Step 2: Check if attendance for current date already exists
+                const existingAttendance = await UserAttendance.findOne({ date: currentDate });
+
+                if (existingAttendance) {
+                    console.log("Attendance already created");
+                    return res.status(400).json({ message: "Attendance already created for today" });
+                }
+
+        //---------------------------------------------------------------------------
+
+        const users = await User.find({ isActive: true }); // Get all students
 
         console.log(users);
 
         console.log(`Found ${users.length} students`);
-
-        
 
         // Loop through students and create attendance records
         for (const user of users) {
@@ -45,7 +186,7 @@ console.log(currentDate)
             
             const userAttendanceRecord = new UserAttendance({
                 userId: user.userId,
-                date: new Date().toISOString().split("T")[0], // => "2025-04-10",
+                date: date || new Date().toISOString().split("T")[0], // => "2025-04-10",
                 attendance: 'Absent', // Default status
                 longitude:0,
                 latitude:0,
@@ -60,20 +201,62 @@ console.log(currentDate)
                 attendanceType: null,
                 visitingLocation: null,
                 attendanceMarkedBy: null,
-
-
             });
 
             await userAttendanceRecord.save(); // Save the attendance data
+            
             console.log(`Attendance saved for user id: ${user.userId}`);
         }
-
+        res.status(200).json({status:"success", message:"Attendance instance created successfully"})
         console.log('Attendance records created for all users');
     } catch (error) {
-        
         console.error('Error during user attendance dump: ', error);
+        res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Cron job runs at midnight every day
 

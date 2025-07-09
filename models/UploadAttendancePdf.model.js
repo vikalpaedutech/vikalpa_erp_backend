@@ -18,13 +18,7 @@ const UploadAttendancePdfSchema = new Schema (
         schoolName: {type: String, ref: "School"},
         classofStudent:{type: String, required: true},
         isPdfUploaded: {type: Boolean, default: false},
-        dateOfUpload: {type: Date,  default: () => {
-            const now = new Date();
-            now.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000
-            
-            
-            return now;
-          }, required: true}, //default: Date.now,
+        dateOfUpload: {type: Date,   required: true}, //default: Date.now,
         fileName: { type: String }, // Name of the file attached to the expense (e.g., receipt image)
         fileUrl: { type: String }, // URL link to the file (e.g., location in cloud storage)
 
@@ -36,3 +30,14 @@ export const AttendancePdf = mongoose.model("AttendancePdf", UploadAttendancePdf
 //__________________________________________________________________________________________________
 
 
+
+
+
+
+// default: () => {
+//             const now = new Date();
+//             now.setUTCHours(0, 0, 0, 0); // Set time to 00:00:00.000
+            
+            
+//             return now;
+//           },
