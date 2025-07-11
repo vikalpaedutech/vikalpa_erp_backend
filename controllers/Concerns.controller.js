@@ -71,18 +71,18 @@ export const createConcern = async (req, res) => {
         });
     }
 
-    const isStudentExist = await Student.findOne({ studentSrn });
-    if (req.body.studentSrn) {
-      if (!isStudentExist) {
-        console.log("student not matched");
-        return res
-          .status(409)
-          .json({
-            status: "Student not found",
-            message: "Student Srn not found.",
-          });
-      }
-    }
+    // const isStudentExist = await Student.findOne({ studentSrn });
+    // if (req.body.studentSrn) {
+    //   if (!isStudentExist) {
+    //     console.log("student not matched");
+    //     return res
+    //       .status(409)
+    //       .json({
+    //         status: "Student not found",
+    //         message: "Student Srn not found.",
+    //       });
+    //   }
+    // }
 
     let fileName = null;
     let fileUrl = null;
