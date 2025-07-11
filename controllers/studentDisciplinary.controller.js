@@ -2,7 +2,7 @@
 
 import mongoose from "mongoose";
 import { StudentDisciplinary } from "../models/studentDisciplinary.model.js";
-import {Student}  from "../models/Student.model.js";
+import {Student}  from "../models/student.model.js";
 import { District_Block_School } from "../models/district_block_buniyaadCenters.model.js";
 
 export const createDisciplinaryOrInteraction = async (req, res) => {
