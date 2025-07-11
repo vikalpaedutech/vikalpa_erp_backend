@@ -308,7 +308,8 @@ export const getAllAttendance = async (req, res) => {
         batch,
         status,
         isAttendanceMarked,
-        isAttendanceUpdated
+        isAttendanceUpdated,
+        absenteeCallingStatus,
     } = req.query;
 
     // Normalize values to arrays if needed
@@ -426,7 +427,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
         console.log(" i am inside try block")
         // Extract studentSrn and date from query parameters
         const { studentSrn, date } = req.query;
-       const { isAttendanceMarked, absenteeCallingStatus, callingRemark1 } = req.body; // The field to update (isAttendanceMarked)
+       const { isAttendanceMarked, absenteeCallingStatus, callingRemark1, callingRemark2, comments } = req.body; // The field to update (isAttendanceMarked)
 
           // Convert the date from the query param into a Date object
           const attendanceDate = new Date(date)
@@ -460,7 +461,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
              // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
         const attendance = await StudentAttendance.findOneAndUpdate(
             { studentSrn, date },  // Find by studentSrn and date
-            { absenteeCallingStatus, callingRemark1 }, // Update the field
+            { absenteeCallingStatus, callingRemark1,callingRemark2 }, // Update the field
             { new: true, runValidators: true } // Return the updated document and validate it
         );
 
@@ -484,7 +485,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
              // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
         const attendance = await StudentAttendance.findOneAndUpdate(
             { studentSrn, date },  // Find by studentSrn and date
-            { isAttendanceMarked, status, absenteeCallingStatus, callingRemark1  }, // Update the field
+            { isAttendanceMarked, status, absenteeCallingStatus, callingRemark1,   }, // Update the field
             { new: true, runValidators: true } // Return the updated document and validate it
         );
 
@@ -506,3 +507,4 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
     }
 };
 //___________________________________________________________________
+
