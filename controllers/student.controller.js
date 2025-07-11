@@ -1,7 +1,8 @@
 //Writing all the Business logic, Rest APIs, for student.model.js;
 
-import { Student } from "../models/student.model.js";
+// import { Student } from "../models/student.model.js";
 
+import { Student } from "../models/Student.model.js";
 
 
 
