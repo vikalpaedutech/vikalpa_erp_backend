@@ -513,79 +513,296 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
 //Get Attendance Data by SchoolIds, Roles, and Districts.
 
 
+// export const getFilteredUserAttendanceSummary = async (req, res) => {
+//   try {
+//     const { roles, departments, districtIds, schoolIds, date } = req.body;
+
+
+//     //If date field has, two dates like then we will se between
+
+
+
+//     const matchConditions = {
+//       role: { $in: roles },
+//       department: { $in: departments },
+//       districtIds: { $elemMatch: { $in: districtIds } },
+//       userId: { $not: /^Dummy/i }, // 👈 exclude dummy userId
+//       name: { $not: /^Dummy/i },   // 👈 optional: exclude dummy name too
+//     };
+
+//     console.log(req.body);
+//     // console.log(req.body.date)
+
+//     if (schoolIds?.length) {
+//       matchConditions.schoolIds = { $elemMatch: { $in: schoolIds } };
+//     }
+
+//     const selectedDate = date || new Date().toISOString().split("T")[0];
+
+//     const result = await User.aggregate([
+//       {
+//         $match: matchConditions,
+//       },
+//       {
+//         $lookup: {
+//           from: "userattendances",
+//           let: { userId: "$userId" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ["$userId", "$$userId"] },
+//                     { $eq: ["$date", new Date(selectedDate)] },
+//                   ],
+//                 },
+//               },
+//             },
+//             { $limit: 1 },
+//           ],
+//           as: "latestAttendance",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$latestAttendance",
+//           preserveNullAndEmptyArrays: true,
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: 1,
+//           name: 1,
+//           contact1:1,
+//           role: 1,
+//           department: 1,
+//           districtIds: 1,
+//           schoolIds: 1,
+//           attendance: "$latestAttendance.attendance",
+//           attendanceDate: "$latestAttendance.date",
+//           loginTime: "$latestAttendance.loginTime",
+//           logoutTime: "$latestAttendance.logoutTime",
+//           attendanceType: "$latestAttendance.attendanceType",
+//           visitingLocation: "$latestAttendance.visitingLocation",
+//         },
+//       },
+//     ]);
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Filtered user attendance fetched successfully",
+//       data: result,
+//     });
+//   } catch (err) {
+//     console.error("Error in fetching user attendance summary", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
+
+
+
+
+
+// export const getFilteredUserAttendanceSummary = async (req, res) => {
+//   try {
+//     const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
+
+//     const start = new Date(startDate + 'T00:00:00.000Z');
+//     const end = new Date(endDate + 'T23:59:59.999Z');
+
+//     const result = await UserAttendance.aggregate([
+//       {
+//         $match: {
+//           date: {
+//             $gte: start,
+//             $lte: end,
+//           },
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "userId",
+//           foreignField: "userId",
+//           as: "userInfo",
+//         },
+//       },
+//       {
+//         $unwind: {
+//           path: "$userInfo",
+//           preserveNullAndEmptyArrays: false,
+//         },
+//       },
+//       {
+//         $match: {
+//           "userInfo.role": { $in: roles },
+//           "userInfo.department": { $in: departments },
+//           "userInfo.districtIds": { $elemMatch: { $in: districtIds } },
+//           "userInfo.userId": { $not: /^Dummy/i },
+//           "userInfo.name": { $not: /^Dummy/i },
+//           ...(schoolIds?.length && {
+//             "userInfo.schoolIds": { $elemMatch: { $in: schoolIds } },
+//           }),
+//         },
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: 1,
+//           date: 1,
+//           attendance: 1,
+//           loginTime: 1,
+//           logoutTime: 1,
+//           attendanceType: 1,
+//           visitingLocation: 1,
+//           // User info
+//           name: "$userInfo.name",
+//           contact1: "$userInfo.contact1",
+//           role: "$userInfo.role",
+//           department: "$userInfo.department",
+//           districtIds: "$userInfo.districtIds",
+//           schoolIds: "$userInfo.schoolIds",
+//         },
+//       },
+//       {
+//         $sort: { date: 1 }, // Optional: sort by date ascending
+//       },
+//     ]);
+
+//     console.log("Start:", start.toISOString(), "End:", end.toISOString());
+//     console.log("Total Records:", result.length);
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Attendance data fetched successfully",
+//       data: result,
+//     });
+//   } catch (err) {
+//     console.error("Error in fetching user attendance summary", err);
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
 export const getFilteredUserAttendanceSummary = async (req, res) => {
   try {
-    const { roles, departments, districtIds, schoolIds, date } = req.body;
+    const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
 
-    const matchConditions = {
-      role: { $in: roles },
-      department: { $in: departments },
-      districtIds: { $elemMatch: { $in: districtIds } },
-      userId: { $not: /^Dummy/i }, // 👈 exclude dummy userId
-      name: { $not: /^Dummy/i },   // 👈 optional: exclude dummy name too
-    };
+    const start = new Date(startDate + 'T00:00:00.000Z');
+    const end = new Date(endDate + 'T23:59:59.999Z');
 
-    console.log(req.body);
-
-    if (schoolIds?.length) {
-      matchConditions.schoolIds = { $elemMatch: { $in: schoolIds } };
-    }
-
-    const selectedDate = date || new Date().toISOString().split("T")[0];
-
-    const result = await User.aggregate([
+    const result = await UserAttendance.aggregate([
       {
-        $match: matchConditions,
+        $match: {
+          date: {
+            $gte: start,
+            $lte: end,
+          },
+        },
       },
       {
         $lookup: {
-          from: "userattendances",
-          let: { userId: "$userId" },
+          from: "users",
+          localField: "userId",
+          foreignField: "userId",
+          as: "userInfo",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userInfo",
+          preserveNullAndEmptyArrays: false,
+        },
+      },
+      {
+        $match: {
+          "userInfo.role": { $in: roles },
+          "userInfo.department": { $in: departments },
+          "userInfo.districtIds": { $elemMatch: { $in: districtIds } },
+          "userInfo.userId": { $not: /^Dummy/i },
+          "userInfo.name": { $not: /^Dummy/i },
+          ...(schoolIds?.length && {
+            "userInfo.schoolIds": { $elemMatch: { $in: schoolIds } },
+          }),
+        },
+      },
+      {
+        $lookup: {
+          from: "district_block_schools",
+          let: {
+            districtIds: "$userInfo.districtIds",
+            schoolIds: "$userInfo.schoolIds",
+          },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ["$userId", "$$userId"] },
-                    { $eq: ["$date", new Date(selectedDate)] },
+                    { $in: ["$districtId", "$$districtIds"] },
+                    { $in: ["$centerId", "$$schoolIds"] },
                   ],
                 },
               },
             },
-            { $limit: 1 },
+            {
+              $project: {
+                _id: 0,
+                districtId: 1,
+                districtName: 1,
+                centerId: 1,
+                centerName: 1,
+              },
+            },
           ],
-          as: "latestAttendance",
-        },
-      },
-      {
-        $unwind: {
-          path: "$latestAttendance",
-          preserveNullAndEmptyArrays: true,
+          as: "locationInfo",
         },
       },
       {
         $project: {
           _id: 0,
           userId: 1,
-          name: 1,
-          contact1:1,
-          role: 1,
-          department: 1,
-          districtIds: 1,
-          schoolIds: 1,
-          attendance: "$latestAttendance.attendance",
-          attendanceDate: "$latestAttendance.date",
-          loginTime: "$latestAttendance.loginTime",
-          logoutTime: "$latestAttendance.logoutTime",
-          attendanceType: "$latestAttendance.attendanceType",
-          visitingLocation: "$latestAttendance.visitingLocation",
+          date: 1,
+          attendance: 1,
+          loginTime: 1,
+          logoutTime: 1,
+          attendanceType: 1,
+          visitingLocation: 1,
+          // User info
+          name: "$userInfo.name",
+          contact1: "$userInfo.contact1",
+          role: "$userInfo.role",
+          department: "$userInfo.department",
+          districtIds: "$userInfo.districtIds",
+          schoolIds: "$userInfo.schoolIds",
+          locationInfo: 1,
         },
+      },
+      {
+        $sort: { date: 1 }, // Optional: sort by date ascending
       },
     ]);
 
+    console.log("Start:", start.toISOString(), "End:", end.toISOString());
+    console.log("Total Records:", result.length);
+
     res.status(200).json({
       success: true,
-      message: "Filtered user attendance fetched successfully",
+      message: "Attendance data fetched successfully",
       data: result,
     });
   } catch (err) {
@@ -596,6 +813,13 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
 
 
 
