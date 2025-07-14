@@ -61,12 +61,16 @@ export const getDistrictById = async (req, res) => {
     const {districtId} = req.params
     // console.log(...districtId)
 
+    console.log('hey there')
+    console.log(req.params)
 
+ const arrayDistrictIds = districtId.split(','); // split by ',' not ', '
+console.log(arrayDistrictIds);
     try {
 
-        
 
-        const district = await District.find({districtId: {$in: [...districtId]}})
+    
+        const district = await District.find({districtId: {$in: arrayDistrictIds}})
 
         res.status(201).json({status:"Success", data: district});
         // console.log(" i am fetched data")
