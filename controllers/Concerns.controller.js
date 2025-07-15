@@ -498,11 +498,103 @@ export const getConcernsPipeLineMethod = async (req, res) => {
 
 //Get Individual Concerns API. Dynamically fetches individual concers
 
+// export const getIndividualConcerns = async (req, res) => {
+//   try {
+//     const { userId, concernType } = req.query;
+
+//     console.log(req.query);
+
+//     if (!userId) {
+//       return res.status(400).json({
+//         status: "Failed",
+//         message: "Missing userId (ACI)",
+//       });
+//     }
+
+//     // Step 1: Find the ACI user and get their assigned districts
+//     const aciUser = await User.findOne({ userId: userId, role: "ACI" });
+
+//     if (!aciUser) {
+//       return res.status(404).json({
+//         status: "Failed",
+//         message: "ACI user not found",
+//       });
+//     }
+
+//     const { assignedDistricts = [] } = aciUser;
+
+//     // Step 2: Aggregate bills only from CCs under those districts
+//     const concerns = await Concern.aggregate([
+//       {
+//         $match: {
+//           concernType: concernType,
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users", // 👈 collection name (must be lowercase plural)
+//           localField: "userId",
+//           foreignField: "userId",
+//           as: "userDetails",
+//         },
+//       },
+//       {
+//         $unwind: "$userDetails",
+//       },
+//       {
+//         $match: {
+//           "userDetails.role": "CC",
+//           "userDetails.assignedDistricts": {
+//             $elemMatch: { $in: assignedDistricts },
+//           },
+//         },
+//       },
+//     ]);
+
+//     res.status(200).json({ status: "Success", data: concerns });
+//   } catch (error) {
+//     console.error("Error fetching filtered bills for ACI:", error.message);
+//     res.status(500).json({
+//       status: "Failed",
+//       message: error.message,
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getIndividualConcerns = async (req, res) => {
+  console.log("I am inside get individual CONCERN");
+
   try {
-    const { userId, concernType } = req.query;
+    const {
+      userId,
+      concernType,
+      conditionalRole,
+      role,
+      conditionalDepartment,
+    } = req.query;
 
     console.log(req.query);
+
+    console.log(conditionalRole.split(","));
 
     if (!userId) {
       return res.status(400).json({
@@ -512,7 +604,7 @@ export const getIndividualConcerns = async (req, res) => {
     }
 
     // Step 1: Find the ACI user and get their assigned districts
-    const aciUser = await User.findOne({ userId: userId, role: "ACI" });
+    const aciUser = await User.findOne({ userId: userId, role: role });
 
     if (!aciUser) {
       return res.status(404).json({
@@ -543,7 +635,12 @@ export const getIndividualConcerns = async (req, res) => {
       },
       {
         $match: {
-          "userDetails.role": "CC",
+          "userDetails.role": {
+            $in: conditionalRole.split(",").map((role) => role.trim()),
+          },
+          "userDetails.department": {
+            $in: conditionalDepartment.split(",").map((role) => role.trim()),
+          },
           "userDetails.assignedDistricts": {
             $elemMatch: { $in: assignedDistricts },
           },
@@ -560,6 +657,7 @@ export const getIndividualConcerns = async (req, res) => {
     });
   }
 };
+
 
 //---------------------------------------------------------------------
 
@@ -650,6 +748,10 @@ export const getIndividualLeave = async (req, res) => {
 
 export const PatchConcernsByQueryParams = async (req, res) => {
   const { userId, concernId, _id } = req.query;
+
+  
+  console.log('Hey there!')
+  console.log(req.query)
 
   const {
     concernStatusBySubmitter,
