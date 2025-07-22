@@ -700,8 +700,12 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
 
 
 export const getFilteredUserAttendanceSummary = async (req, res) => {
+
+  console.log('I am insdied get filtered user attendance summary.')
   try {
     const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
+
+    console.log(req.body)
 
     const start = new Date(startDate + 'T00:00:00.000Z');
     const end = new Date(endDate + 'T23:59:59.999Z');
@@ -829,7 +833,12 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
 //Patch attendance status in db. without image.//This is mared by ACI if the user is absent.
 
 export const patchUserAttendanceWithoutImage = async (req, res) => {
+
+  console.log('I AM INSIDE PATCH USER ATTENDANCE WITHOUT IMAGE.')
+
   const { userId, date } = req.query;
+
+  console.log(req.query)
 
   const {
     attendance,

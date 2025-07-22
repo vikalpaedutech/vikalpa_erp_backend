@@ -223,10 +223,22 @@ export const getAllBills = async (req, res) => {
 
 //Get Pending Bills. ACI>> CC
 export const getPendingAndVerifiedBillsByAci = async (req, res) => {
-  try {
-    const { userId, status } = req.query;
 
+  console.log('Hi there')
+
+  try {
+    const { userId, status, role, conditionalRole } = req.query;
+
+    
     console.log(req.query)
+    
+    let conditionalRoleArray = req.query.conditionalRole.split(',');
+    let statusArray = req.query.status.split(',');
+    
+    console.log(conditionalRoleArray); // ['CC', 'ACI']
+    console.log(statusArray)
+
+  
 
     if (!userId) {
       return res.status(400).json({
@@ -236,7 +248,10 @@ export const getPendingAndVerifiedBillsByAci = async (req, res) => {
     }
 
     // Step 1: Find the ACI user and get their assigned districts
-    const aciUser = await User.findOne({ userId: userId, role: "ACI" });
+    const aciUser = await User.findOne({ userId: userId, role: role });
+
+    console.log(aciUser)
+
 
     if (!aciUser) {
       return res.status(404).json({
@@ -251,7 +266,7 @@ export const getPendingAndVerifiedBillsByAci = async (req, res) => {
     const bills = await Expense.aggregate([
       {
         $match: {
-          status: status,
+          status: { $in: statusArray },
         },
       },
       {
@@ -267,12 +282,14 @@ export const getPendingAndVerifiedBillsByAci = async (req, res) => {
       },
       {
         $match: {
-          "userDetails.role": "CC",
+          "userDetails.role": { $in: conditionalRoleArray }, //"CC"
           "userDetails.assignedDistricts": { $elemMatch: { $in: assignedDistricts } },
         },
       },
     ]);
 
+
+    console.log(bills)
     res.status(200).json({ status: "Success", data: bills });
   } catch (error) {
     console.error("Error fetching filtered bills for ACI:", error.message);
