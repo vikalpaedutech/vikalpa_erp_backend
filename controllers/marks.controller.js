@@ -46,27 +46,110 @@ export const createPost = async (req, res) => {
 
 // Below api is a cron job api. Which is created to initailize marks data in db, in marksandtext db so that user,
 //... can update students marks.
+// export const createMarksRecordCron = async (req, res) => {
+//     console.log("I am inside the cron job function");
+
+//   const {examId, classofStudent, medium} = req.body;
+
+// console.log(examId)
+// console.log(req.body)
+//     try {
+
+//           // Check if marks already exist for this examId
+//         const existingMarks = await Marks.findOne({ examId: examId });
+//         if (existingMarks) {
+//             console.log(`Test is already created with this id: ${examId}`);
+//            res.status(400).json({ message: `Test is already created with this examId: ${examId}` });
+//           return;
+//           }
+
+
+//         const students = await Student.find({
+//           classofStudent: classofStudent, 
+//           medium: medium
+//         }); // Get all students
+//         const examAndText = await ExamAndTest.find({});
+
+
+//         console.log(students);
+//         console.log(examAndText);
+
+//         // console.log(`Found ${students.length} students`);
+//         // console.log(`Found ${examAndText.length} students`);
+
+//         // Loop through students and create attendance records
+//         for (const student of students) {
+//             // console.log(`Processing student with SRN: ${student.studentSrn}`);
+            
+//             const marks = new Marks({
+//                 studentSrn: student.studentSrn,
+//                 firstName: student.firstName ,
+//                 //lastName: student.lastName,
+//                 fatherName: student.fatherName,
+//                 date: new Date().toISOString().split("T")[0], // => "2025-04-10",
+//                 districtId: student.districtId,
+//                 blockId: student.blockId,
+//                 schoolId: student.schoolId,
+//                 classofStudent: student.classofStudent,
+//                 examId: examId,
+//                 marksObtained: "",
+//                 recordedBy: "",
+//                 remark: "", // Default status
+//                 marksUpdatedOn: "", // Not marked yet
+               
+//             });
+
+//             await marks.save(); // Save the attendance data
+//             console.log(`Marks data intialise for SRN: ${student.studentSrn}`);
+//         }
+
+//         console.log('Marks records are created for all students');
+//     } catch (error) {
+//         console.error('Error during Marks dump: ', error);
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const createMarksRecordCron = async (req, res) => {
     console.log("I am inside the cron job function");
 
-  const {examId, classofStudent, medium} = req.body;
+    const { examId, classofStudent, medium } = req.body;
 
-console.log(examId)
-console.log(req.body)
+    console.log(examId)
+    console.log(req.body)
     try {
 
-          // Check if marks already exist for this examId
+        // Check if marks already exist for this examId
         const existingMarks = await Marks.findOne({ examId: examId });
         if (existingMarks) {
             console.log(`Test is already created with this id: ${examId}`);
-           res.status(400).json({ message: `Test is already created with this examId: ${examId}` });
-          return;
-          }
+            res.status(400).json({ message: `Test is already created with this examId: ${examId}` });
+            return;
+        }
 
+        let mediumFilter = {};
+        if (medium === "CBSE_HBSE") {
+            mediumFilter = { medium: { $in: ["CBSE", "HBSE"] } };
+        } else {
+            mediumFilter = { medium: medium };
+        }
 
         const students = await Student.find({
-          classofStudent: classofStudent, 
-          medium: medium
+            classofStudent: classofStudent,
+            ...mediumFilter,
+            isSlcTaken: false
         }); // Get all students
         const examAndText = await ExamAndTest.find({});
 
@@ -74,16 +157,16 @@ console.log(req.body)
         console.log(students);
         console.log(examAndText);
 
-        console.log(`Found ${students.length} students`);
-        console.log(`Found ${examAndText.length} students`);
+        // console.log(`Found ${students.length} students`);
+        // console.log(`Found ${examAndText.length} students`);
 
         // Loop through students and create attendance records
         for (const student of students) {
-            console.log(`Processing student with SRN: ${student.studentSrn}`);
-            
+            // console.log(`Processing student with SRN: ${student.studentSrn}`);
+
             const marks = new Marks({
                 studentSrn: student.studentSrn,
-                firstName: student.firstName ,
+                firstName: student.firstName,
                 //lastName: student.lastName,
                 fatherName: student.fatherName,
                 date: new Date().toISOString().split("T")[0], // => "2025-04-10",
@@ -96,7 +179,7 @@ console.log(req.body)
                 recordedBy: "",
                 remark: "", // Default status
                 marksUpdatedOn: "", // Not marked yet
-               
+
             });
 
             await marks.save(); // Save the attendance data
@@ -108,6 +191,21 @@ console.log(req.body)
         console.error('Error during Marks dump: ', error);
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Cron job runs at midnight every day
 

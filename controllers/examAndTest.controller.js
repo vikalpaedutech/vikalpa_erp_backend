@@ -12,7 +12,7 @@ export const createPost = async (req, res) => {
     const { examId, examType, examBoard,  subject, examDate, description, maxMarks, passingMarks, batch, classofStudent, status } = req.body;
     console.log(req.body)
     // Validate input data (basic example)
-    if (!examId || !examType || !examBoard ||  !subject || !examDate || !description || !maxMarks || !passingMarks || !batch || !classofStudent) {
+    if (!examId || !examType || !examBoard ||  !subject || !examDate || !maxMarks || !batch || !classofStudent) {
       
       return res.status(400).json({ status: "Failed", message: "All fields are required" });
      
