@@ -28,6 +28,7 @@ const userAttendanceSchema = new Schema(
   attendanceType: {type: String}, //center visit, wfh, govt. official visit, event.
   visitingLocation: {type: String}, //visiting location, center name, 
   attendanceMarkedBy: {type: String, default: null}, //Who is updating attendance.
+  remarkForManualAttendance: {type: String, default:null},// if someone elses marks other user attendane then this field must have remark.
 
   },
 

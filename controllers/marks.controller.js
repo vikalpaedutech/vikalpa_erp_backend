@@ -3,6 +3,14 @@ import { Student } from "../models/student.model.js";
 import { Marks } from "../models/marks.model.js";  // Import the Marks model
 import { ExamAndTest } from "../models/examAndTest.model.js";
 
+
+
+//Gamfication utility
+import {awardPoints} from "../utils/gamification.utils.js"
+
+
+
+
 // Post API
 export const createPost = async (req, res) => {
   console.log("I am inside Marks controller, createMarksPost API");
@@ -323,8 +331,12 @@ export const updateMarksBySrnAndExamId = async (req, res) => {
 
     try {
         // Extract studentSrn and date from query parameters
-        const { studentSrn, examId } = req.query;
+        const { studentSrn, examId, schoolId, userId, classofStudent } = req.query;
        const { marksObtained, recordedBy, marksUpdatedOn } = req.body; // The field to update (isAttendanceMarked)
+
+       console.log('hello marks')
+        console.log(req.query);
+        console.log('hello marks')
 
         console.log(studentSrn, examId)
         console.log("req.body is:", req.body);
@@ -346,6 +358,21 @@ export const updateMarksBySrnAndExamId = async (req, res) => {
             { marksObtained, recordedBy, marksUpdatedOn }, // Update the field
             { new: true, runValidators: true } // Return the updated document and validate it
         );
+
+
+
+        //Handling gamification point.
+                    
+            // const date = loginTime
+        
+                  const keyValue = "makrs-upload"
+        
+                  const AwardPoints = awardPoints({keyValue, userId, examId, schoolId, classofStudent})
+        
+            //------------------------------------------------------------
+        
+
+
 
         // If no record was found
         if (!marks) {

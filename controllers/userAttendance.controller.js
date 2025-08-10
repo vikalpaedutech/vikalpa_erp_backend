@@ -7,6 +7,10 @@ import multer from "multer";
 import { uploadToDOStorage } from "../utils/digitalOceanSpacesUserAttendance.js";
 import { compareSync } from "bcryptjs";
 
+//Gamfication utility
+import {awardPoints} from "../utils/gamification.utils.js"
+
+
 // Multer memory storage
 const storage = multer.memoryStorage();
 export const uploadFile = multer({ storage }).single('file');
@@ -204,6 +208,9 @@ export const cronJobUserAttendance = async (req, res) => {
             });
 
             await userAttendanceRecord.save(); // Save the attendance data
+
+           
+
             
             console.log(`Attendance saved for user id: ${user.userId}`);
         }
@@ -351,6 +358,7 @@ export const GetAttendanceByUserId = async (req, res) => {
 export const PatchUserAttendanceByUserId = async (req, res) => {
   const { userId, date } = req.query;
 
+
   let {
     attendance,
     longitude,
@@ -407,7 +415,18 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
       { $set: updatePayload },
       { new: true }
     );
-    
+
+
+//Handling gamification point.
+            
+// const date = loginTime
+
+          const keyValue = "self-attendance"
+
+          const AwardPoints = awardPoints({keyValue, userId, loginTime})
+
+//------------------------------------------------------------
+
     res.status(200).json({ status: "Success", data: updated });
   } catch (error) {
     console.error("❌ Attendance Update Error:", error.message);
@@ -844,7 +863,8 @@ export const patchUserAttendanceWithoutImage = async (req, res) => {
     attendance,
     attendanceMarkedBy,
     attendanceType,
-    visitingLocation
+    visitingLocation,
+    remarkForManualAttendance
   } = req.body;
 
 
@@ -864,6 +884,7 @@ export const patchUserAttendanceWithoutImage = async (req, res) => {
       ...(attendanceMarkedBy && { attendanceMarkedBy }),
       attendanceType: attendanceType || "NA",
       visitingLocation: visitingLocation || "NA",
+      remarkForManualAttendance: remarkForManualAttendance || 'NA'
     };
 
     const updated = await UserAttendance.findOneAndUpdate(

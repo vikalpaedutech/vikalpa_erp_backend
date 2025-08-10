@@ -5,6 +5,9 @@ import {Student} from "../models/student.model.js";
 import { StudentAttendance } from "../models/studentAttendance.model.js";
 
 
+//Gamfication utility
+import {awardPoints} from "../utils/gamification.utils.js"
+
 //Student Attendance Cron Job
 
 // Function to create attendance records
@@ -426,8 +429,9 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
     try {
         console.log(" i am inside try block")
         // Extract studentSrn and date from query parameters
-        const { studentSrn, date } = req.query;
+        const { studentSrn, date, userId, schoolId, classofStudent, studentAttendanceGamificationDate } = req.query;
        const { isAttendanceMarked, absenteeCallingStatus, callingRemark1, callingRemark2, comments } = req.body; // The field to update (isAttendanceMarked)
+        console.log(classofStudent)
 
           // Convert the date from the query param into a Date object
           const attendanceDate = new Date(date)
@@ -465,6 +469,22 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
             { new: true, runValidators: true } // Return the updated document and validate it
         );
 
+
+        //Handling gamification point for attendance.
+            
+    // const date = loginTime
+
+          const keyValue = "absentee-calling"
+
+          const AwardPoints = awardPoints({keyValue, userId, studentAttendanceGamificationDate, schoolId, classofStudent})
+
+    //------------------------------------------------------------
+
+
+
+
+
+
         // If no record was found
         if (!attendance) {
             return res.status(404).json({ status: "Error", message: "Attendance record not found for the given student and date" });
@@ -489,6 +509,16 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
             { new: true, runValidators: true } // Return the updated document and validate it
         );
 
+    //Handling gamification point.
+            
+    // const date = loginTime
+
+          const keyValue = "student-attendance"
+
+          const AwardPoints = awardPoints({keyValue, userId, studentAttendanceGamificationDate, schoolId, classofStudent})
+
+    //------------------------------------------------------------
+
         // If no record was found
         if (!attendance) {
             return res.status(404).json({ status: "Error", message: "Attendance record not found for the given student and date" });
@@ -507,4 +537,16 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
     }
 };
 //___________________________________________________________________
+
+
+
+
+
+
+
+
+
+
+
+
 
