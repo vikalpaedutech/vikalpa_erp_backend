@@ -10,6 +10,10 @@ import path from "path";
 import multer from "multer";
 
 
+//Gamfication utility
+import {awardPoints} from "../utils/gamification.utils.js"
+
+
 //Createing a cron job for initializing attendance data in backend. So that i can track, 
 //... both uploaded pdf (which has url and bollean type true) and not uploaded pdf.
 
@@ -168,6 +172,19 @@ export const PatchAttendancePdf = async (req, res) => {
     record.userId = userId || "Admin";
 
     await record.save();
+
+   //Handling gamification point for attendance pdf upload.
+            
+    // const date = loginTime
+
+          const keyValue = "attendancePdf-upload"
+
+          const AwardPoints = awardPoints({keyValue, userId, schoolId, classofStudent, dateOfUpload})
+
+    //------------------------------------------------------------
+
+
+
 
     res.status(200).json({
       status: "Success",
