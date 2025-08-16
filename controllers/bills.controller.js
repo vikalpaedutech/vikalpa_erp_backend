@@ -7,6 +7,8 @@ import { User } from "../models/user.model.js";
 
 import { uploadToDOStorage } from "../utils/digitalOceanSpaces.utils.js";
 
+import { District_Block_School } from "../models/district_block_buniyaadCenters.model.js";
+
 // const storage = multer.memoryStorage();
 // const upload = multer({ storage: storage });
 
@@ -518,29 +520,258 @@ export const deleteBill = async (req, res) => {
 
 //Get all bills with with user details
 
+// export const getAllBillsWithUserDetails = async (req, res) => {
+
+
+//   console.log('Hello bills data by user details')
+
+
+
+//   try {
+//     const bills = await Expense.aggregate([
+//       {
+//         $lookup: {
+//           from: "users",            // collection name in MongoDB
+//           localField: "userId",     // field in Expense
+//           foreignField: "userId",   // field in User
+//           as: "userDetails"         // output array field
+//         }
+//       },
+//       {
+//         $unwind: {
+//           path: "$userDetails",     // make userDetails a single object
+//           preserveNullAndEmptyArrays: true // still keep expenses without a matching user
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           userId: 1,
+//           role: 1,
+//           purposeOfExpense: 1,
+//           expenseDate: 1,
+//           expenseType: 1,
+//           otherItemName: 1,
+//           otherItemPurchasingPurpose: 1,
+//           expenseAmount: 1,
+//           fileName: 1,
+//           fileUrl: 1,
+//           status: 1,
+//           createdAt: 1,
+//           updatedAt: 1,
+//           // Include only selected user fields
+//           "userDetails.name": 1,
+//           "userDetails.email": 1,
+//           "userDetails.contact1": 1,
+//           "userDetails.contact2": 1,
+//           "userDetails.department": 1,
+//           "userDetails.role": 1
+//         }
+//       }
+//     ]);
+
+//     res.status(200).json({
+//       status: "Success",
+//       data: bills
+//     });
+//   } catch (error) {
+//     console.error("Error fetching bills with user details:", error);
+//     res.status(500).json({
+//       status: "Failed",
+//       message: "An error occurred while fetching bills"
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const getAllBillsWithUserDetails = async (req, res) => {
+//   console.log("Hello bills data by user details");
+
+//   try {
+//     const bills = await Expense.aggregate([
+//       // Join with Users
+//       {
+//         $lookup: {
+//           from: "users", // collection name in MongoDB
+//           localField: "userId",
+//           foreignField: "userId",
+//           as: "userDetails",
+//         },
+//       },
+//       { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
+
+//       // Lookup district details
+//       {
+//         $lookup: {
+//           from: "district_block_schools",
+//           let: { districtIds: "$userDetails.assignedDistricts" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: { $in: ["$districtId", "$$districtIds"] },
+//               },
+//             },
+//             { $project: { _id: 0, districtId: 1, districtName: 1 } },
+//           ],
+//           as: "districtDetails",
+//         },
+//       },
+
+//       // Lookup school details
+//       {
+//         $lookup: {
+//           from: "district_block_schools",
+//           let: { schoolIds: "$userDetails.assignedSchools" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: { $in: ["$centerId", "$$schoolIds"] },
+//               },
+//             },
+//             { $project: { _id: 0, centerId: 1, centerName: 1 } },
+//           ],
+//           as: "schoolDetails",
+//         },
+//       },
+
+//       // Final projection
+//       {
+//         $project: {
+//           _id: 1,
+//           userId: 1,
+//           role: 1,
+//           purposeOfExpense: 1,
+//           expenseDate: 1,
+//           expenseType: 1,
+//           otherItemName: 1,
+//           otherItemPurchasingPurpose: 1,
+//           expenseAmount: 1,
+//           fileName: 1,
+//           fileUrl: 1,
+//           status: 1,
+//           createdAt: 1,
+//           updatedAt: 1,
+
+//           // Selected user fields
+//           "userDetails.name": 1,
+//           "userDetails.email": 1,
+//           "userDetails.contact1": 1,
+//           "userDetails.contact2": 1,
+//           "userDetails.department": 1,
+//           "userDetails.role": 1,
+
+//           // Enriched data
+//           districtDetails: 1,
+//           schoolDetails: 1,
+//         },
+//       },
+//     ]);
+
+//     res.status(200).json({
+//       status: "Success",
+//       data: bills,
+//     });
+//   } catch (error) {
+//     console.error("Error fetching bills with user details:", error);
+//     res.status(500).json({
+//       status: "Failed",
+//       message: "An error occurred while fetching bills",
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const getAllBillsWithUserDetails = async (req, res) => {
-
-
-  console.log('Hello bills data by user details')
-
-
+  console.log("Hello bills data by user details");
 
   try {
     const bills = await Expense.aggregate([
+      // Join with Users
       {
         $lookup: {
-          from: "users",            // collection name in MongoDB
-          localField: "userId",     // field in Expense
-          foreignField: "userId",   // field in User
-          as: "userDetails"         // output array field
-        }
+          from: "users", // collection name in MongoDB
+          localField: "userId",
+          foreignField: "userId",
+          as: "userDetails",
+        },
       },
+      { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
+
+      // Lookup district details
       {
-        $unwind: {
-          path: "$userDetails",     // make userDetails a single object
-          preserveNullAndEmptyArrays: true // still keep expenses without a matching user
-        }
+        $lookup: {
+          from: "district_block_schools",
+          let: {
+            districtIds: {
+              $ifNull: ["$userDetails.assignedDistricts", []],
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$districtId", "$$districtIds"] },
+              },
+            },
+            { $project: { _id: 0, districtId: 1, districtName: 1 } },
+          ],
+          as: "districtDetails",
+        },
       },
+
+      // Lookup school details
+      {
+        $lookup: {
+          from: "district_block_schools",
+          let: {
+            schoolIds: {
+              $ifNull: ["$userDetails.assignedSchools", []],
+            },
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$centerId", "$$schoolIds"] },
+              },
+            },
+            { $project: { _id: 0, centerId: 1, centerName: 1 } },
+          ],
+          as: "schoolDetails",
+        },
+      },
+
+      // Final projection
       {
         $project: {
           _id: 1,
@@ -557,29 +788,37 @@ export const getAllBillsWithUserDetails = async (req, res) => {
           status: 1,
           createdAt: 1,
           updatedAt: 1,
-          // Include only selected user fields
+
+          // Selected user fields
           "userDetails.name": 1,
           "userDetails.email": 1,
           "userDetails.contact1": 1,
           "userDetails.contact2": 1,
           "userDetails.department": 1,
-          "userDetails.role": 1
-        }
-      }
+          "userDetails.role": 1,
+
+          // Enriched data
+          districtDetails: 1,
+          schoolDetails: 1,
+        },
+      },
     ]);
 
     res.status(200).json({
       status: "Success",
-      data: bills
+      data: bills,
     });
   } catch (error) {
     console.error("Error fetching bills with user details:", error);
     res.status(500).json({
       status: "Failed",
-      message: "An error occurred while fetching bills"
+      message: "An error occurred while fetching bills",
     });
   }
 };
+
+
+
 
 
 //-----------------------------------------------------------------------------------------
