@@ -1090,6 +1090,135 @@ console.log("hellow award points")
 
    }
 
+   //Disciplinary gamification block
+
+   else if (keyValue === 'disciplinary'){
+
+
+    //Date management for querying
+
+    const today = new Date ();
+
+    
+    const startOfDay = new Date (Date.UTC(
+      today.getUTCFullYear(),
+      today.getUTCMonth(),
+      today.getUTCDate()
+    ))
+
+    //Get start of next day in UTC
+
+    const endOfDay = new Date (startOfDay);
+
+    endOfDay.setUTCDate(startOfDay.getUTCDate() + 1);
+
+
+    //------------------------------------
+
+  console.log("Hello disciplinary")
+
+  let disciplinaryValue = 'Average'
+
+    let id = '1234'
+  // let dateOfDisciplinary = new Date()
+    let classofStudent = '9'
+
+
+  const isDisciplinaryGamificationExist = await Gamification.findOne({
+  id, classofStudent, dateOfPoint:{$gte: startOfDay, $lt: endOfDay} }) //classofStudent, dateOfPoint:{$gte: startOfDay, $lt: endOfDay}
+
+
+
+
+  if (!isDisciplinaryGamificationExist){
+
+      //Creating default structure ith disciplinary value
+
+      const newDisciplinaryData = {
+
+        userId: '123',
+        pointType: 'disciplinary',
+        id: '123',
+        classofStudent:'9',
+        point:0,
+        disciplinaryRemark1: 'Poor',
+      disciplinaryRemark1Count: 0,
+      disciplinaryRemark2: 'Average',
+      disciplinaryRemark2Count: 0,
+      disciplinaryRemark3: 'Good',
+      disciplinaryRemark3Count: 0,
+      disciplinaryRemark4: 'Excellent',
+      disciplinaryRemark4Count: 0,
+      dateOfPoint: new Date (),
+
+        
+      }
+
+      //Finds which remark matches the input and increment its count.
+
+      for (let i = 1; i<=4; i++){
+
+        if(newDisciplinaryData[`disciplinaryRemark${i}`] === disciplinaryValue ){
+          newDisciplinaryData[`disciplinaryRemark${i}Count`] = 1;
+
+          break;
+        }
+      }
+
+
+
+
+
+      //Saving the newDisciplinaryData in db
+
+      const createDisciplinaryData = await Gamification.create(newDisciplinaryData);
+
+      // return res.status(201).json({message:'Disciplnary points updated successfully',
+      //   data: createDisciplinaryData
+      // })
+
+
+    } else {
+
+      
+      let updatedField = null;
+
+
+      for (let i=1; i<=4; i++){
+
+        console.log('i am inside for loop')
+
+        if (isDisciplinaryGamificationExist[`disciplinaryRemark${i}`] === disciplinaryValue){
+          updatedField = `disciplinaryRemark${i}Count`;
+
+          console.log(updatedField)
+          break;
+        }
+
+        console.log('Existing document updated')
+        
+      }
+
+      if (!updatedField){
+        console.log('No updated field found!')
+      }
+
+      //Increment The count
+
+      isDisciplinaryGamificationExist[updatedField] += 1;
+
+      //Saving the updated disciplinary gamification document
+
+      const saveUpdatedDisciplnaryGamification = await isDisciplinaryGamificationExist.save();
+
+
+    console.log('gamification exist')
+
+    }
+
+
+   }
+
 
 
 

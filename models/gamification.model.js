@@ -12,8 +12,19 @@ const GamificationSchema = new Schema(
       examId: {type: String}, //Holds exam ids for test
       classofStudent:{type: String},
       point: {type: Number},
-      dateOfPoint: {type: Date},
+      
 
+      disciplinaryRemark1: {type: String,},
+      disciplinaryRemark1Count: {type: Number,},
+      disciplinaryRemark2: {type: String, },
+      disciplinaryRemark2Count: {type: Number,},
+      disciplinaryRemark3: {type: String, },
+      disciplinaryRemark3Count: {type: Number, },
+      disciplinaryRemark4: {type: String,},
+      disciplinaryRemark4Count: {type: Number,},
+
+
+      dateOfPoint: {type: Date},
 
     },
     { timestamps: true }

@@ -1,6 +1,6 @@
 import express from "express";
 import { createPost, uploadFile, getAllBills, getPendingAndVerifiedBillsByAci, getVerifiedBills, getApprovedBills, getRejectedBills,
-    getBillsDataByQueryParams, patchBillsDataVerification, patchBillsDataApproval, 
+    getBillsDataByQueryParams, patchBillsDataVerification, patchBillsDataApproval, deleteBill, getAllBillsWithUserDetails
 
  } from "../controllers/bills.controller.js";
 
@@ -24,5 +24,10 @@ router.patch("/patch-bills", patchBillsDataVerification);
 router.patch("/patch-bills-approval", patchBillsDataApproval);
 
 router.get("/get-verified-bills", getVerifiedBills);
+
+router.delete("/delete-bill", deleteBill);
+
+router.get ("/get-all-bills-with-user-details", getAllBillsWithUserDetails)
+
 
 export default router;

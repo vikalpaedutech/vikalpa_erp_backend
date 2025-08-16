@@ -97,6 +97,10 @@ import notificationRouter from "./routes/Notifications.route.js"
 import district_block_buniyaadCentersRoute from "./routes/district_block_buniyaadCenter.route.js"
 
 import sendOtp from "./routes/SendOtp.route.js"
+
+
+import disciplinaryGamificationRoute from "./routes/disciplinaryGamification.route.js"
+
 //using routes for route.g
 
 app.use('/api', districtRouter);
@@ -119,7 +123,7 @@ app.use("/api", dashboardRouter)
 app.use("/api", notificationRouter)
 app.use("/api", district_block_buniyaadCentersRoute)
 app.use("/api", sendOtp)
-
+app.use("/api",disciplinaryGamificationRoute)
 
 
 

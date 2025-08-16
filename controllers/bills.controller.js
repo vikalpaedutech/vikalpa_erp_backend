@@ -482,3 +482,104 @@ export const patchBillsDataApproval = async (req, res) => {
 }
 
 //______________________________________________________________________
+
+
+
+
+
+//Delete bills by objectId
+
+export const deleteBill = async (req, res) => {
+  const { _id } = req.body;
+  
+  console.log('hello delete bill')
+  console.log(req.body)
+
+  try {
+    const deletedBill = await Expense.findByIdAndDelete(_id);
+
+    if (!deletedBill) {
+      return res.status(404).json({ status: 'Failed', message: 'Bill not found!' });
+    }
+
+    res.status(200).json({ status: 'Success', message: 'Bill deleted successfully!' });
+  } catch (error) {
+    console.error('Error occurred while deleting bill:', error);
+    res.status(500).json({ status: 'Failed', message: 'An error occurred while deleting bill' });
+  }
+};
+
+//-----------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+//Get all bills with with user details
+
+export const getAllBillsWithUserDetails = async (req, res) => {
+
+
+  console.log('Hello bills data by user details')
+
+
+
+  try {
+    const bills = await Expense.aggregate([
+      {
+        $lookup: {
+          from: "users",            // collection name in MongoDB
+          localField: "userId",     // field in Expense
+          foreignField: "userId",   // field in User
+          as: "userDetails"         // output array field
+        }
+      },
+      {
+        $unwind: {
+          path: "$userDetails",     // make userDetails a single object
+          preserveNullAndEmptyArrays: true // still keep expenses without a matching user
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          role: 1,
+          purposeOfExpense: 1,
+          expenseDate: 1,
+          expenseType: 1,
+          otherItemName: 1,
+          otherItemPurchasingPurpose: 1,
+          expenseAmount: 1,
+          fileName: 1,
+          fileUrl: 1,
+          status: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          // Include only selected user fields
+          "userDetails.name": 1,
+          "userDetails.email": 1,
+          "userDetails.contact1": 1,
+          "userDetails.contact2": 1,
+          "userDetails.department": 1,
+          "userDetails.role": 1
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      status: "Success",
+      data: bills
+    });
+  } catch (error) {
+    console.error("Error fetching bills with user details:", error);
+    res.status(500).json({
+      status: "Failed",
+      message: "An error occurred while fetching bills"
+    });
+  }
+};
+
+
+//-----------------------------------------------------------------------------------------
