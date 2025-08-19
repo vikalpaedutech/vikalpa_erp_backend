@@ -2,12 +2,13 @@
 
 import express from "express";
 
-import { disciplinaryGamification } from "../controllers/disciplinaryGamification.controller.js";
+import { disciplinaryGamification, getDisciplinaryGamificationDocumentsForCurrentDate } from "../controllers/disciplinaryGamification.controller.js";
 
 const router = express.Router();
 
 router.post('/disciplinary-gamification', disciplinaryGamification);
 
+router.get('/get-disciplinary-docs-current-date-only', getDisciplinaryGamificationDocumentsForCurrentDate)
 
 
 export default router;

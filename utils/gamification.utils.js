@@ -103,6 +103,7 @@ export const awardPoints = async ({
   , studentAttendanceGamificationDate, schoolId, classofStudent, examId,
 
   dateOfUpload //for pdf upload
+  ,disciplinaryValue
 })=>{
 
 console.log('i am inside awardpoints')
@@ -1095,6 +1096,116 @@ console.log("hellow award points")
    else if (keyValue === 'disciplinary'){
 
 
+
+    //This Aggeregation fetches the student count...
+
+
+
+const totalStudents = await Student.aggregate([
+  {
+    $match: {
+      schoolId: schoolId,
+      classofStudent: classofStudent
+    }
+  },
+  {
+    $group: {
+      _id: {
+        schoolId: "$schoolId",
+        classofStudent: "$classofStudent",
+        districtId: "$districtId"
+      },
+      totalCount: { $sum: 1 }
+    }
+  },
+  {
+    $lookup: {
+      from: "district_block_schools",
+      localField: "_id.schoolId",
+      foreignField: "schoolId",
+      as: "locationInfo"
+    }
+  },
+  { $unwind: { path: "$locationInfo", preserveNullAndEmptyArrays: true } },
+  {
+    $project: {
+      _id: 0,
+      schoolId: "$_id.schoolId",
+      classofStudent: "$_id.classofStudent",
+      districtId: "$_id.districtId",
+      totalCount: 1,
+      districtName: "$locationInfo.districtName",
+      blockName: "$locationInfo.blockName",
+      schoolName: "$locationInfo.schoolName"
+    }
+  }
+]);
+
+
+     console.log("Attendance Data Summary:");
+    console.log(totalStudents[0].totalCount);
+
+    //--------------------------------------------------
+
+
+//points block--------------------------------------------------
+let points;
+
+if (totalStudents[0].totalCount >= 50) {
+  if (disciplinaryValue === 'Poor') points = -30;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 15;
+  else if (disciplinaryValue === 'Excellent') points = 30;
+
+} else if (totalStudents[0].totalCount >= 40 && totalStudents[0].totalCount <= 49) {
+  if (disciplinaryValue === 'Poor') points = -27.5;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 13.75;
+  else if (disciplinaryValue === 'Excellent') points = 27.5;
+
+} else if (totalStudents[0].totalCount >= 30 && totalStudents[0].totalCount <= 39) {
+  if (disciplinaryValue === 'Poor') points = -27.5;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 13.75;
+  else if (disciplinaryValue === 'Excellent') points = 27.5;
+
+} else if (totalStudents[0].totalCount >= 25 && totalStudents[0].totalCount <= 29) {
+  if (disciplinaryValue === 'Poor') points = -20;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 10;
+  else if (disciplinaryValue === 'Excellent') points = 20;
+
+} else if (totalStudents[0].totalCount >= 20 && totalStudents[0].totalCount <= 24) {
+  if (disciplinaryValue === 'Poor') points = -17.5;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 8.75;
+  else if (disciplinaryValue === 'Excellent') points = 17.5;
+
+} else if (totalStudents[0].totalCount >= 15 && totalStudents[0].totalCount <= 19) {
+  if (disciplinaryValue === 'Poor') points = -15;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 7.5;
+  else if (disciplinaryValue === 'Excellent') points = 15;
+
+} else if (totalStudents[0].totalCount >= 10 && totalStudents[0].totalCount <= 14) {
+  if (disciplinaryValue === 'Poor') points = -12.5;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 6.25;
+  else if (disciplinaryValue === 'Excellent') points = 12.5;
+
+} else if (totalStudents[0].totalCount >= 0 && totalStudents[0].totalCount <= 9) {
+  if (disciplinaryValue === 'Poor') points = -10;
+  else if (disciplinaryValue === 'Average') points = 0;
+  else if (disciplinaryValue === 'Good') points = 2.5;
+  else if (disciplinaryValue === 'Excellent') points = 10;
+}
+
+
+//---------------------------------------------------------------
+console.log(points)
+
+
+
     //Date management for querying
 
     const today = new Date ();
@@ -1117,11 +1228,11 @@ console.log("hellow award points")
 
   console.log("Hello disciplinary")
 
-  let disciplinaryValue = 'Average'
+  // let disciplinaryValue = 'Average'
 
-    let id = '1234'
+    let id = schoolId
   // let dateOfDisciplinary = new Date()
-    let classofStudent = '9'
+    // let classofStudent = '9'
 
 
   const isDisciplinaryGamificationExist = await Gamification.findOne({
@@ -1138,9 +1249,9 @@ console.log("hellow award points")
 
         userId: '123',
         pointType: 'disciplinary',
-        id: '123',
-        classofStudent:'9',
-        point:0,
+        id: id,
+        classofStudent:classofStudent,
+        point:points,
         disciplinaryRemark1: 'Poor',
       disciplinaryRemark1Count: 0,
       disciplinaryRemark2: 'Average',
@@ -1173,6 +1284,8 @@ console.log("hellow award points")
 
       const createDisciplinaryData = await Gamification.create(newDisciplinaryData);
 
+      
+
       // return res.status(201).json({message:'Disciplnary points updated successfully',
       //   data: createDisciplinaryData
       // })
@@ -1180,9 +1293,7 @@ console.log("hellow award points")
 
     } else {
 
-      
       let updatedField = null;
-
 
       for (let i=1; i<=4; i++){
 
@@ -1198,6 +1309,14 @@ console.log("hellow award points")
         console.log('Existing document updated')
         
       }
+
+      // ✅ Add new points into existing point field
+      if (typeof points === "number") {
+        isDisciplinaryGamificationExist.point =
+          (isDisciplinaryGamificationExist.point || 0) + points;
+      }
+
+
 
       if (!updatedField){
         console.log('No updated field found!')
