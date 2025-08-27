@@ -1,88 +1,6 @@
 // import { Gamification } from "../models/gamification.model.js";
 
-// // Helper to calculate points based on your logic
-// export const awardPoints = async ({
-//   userId,
-//   pointType,
-//   classofStudent = null,
-//   timeStamp = new Date(),
-//   extraData = {}, // For loginTime, studentCount, etc.
-// }) => {
-//   try {
-//     let points = 0;
-
-//     switch (pointType) {
-//       case "self-attendance": {
-//         const loginHour = new Date(extraData.loginTime).getHours();
-//         const loginMinutes = new Date(extraData.loginTime).getMinutes();
-//         const totalMinutes = loginHour * 60 + loginMinutes;
-
-//         if (totalMinutes <= 450) points = 10; // <= 7:30
-//         else if (totalMinutes <= 465) points = 5; // 7:31 - 7:45
-//         else if (totalMinutes <= 480) points = 2; // 7:46 - 8:00
-//         else if (totalMinutes <= 495) points = -5; // 8:01 - 8:15
-//         else points = -10;
-//         break;
-//       }
-
-//       case "student-attendance": {
-//         const studentCount = extraData.studentCount;
-//         const markedTime = new Date(extraData.markedTime);
-//         const cutoff = new Date(markedTime);
-//         cutoff.setHours(14, 40, 0, 0);
-
-//         if (markedTime > cutoff) {
-//           points = -15;
-//         } else if (studentCount <= 9) points = 3;
-//         else if (studentCount <= 14) points = 5;
-//         else if (studentCount <= 29) points = 7;
-//         else if (studentCount <= 39) points = 8;
-//         else if (studentCount <= 49) points = 10;
-//         else if (studentCount <= 79) points = 12;
-//         else points = 15;
-//         break;
-//       }
-
-//       case "pdf-upload": {
-//         const uploadedTime = new Date(extraData.uploadedTime);
-//         const cutoff = new Date(uploadedTime);
-//         cutoff.setHours(14, 40, 0, 0);
-//         points = uploadedTime <= cutoff ? 5 : -5;
-//         break;
-//       }
-
-//       case "absentee-calling":
-//       case "marks-upload": {
-//         const studentCount = extraData.studentCount;
-//         if (studentCount <= 9) points = 3;
-//         else if (studentCount <= 14) points = 5;
-//         else if (studentCount <= 29) points = 7;
-//         else if (studentCount <= 39) points = 8;
-//         else if (studentCount <= 49) points = 10;
-//         else if (studentCount <= 79) points = 12;
-//         else points = 15;
-//         break;
-//       }
-
-//       default:
-//         break;
-//     }
-
-//     const gamificationRecord = new Gamification({
-//       userId,
-//       pointType,
-//       classofStudent,
-//       point: points,
-//       dateOfPoint: timeStamp,
-//     });
-
-//     await gamificationRecord.save();
-//     console.log(`✅ Awarded ${points} points to ${userId} for ${pointType}`);
-//   } catch (error) {
-//     console.error("❌ Error awarding points:", error.message);
-//   }
-// };
-
+ // Helper to calculate points based on your logic
 
 import { Gamification } from "../models/gamification.model.js";
 
@@ -122,90 +40,37 @@ console.log(typeof(loginTime))
 
   
     
-    if (keyValue === "self-attendance"){
+if (keyValue === "self-attendance"){
 
-
-// const formattedDate = new Date(Number(loginTime)).toISOString();
- 
-// const formattedDateLocalTime = new Date(Number(loginTime)).toLocaleString();
-
-
-
-// const formattedLocaleTime = new Date(Number(loginTime)).toLocaleTimeString();
-
-// // const formattedLocaleTime = "7:31:00 am"
-
-// console.log("Formatted ISO Date:", formattedDate);
-// console.log("Formatted std Date:", formattedDateLocalTime);
-// console.log("Formatted locale tinme", formattedLocaleTime);
-
-
-//      let point;
-
-//      if (formattedLocaleTime > "8:15:00 am") {
-//         point = -10;
-//       } else if (formattedLocaleTime >= "8:01:00 am") {
-//         point = -5;
-//       } else if (formattedLocaleTime >= "7:46:00 am") {
-//         point = 2;
-//       } else if (formattedLocaleTime >= "7:31:00 am") {
-//         point = 5;
-//       } else if (formattedLocaleTime >= "7:30:00 am") {
-//         point = 10;
-//       } else {
-//         point = -10
-//       }
-
-//       console.log('Hello award points')
-
-
-
-//       const payload = {
-
-//         userId: userId,
-//         pointType: keyValue,
-//         id: userId,
-//         classofStudent: 'NA',
-//         point: point,
-//         dateOfPoint:formattedDate
-
-//       }
-
-//       console.log(payload)
-
-     
-
-
-//   const gamification = new Gamification(payload);
-  
-//   const savedGamification = await gamification.save();
-
-
-//   // res.status(200).json({ status: "Success", data: Gamification });
-
-
-
-
-
-
-
-
-
-
-
-
+  console.log('Hello self attendances')
 
 const formattedDate = new Date(Number(loginTime)).toISOString();
  
 const formattedDateLocalTime = new Date(Number(loginTime)).toLocaleString();
 
-
-
 const formattedLocaleTime = new Date(Number(loginTime)).toLocaleTimeString();
 
 // const formattedLocaleTime = "7:31:00 am"
 
+
+
+const day = String(formattedDate.getDate()).padStart(2, '0');
+const month = String(formattedDate.getMonth() + 1).padStart(2, '0');
+const year = formattedDate.getFullYear();
+
+const formattedCurrentDate = `${day}-${month}-${year}`;
+console.log(formattedCurrentDate); 
+
+
+
+
+
+const tempDate = new Date("2025-08-26T06:31:17.136Z");
+
+console.log('Full date', tempDate)
+
 console.log("Formatted ISO Date:", formattedDate);
+console.log(tempDate)
 console.log("Formatted std Date:", formattedDateLocalTime);
 console.log("Formatted locale tinme", formattedLocaleTime);
 
@@ -465,127 +330,11 @@ if (existingGamification) {
 }
 
 //--------------------------------------------------------------------------------------------
-      //  const gamificationPayload = {
-      //   userId: userId,
-      //   pointType: keyValue,
-      //   classofStudent: classofStudent,
-      //   point: point,
-      //   dateOfPoint: new Date(studentAttendanceGamificationDate)
-      // };
 
-      // const gamification = new Gamification(gamificationPayload);
-      // await gamification.save();
 
   }
 
    else if (keyValue === "makrs-upload"){
-
-  //   console.log("hellow award points")
-
-  //   console.log(keyValue, 
-  //     userId, 
-  //     examId,
-  //      schoolId, 
-  //      classofStudent)
-
-  //   console.log("hellow award points")
-
-
-
-
-
-
-
-
-
-
-
-  // console.log("hellow award points");
-
-  // console.log(keyValue, userId, examId, schoolId, classofStudent);
-  // console.log("hellow award points");
-
-  // const now = new Date();
-  // const formattedLocaleTime = now.toLocaleTimeString();
-  // console.log("Upload Time:", formattedLocaleTime);
-
-  // // Step 1: Count students with marks uploaded
-  // const marksUploadedCount = await Marks.countDocuments({
-  //   examId: examId,
-  //   schoolId: schoolId,
-  //   classofStudent: classofStudent,
-  //   marksObtained: { $ne: "" }
-  // });
-
-  // console.log("Total Marks Uploaded:", marksUploadedCount);
-
-  // // Step 2: Calculate points
-  // let point = 0;
-
-  // if (formattedLocaleTime <= "2:40:00 pm") {
-  //   if (marksUploadedCount >= 80) point = 15;
-  //   else if (marksUploadedCount >= 50) point = 12;
-  //   else if (marksUploadedCount >= 40) point = 10;
-  //   else if (marksUploadedCount >= 30) point = 8;
-  //   else if (marksUploadedCount >= 15) point = 7;
-  //   else if (marksUploadedCount >= 10) point = 5;
-  //   else if (marksUploadedCount >= 9) point = 3;
-  // } else {
-  //   point = -15;
-  // }
-
-  // // Step 3: Check if gamification already exists (NO DATE check here)
-  // const existingGamification = await Gamification.findOne({
-  //   pointType: "makrs-upload",
-  //   userId: userId,
-  //   id: schoolId,
-  //   classofStudent: classofStudent,
-  //   examId: examId
-  // });
-
-  // // Step 4: Create or Update
-  // if (existingGamification) {
-  //   existingGamification.point = point;
-  //   existingGamification.updatedAt = now;
-  //   await existingGamification.save();
-  //   console.log("Updated existing gamification entry for marks-upload.");
-  // } else {
-  //   const gamificationPayload = {
-  //     userId: userId,
-  //     pointType: "makrs-upload",
-  //     id: schoolId,
-  //     classofStudent: classofStudent,
-  //     examId: examId,
-  //     point: point,
-  //     dateOfPoint: now,
-     
-  //   };
-
-  //   const newGamification = new Gamification(gamificationPayload);
-  //   await newGamification.save();
-  //   console.log("Created new gamification entry for marks-upload.");
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 console.log("hellow award points")
 
@@ -595,18 +344,7 @@ console.log("hellow award points")
        schoolId, 
        classofStudent)
 
-    console.log("hellow award points")
-
-
-
-
-
-
-
-
-
-
-
+  console.log("hellow award points")
 
   console.log("hellow award points");
 
@@ -688,164 +426,6 @@ console.log("hellow award points")
    //Absentee calling block
 
    else if (keyValue === 'absentee-calling') {
-
-    
-
-  // console.log("hellow absentee calling");
-  // console.log(userId);
-  // console.log(studentAttendanceGamificationDate);
-  // console.log(schoolId);
-  // console.log(classofStudent);
-
-  // console.log("hellow absentee calling");
-  // const formattedLocaleTime = new Date(studentAttendanceGamificationDate)
-  //   .toLocaleTimeString();
-  // console.log(formattedLocaleTime);
-
-  // // Normalize date range
-  // const dateOnly = new Date(studentAttendanceGamificationDate);
-  // dateOnly.setUTCHours(0, 0, 0, 0);
-
-  // const nextDate = new Date(dateOnly);
-  // nextDate.setUTCDate(dateOnly.getUTCDate() + 1);
-
-  // // Aggregation: Get only absenteeCallingStatus: "Connected" count
-  // const attendanceData = await StudentAttendance.aggregate([
-  //   {
-  //     $match: {
-  //       date: { $gte: dateOnly, $lt: nextDate },
-  //       absenteeCallingStatus: "Connected" // ✅ filter here
-  //     }
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "students",
-  //       localField: "studentSrn",
-  //       foreignField: "studentSrn",
-  //       as: "student",
-  //     }
-  //   },
-  //   { $unwind: "$student" },
-  //   {
-  //     $match: {
-  //       "student.schoolId": schoolId,
-  //       "student.classofStudent": classofStudent
-  //     }
-  //   },
-  //   {
-  //     $group: {
-  //       _id: {
-  //         schoolId: "$student.schoolId",
-  //         classofStudent: "$student.classofStudent",
-  //         districtId: "$student.districtId",
-  //       },
-  //       connectedCount: { $sum: 1 } // ✅ counts only Connected records
-  //     }
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "district_block_schools",
-  //       let: {
-  //         districtId: { $toString: "$_id.districtId" },
-  //         centerId: { $toString: "$_id.schoolId" }
-  //       },
-  //       pipeline: [
-  //         {
-  //           $match: {
-  //             $expr: {
-  //               $and: [
-  //                 { $eq: ["$districtId", "$$districtId"] },
-  //                 { $eq: ["$centerId", "$$centerId"] }
-  //               ]
-  //             }
-  //           }
-  //         }
-  //       ],
-  //       as: "locationInfo"
-  //     }
-  //   },
-  //   {
-  //     $unwind: {
-  //       path: "$locationInfo",
-  //       preserveNullAndEmptyArrays: true
-  //     }
-  //   },
-  //   {
-  //     $project: {
-  //       _id: 0,
-  //       schoolId: "$_id.schoolId",
-  //       classofStudent: "$_id.classofStudent",
-  //       districtId: "$_id.districtId",
-  //       connectedCount: 1,
-  //       districtName: "$locationInfo.districtName",
-  //       blockName: "$locationInfo.blockName",
-  //       schoolName: "$locationInfo.centerName"
-  //     }
-  //   }
-  // ]);
-
-  // console.log("Absentee Calling Data Summary:");
-  // console.log(attendanceData);
-
-  // const connected = attendanceData[0]?.connectedCount || 0;
-
-  // let point = 0;
-  // if (formattedLocaleTime <= "2:40:00 pm") {
-  //   if (connected >= 80) point = 15;
-  //   else if (connected >= 50) point = 12;
-  //   else if (connected >= 40) point = 10;
-  //   else if (connected >= 30) point = 8;
-  //   else if (connected >= 15) point = 7;
-  //   else if (connected >= 10) point = 5;
-  //   else if (connected >= 9) point = 3;
-  // } else {
-  //   point = -15;
-  // }
-
-  // // Step 1: Normalize date for gamification
-  // const inputDate = new Date(studentAttendanceGamificationDate);
-  // const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
-  // const endOfDay = new Date(inputDate.setUTCHours(24, 0, 0, 0));
-
-  // // Step 2: Search for existing document
-  // const existingGamification = await Gamification.findOne({
-  //   pointType: 'absentee-calling',
-  //   userId: userId,
-  //   id: schoolId,
-  //   classofStudent: classofStudent,
-  //   dateOfPoint: { $gte: startOfDay, $lt: endOfDay }
-  // });
-
-  // // Step 3: Update or create new
-  // if (existingGamification) {
-  //   existingGamification.point = point;
-  //   existingGamification.updatedAt = new Date();
-  //   await existingGamification.save();
-  //   console.log("Updated existing absentee-calling gamification entry.");
-  // } else {
-  //   const gamificationPayload = {
-  //     userId: userId,
-  //     pointType: 'absentee-calling',
-  //     id: schoolId,
-  //     classofStudent: classofStudent,
-  //     point: point,
-  //     dateOfPoint: new Date(studentAttendanceGamificationDate)
-  //   };
-
-  //   const newGamification = new Gamification(gamificationPayload);
-  //   await newGamification.save();
-  //   console.log("Created new absentee-calling gamification entry.");
-  // }
-
-
-
-
-
-
-
-
-
-
 
   console.log("hellow absentee calling");
   console.log(userId);
