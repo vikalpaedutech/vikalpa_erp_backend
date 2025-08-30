@@ -34,15 +34,13 @@ console.log(typeof(loginTime))
 
 
 
-  try {
-    
-    //Below block will be handling points giving for 'self-attendance'
-
-  
+try {
+      
+//Below block will be handling points giving for 'self-attendance'
     
 if (keyValue === "self-attendance"){
 
-  console.log('Hello self attendances')
+console.log('Hello self attendances')
 
 const formattedDate = new Date(Number(loginTime)).toISOString();
  
@@ -50,27 +48,24 @@ const formattedDateLocalTime = new Date(Number(loginTime)).toLocaleString();
 
 const formattedLocaleTime = new Date(Number(loginTime)).toLocaleTimeString();
 
+
 // const formattedLocaleTime = "7:31:00 am"
-
-
-
-const day = String(formattedDate.getDate()).padStart(2, '0');
-const month = String(formattedDate.getMonth() + 1).padStart(2, '0');
-const year = formattedDate.getFullYear();
-
-const formattedCurrentDate = `${day}-${month}-${year}`;
-console.log(formattedCurrentDate); 
+// const day = String(formattedDate.getDate()).padStart(2, '0');
+// const month = String(formattedDate.getMonth() + 1).padStart(2, '0');
+// const year = formattedDate.getFullYear();
+// const formattedCurrentDate = `${day}-${month}-${year}`;
+// console.log(formattedCurrentDate); 
 
 
 
 
 
-const tempDate = new Date("2025-08-26T06:31:17.136Z");
+// const tempDate = new Date("2025-08-26T06:31:17.136Z");
 
-console.log('Full date', tempDate)
+// console.log('Full date', tempDate)
 
 console.log("Formatted ISO Date:", formattedDate);
-console.log(tempDate)
+// console.log(tempDate)
 console.log("Formatted std Date:", formattedDateLocalTime);
 console.log("Formatted locale tinme", formattedLocaleTime);
 
@@ -136,11 +131,17 @@ console.log("Formatted locale tinme", formattedLocaleTime);
   //Handling keyVavlue === "student-attendance"
   else if (keyValue === "student-attendance"){
 
+
     console.log("Hellow student-attendance");
+
     console.log(userId);
+
     console.log(studentAttendanceGamificationDate);
+
     console.log(schoolId);
+
     console.log(classofStudent);
+
     console.log("Hellow student-attendance");
 
    const formattedLocaleTime = new Date(studentAttendanceGamificationDate).toLocaleTimeString();

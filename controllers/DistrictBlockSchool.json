@@ -1131,5 +1131,17 @@
       "blockName": "Radaur",
       "districtId": "18",
       "districtName": "Yamunanagar"
+    },
+
+    {
+      "schoolId": "3261",
+      "schoolName": "GSSS BERI",
+      "schoolCode": "3261",
+      "totalStudents": 0,
+      "totalTeachers": 0,
+      "blockId": "118",
+      "blockName": "Beri",
+      "districtId": "14",
+      "districtName": "Jhajjar"
     }
   ]
