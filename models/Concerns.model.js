@@ -10,7 +10,16 @@ const ConcernsSchema = new Schema(
     
 
     {
+
+        
+
         concernId: {type: String}, //Each concern have unique id.
+
+         unqUserObjectId: {
+                      type: mongoose.Schema.Types.ObjectId, // reference to User
+                      ref: "User",
+                      required: true,
+                    },
         userId: {type: String}, //User id who raises concern
         concernType: {type: String}, //School, Tech, Individual.
         districtId: {type: String},

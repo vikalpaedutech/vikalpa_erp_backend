@@ -5,6 +5,14 @@ import { type } from "os";
 
 const userAttendanceSchema = new Schema(
   {
+
+
+    unqUserObjectId: {
+          type: mongoose.Schema.Types.ObjectId, // reference to User
+          ref: "User",
+          required: true,
+        },
+
     userId: { type: String, ref: "User" },
     date: { type: Date, default: Date.now, required: true },
     attendance: { type: String, default: "Absent" },

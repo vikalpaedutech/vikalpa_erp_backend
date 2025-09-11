@@ -42,3 +42,35 @@ export const createPost = async (req, res) => {
     });
   }
 };
+
+
+
+//Get district_block_schools
+
+export const GetDistrictBlockSchoolByParams = async (req, res) =>{
+
+  //user ke role basis pr, dynamically centerId, blockId, districtId query krunga.
+
+
+
+
+  const {districtId, blockId, centerId, role} = req.body;
+
+console.log('Hello region')
+
+  try {
+    
+
+    const response = await District_Block_School.find({})
+
+    res.status(200).json({status:"Success", data:response})
+
+
+  } catch (error) {
+    console.log('Error fetching data')
+  }
+
+
+
+
+}

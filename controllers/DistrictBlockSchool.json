@@ -1133,6 +1133,10 @@
       "districtName": "Yamunanagar"
     },
 
+
+    
+    
+
     {
       "schoolId": "3261",
       "schoolName": "GSSS BERI",
@@ -1143,5 +1147,42 @@
       "blockName": "Beri",
       "districtId": "14",
       "districtName": "Jhajjar"
+    },
+
+     {
+      "schoolId": "3716",
+      "schoolName": "GMSSSS BATAUR",
+      "schoolCode": "3716",
+      "totalStudents": 0,
+      "totalTeachers": 0,
+      "blockId": "81",
+      "blockName": "Barwala",
+      "districtId": "7",
+      "districtName": "Panchkula"
+    },
+
+     {
+      "schoolId": "4300",
+      "schoolName": "SARTHAK GIMSSS SECTOR-12A PANCHKULA",
+      "schoolCode": "4300",
+      "totalStudents": 0,
+      "totalTeachers": 0,
+      "blockId": "83",
+      "blockName": "Pinjore",
+      "districtId": "7",
+      "districtName": "Panchkula"
+    },
+
+
+      {
+      "schoolId": "2637",
+      "schoolName": "GSSS DHARUHERA",
+      "schoolCode": "2637",
+      "totalStudents": 0,
+      "totalTeachers": 0,
+      "blockId": "94",
+      "blockName": "Rewari",
+      "districtId": "9",
+      "districtName": "Rewari"
     }
   ]

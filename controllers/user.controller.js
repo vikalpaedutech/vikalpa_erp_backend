@@ -1,29 +1,94 @@
 //Writing all the Business logic, Rest APIs, for user.model.js;
 
-import { User } from "../models/user.model.js";
+import mongoose from "mongoose"; 
+import { User, UserAccess } from "../models/user.model.js";
+
+// Create a new user (POST)
+// export const createUser = async (req, res) => {
+//     console.log("I am inside user controller, createUser API");
+
+//     try {
+//         const { userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
+//                 isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
+//                 classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude } = req.body;
+        
+//                 console.log(req.body)
+//         const user = await User.create({
+//             userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
+//             isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
+//             classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude
+//         });
+
+//         res.status(201).json({ status: "Success", data: user });
+//     } catch (error) {
+//         console.log("Error creating user", error.message);
+//         res.status(500).json({ status: "Error", message: "Server error" });
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
 
 // Create a new user (POST)
 export const createUser = async (req, res) => {
-    console.log("I am inside user controller, createUser API");
+  console.log("I am inside user controller, createUser API");
 
-    try {
-        const { userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
-                isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
-                classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude } = req.body;
-        
-                console.log(req.body)
-        const user = await User.create({
-            userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
-            isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
-            classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude
-        });
+  try {
+    const {
+      userId,
+      name,
+      email,
+      password,
+      contact1,
+      contact2,
+      department,
+      role,
+      isActive,
+      profileImage,
+      longitude,
+      latitude,
+    } = req.body;
 
-        res.status(201).json({ status: "Success", data: user });
-    } catch (error) {
-        console.log("Error creating user", error.message);
-        res.status(500).json({ status: "Error", message: "Server error" });
-    }
+    console.log(req.body);
+
+    // Create user
+    const user = await User.create({
+      userId,
+      name,
+      email,
+      password,
+      contact1,
+      contact2,
+      department,
+      role,
+      isActive,
+      profileImage,
+      longitude,
+      latitude,
+    });
+
+    res.status(201).json({ status: "Success", data: user });
+  } catch (error) {
+    console.log("Error creating user", error.message);
+    res.status(500).json({ status: "Error", message: "Server error" });
+  }
 };
+
+
+
+
+
+
+
+
 
 //--------------------------------------------------------------
 
@@ -163,6 +228,100 @@ export const getUserByContact1 = async (req, res) => {
 //____________________________________________
 
 
+
+//User login api.
+
+// export const userSignIn = async (req, res) => {
+//     console.log("I am inside user controller, getUserByContact1 API");
+
+//     try {
+
+//         const {contact1, password} = req.body
+
+//         // const { contact1 } = req.params;
+//         console.log(req.body);
+
+//         // Finding user by contact1
+//         const user = await User.findOne({ contact1: contact1, password:password });
+
+//         // Check if user array is empty
+//         if (!user) {
+//             return res.status(404).json({ status: "Error", message: "User not found" });
+//         }
+
+
+
+//         console.log(user)
+
+
+//         // If user found, send back the user details
+//         return res.status(200).json({ status: "Success", data: user });
+//     } catch (error) {
+//         console.log("Error fetching user by contact1", error.message);
+//         res.status(500).json({ status: "Error", message: "Server Error" });
+//     }
+// }
+
+
+
+
+
+
+
+export const userSignIn = async (req, res) => {
+    console.log("I am inside userSignIn API");
+
+    try {
+        const { contact1, password } = req.body;
+        console.log("Request:", req.body);
+
+        // Aggregation pipeline
+        const user = await User.aggregate([
+            {
+                $match: { contact1, password }
+            },
+            {
+                $lookup: {
+                    from: "useraccesses", // collection name in MongoDB
+                    localField: "_id",
+                    foreignField: "unqObjectId",
+                    as: "userAccess"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userAccess",
+                    preserveNullAndEmptyArrays: true // in case no access is defined
+                }
+            }
+        ]);
+
+        // If no user found
+        if (!user || user.length === 0) {
+            return res.status(404).json({ status: "Error", message: "User not found" });
+        }
+
+        
+        console.log(user)
+
+        // Return combined object
+        return res.status(200).json({
+            status: "Success",
+            data: user[0]
+        });
+
+    } catch (error) {
+        console.error("Error in userSignIn:", error.message);
+        return res.status(500).json({ status: "Error", message: "Server Error" });
+    }
+};
+//------------------------------------------------------
+
+
+
+
+
+
 // Update user by ID (PUT)
 export const updateUserById = async (req, res) => {
     console.log("I am inside user controller, updateUserById API");
@@ -287,4 +446,198 @@ export const patchUserByContact = async (req, res) => {
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
-//---------------
+//--------------------------------------------------------
+
+
+
+
+//User access controller api to update useraccess.
+// Create or update UserAccess
+export const setUserAccess = async (req, res) => {
+  try {
+    const { unqObjectId, userId, modules, region, classId } = req.body;
+
+    if (!unqObjectId) {
+      return res.status(400).json({ message: "unqObjectId (User ID) is required" });
+    }
+
+    // Use upsert: true → creates if not exists, updates if exists
+    const updatedAccess = await UserAccess.findOneAndUpdate(
+      { unqObjectId }, // match by user reference
+      {
+        $set: {
+          userId,
+          modules,
+          region,
+          classId,
+        },
+      },
+      {
+        new: true, // return updated doc
+        upsert: true, // create if not exist
+      }
+    );
+
+    res.status(200).json({
+      message: "User access set successfully",
+      data: updatedAccess,
+    });
+  } catch (error) {
+    console.error("Error in setUserAccess:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+//--------------------------------------------------------------
+
+
+
+
+
+
+//get all users for admin side.
+
+export const getAllUsersWithAccess = async (req, res) =>{
+
+    console.log('Hello get all users')
+
+
+    try {
+        const {page,
+            name,
+            userId,
+            contact1,
+            contact2,
+            department,
+            role,
+            isActive
+        } = req.query;
+
+        console.log(req.query)
+
+        const filters = {};
+
+        if (name) {
+            filters.name = {$regex: name, $options: "i"}; //case-insensitive regex
+        }
+        if (userId) filters.userId = userId;
+        if (contact1) filters.contact1 = contact1;
+        if (contact2) filters.contact2 = contact2;
+        if (department) filters.department = department;
+        if (role) filters.role = role;
+        if (isActive !== undefined) filters.isActive = isActive === "true";
+
+        const perPage = 50;
+        const skip = (parseInt(page) - 1) * perPage;
+
+
+        const pipeline = [
+            {$match: filters},
+
+            {
+                $lookup: {
+                    from:"useraccesses", 
+                    localField: "_id",
+                    foreignField:"unqObjectId",
+                    as: "access",
+
+                },
+            },
+            {$unwind: {path: "$access", preserveNullAndEmptyArrays: true}},
+
+            {
+                $project: {
+                    userId: 1,
+                    name: 1,
+                    email: 1,
+                    contact1: 1,
+                    contact2: 1,
+                    department: 1,
+                    role: 1,
+                    isActive: 1,
+                    createdAt: 1,
+                    "access.modules":1,
+                    "access.region": 1,
+                    "access.classId": 1,
+
+                },
+            },
+            {$sort:{createdAt: -1}},
+            {$skip: skip},
+            {$limit:perPage},
+        ];
+
+        const users = await User.aggregate(pipeline);
+
+        //Count total users matching filters
+        const totalUsers = await User.countDocuments(filters);
+
+      
+
+        res.json({
+            success: true,
+            page: parseInt(page),
+            perPage,
+            totalUsers,
+            totalPages: Math.ceil(totalUsers / perPage),
+            data: users,
+
+        })
+
+    } catch (error) {
+        console.error("Error fetching users", err);
+        res.status(500).json({success: false, message: "Server Error"})
+    }
+};
+
+
+
+//Update users data role and access.
+
+export const updateUserWithAccess = async (req, res) => {
+
+    console.log('hello update user with access')
+  try {
+    const { _id, userData, userAccess } = req.body;
+
+    console.log(req.body)
+
+    if (!_id) {
+      return res.status(400).json({ success: false, message: "_id is required" });
+    }
+
+    // ✅ Ensure _id is ObjectId
+    const objectId = new mongoose.Types.ObjectId(_id);
+
+    // ✅ Update Users collection
+    let updatedUser = null;
+    if (userData && Object.keys(userData).length > 0) {
+      updatedUser = await User.findOneAndUpdate(
+        { _id: objectId }, // match with User _id
+        { ...userData, updatedAt: new Date() },
+        { new: true }
+      );
+    }
+
+    // ✅ Update UserAccess collection
+    let updatedAccess = null;
+    if (userAccess && Object.keys(userAccess).length > 0) {
+      updatedAccess = await UserAccess.findOneAndUpdate(
+        { unqObjectId: objectId }, // match with UserAccess.unqObjectId
+        { ...userAccess, updatedAt: new Date() },
+        { new: true }
+      );
+    }
+
+    return res.json({
+      success: true,
+      message: "User and access updated successfully",
+      user: updatedUser,
+      access: updatedAccess,
+    });
+  } catch (error) {
+    console.error("Error updating user with access:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};

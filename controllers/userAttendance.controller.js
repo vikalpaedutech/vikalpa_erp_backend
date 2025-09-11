@@ -1,11 +1,13 @@
 //Writing all the Business logic, Rest APIs, for userAttendance.model.js;
 import cron from "node-cron";
 import { UserAttendance } from "../models/userAttendnace.model.js";
+import mongoose from "mongoose";
 import { User } from "../models/user.model.js";
 import { set } from "mongoose";
 import multer from "multer";
 import { uploadToDOStorage } from "../utils/digitalOceanSpacesUserAttendance.js";
 import { compareSync } from "bcryptjs";
+
 
 //Gamfication utility
 import {awardPoints} from "../utils/gamification.utils.js"
@@ -15,214 +17,109 @@ import {awardPoints} from "../utils/gamification.utils.js"
 const storage = multer.memoryStorage();
 export const uploadFile = multer({ storage }).single('file');
 
-// Function to create attendance records
-// export const cronJobUserAttendance = async (req, res) => {
-//     console.log("I am inside the cron job function of user attedndance");
-
-    
-//     const {date} = req.body;
-//     console.log(date)
-   
-//     try {
-        
-//          // Step 1: Get current date at midnight UTC (00:00:00)
-//         const currentDate = new Date();
-//         currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
-// console.log(currentDate)
-//         // Step 2: Check if attendance for current date already exists
-//         const existingAttendance = await UserAttendance.findOne({ date: currentDate });
-
-//         if (existingAttendance) {
-//             console.log("Attendance already created");
-//             return res.status(400).json({ message: "Attendance already created for today" });
-//         }
-
-
-//         const users = await User.find({}); // Get all students
-
-//         console.log(users);
-
-//         console.log(`Found ${users.length} students`);
-
-        
-
-//         // Loop through students and create attendance records
-//         for (const user of users) {
-//             console.log(`Processing student with user id: ${user.userId}`);
-            
-//             const userAttendanceRecord = new UserAttendance({
-//                 userId: user.userId,
-//                 date: new Date().toISOString().split("T")[0], // => "2025-04-10",
-//                 attendance: 'Absent', // Default status
-//                 longitude:0,
-//                 latitude:0,
-//                 coordinateDifference: null,
-//                 loginTime: "",
-//                 logoutTime: "",
-//                 logoutLongitude:0,
-//                 logoutLatitude:0,
-//                 logoutCoordinateDifference:null,
-//                 fileName: null,
-//                 fileUrl:null,
-//                 attendanceType: null,
-//                 visitingLocation: null,
-//                 attendanceMarkedBy: null,
-
-
-//             });
-
-//             await userAttendanceRecord.save(); // Save the attendance data
-//             console.log(`Attendance saved for user id: ${user.userId}`);
-//         }
-
-//         console.log('Attendance records created for all users');
-//     } catch (error) {
-        
-//         console.error('Error during user attendance dump: ', error);
-//     }
-// };
-
-
-// export const cronJobUserAttendance = async (req, res) => {
-//     console.log("I am inside the cron job function of user attedndance");
-
-//     const {date} = req.body;
-//     console.log(date)
-
-//     try {
-
-//         //Checks for duplicacy and if there is duplicacy then stops further executino
-
-//           // Step 1: Get current date at midnight UTC (00:00:00)
-//                 const currentDate = date ? new Date(date) : new Date();
-//                 currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
-
-//                 // Step 2: Check if attendance for current date already exists
-//                 const existingAttendance = await UserAttendance.findOne({ date: currentDate });
-
-//                 if (existingAttendance) {
-//                     console.log("Attendance already created");
-//                     return res.status(400).json({ message: "Attendance already created for today" });
-//                 }
-
-//         //---------------------------------------------------------------------------
-
-//         const users = await User.find({}); // Get all students
-
-//         console.log(users);
-
-//         console.log(`Found ${users.length} students`);
-
-//         // Loop through students and create attendance records
-//         for (const user of users) {
-//             console.log(`Processing student with user id: ${user.userId}`);
-            
-//             const userAttendanceRecord = new UserAttendance({
-//                 userId: user.userId,
-//                 date: date || new Date().toISOString().split("T")[0], // => "2025-04-10",
-//                 attendance: 'Absent', // Default status
-//                 longitude:0,
-//                 latitude:0,
-//                 coordinateDifference: null,
-//                 loginTime: "",
-//                 logoutTime: "",
-//                 logoutLongitude:0,
-//                 logoutLatitude:0,
-//                 logoutCoordinateDifference:null,
-//                 fileName: null,
-//                 fileUrl:null,
-//                 attendanceType: null,
-//                 visitingLocation: null,
-//                 attendanceMarkedBy: null,
-//             });
-
-//             await userAttendanceRecord.save(); // Save the attendance data
-            
-//             console.log(`Attendance saved for user id: ${user.userId}`);
-//         }
-//         res.status(200).json({status:"success", message:"Attendance instance created successfully"})
-//         console.log('Attendance records created for all users');
-//     } catch (error) {
-//         console.error('Error during user attendance dump: ', error);
-//         res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
-//     }
-// };
 
 
 
 
 
+//Cron job time management
+// --------------------------- Configurable Time (IST) ---------------------------
+const attendanceRunTimeIST = "12:01 AM"; // Change this time for testing
+
+// Convert IST time string into 24h format (hours & minutes)
+function parseISTTime(timeStr) {
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+
+    return { hours, minutes };
+}
+
+//--------------------------------------
 
 
 export const cronJobUserAttendance = async (req, res) => {
-    console.log("I am inside the cron job function of user attedndance");
+    console.log("I am inside the cron job function of user attendance");
 
-    const {date} = req.body;
-    console.log(date)
+    const { date } = req.body || {};
+    console.log("Triggered for date:", date);
 
     try {
+        // Step 1: Normalize date (midnight IST)
+        const currentDate = date ? new Date(date) : new Date();
+        currentDate.setHours(0, 0, 0, 0);
 
-        //Checks for duplicacy and if there is duplicacy then stops further executino
+        // Step 2: Prevent duplicate attendance creation
+        const existingAttendance = await UserAttendance.findOne({ date: currentDate });
+        if (existingAttendance) {
+            console.log("Attendance already created");
+            if (res) return res.status(400).json({ message: "Attendance already created for today" });
+            return;
+        }
 
-          // Step 1: Get current date at midnight UTC (00:00:00)
-                const currentDate = date ? new Date(date) : new Date();
-                currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
+        // Step 3: Get all active users
+        const users = await User.find({ isActive: true });
+        console.log(`Found ${users.length} users`);
 
-                // Step 2: Check if attendance for current date already exists
-                const existingAttendance = await UserAttendance.findOne({ date: currentDate });
-
-                if (existingAttendance) {
-                    console.log("Attendance already created");
-                    return res.status(400).json({ message: "Attendance already created for today" });
-                }
-
-        //---------------------------------------------------------------------------
-
-        const users = await User.find({ isActive: true }); // Get all students
-
-        console.log(users);
-
-        console.log(`Found ${users.length} students`);
-
-        // Loop through students and create attendance records
         for (const user of users) {
-            console.log(`Processing student with user id: ${user.userId}`);
-            
             const userAttendanceRecord = new UserAttendance({
+              unqUserObjectId:user._id,
                 userId: user.userId,
-                date: date || new Date().toISOString().split("T")[0], // => "2025-04-10",
-                attendance: 'Absent', // Default status
-                longitude:0,
-                latitude:0,
+                date: date || new Date().toISOString().split("T")[0],
+                attendance: "Absent",
+                longitude: 0,
+                latitude: 0,
                 coordinateDifference: null,
                 loginTime: "",
                 logoutTime: "",
-                logoutLongitude:0,
-                logoutLatitude:0,
-                logoutCoordinateDifference:null,
+                logoutLongitude: 0,
+                logoutLatitude: 0,
+                logoutCoordinateDifference: null,
                 fileName: null,
-                fileUrl:null,
+                fileUrl: null,
                 attendanceType: null,
                 visitingLocation: null,
                 attendanceMarkedBy: null,
             });
 
-            await userAttendanceRecord.save(); // Save the attendance data
-
-           
-
-            
+            await userAttendanceRecord.save();
             console.log(`Attendance saved for user id: ${user.userId}`);
         }
-        res.status(200).json({status:"success", message:"Attendance instance created successfully"})
-        console.log('Attendance records created for all users');
+
+        if (res) {
+            res.status(200).json({ status: "success", message: "Attendance instance created successfully" });
+        }
+        console.log("Attendance records created for all users");
     } catch (error) {
-        console.error('Error during user attendance dump: ', error);
-        res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
+        console.error("Error during user attendance dump: ", error);
+        if (res) {
+            res.status(500).json({ status: "Failed", message: "Attendance instance could not be created" });
+        }
     }
 };
 
+// --------------------------- Auto Scheduler ---------------------------
+// Convert IST -> Cron Expression (system UTC expected)
+const { hours, minutes } = parseISTTime(attendanceRunTimeIST);
 
+// Convert IST to UTC (because server may run in UTC)
+// const utcDate = new Date(Date.UTC(1970, 0, 1, hours - 5, minutes - 30));
+// const utcHours = utcDate.getUTCHours();
+// const utcMinutes = utcDate.getUTCMinutes();
+
+// Final cron expression
+const cronExp = `${minutes} ${hours} * * *`;
+console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
+
+cron.schedule(cronExp, async () => {
+    console.log("Running cron job at IST time:", attendanceRunTimeIST);
+    await cronJobUserAttendance({ body: {} }, { 
+        status: () => ({ json: () => {} }) // dummy res for cron run
+    });
+});
+//---------------------------------------------------------------
 
 
 
@@ -317,47 +214,13 @@ export const GetAttendanceByUserId = async (req, res) => {
 };
 //____________________________________________________________________
 
-//Patch user attendance
-
-// export const PatchUserAttendanceByUserId = async (req, res) => {
-
-//     const {userId, date} = req.query;
-//     const {attendance, longitude, latitude,  coordinateDifference, loginTime, logoutTime, logoutLongitude, logoutLatitude, logoutCoordinateDifference} = req.body;
-
-    
-
-//     console.log(req.query);
-//     console.log(req.body);
-//     console.log(loginTime)
-//     // console.log(req.body)
-
-// try {
-
-//     const attendance = await UserAttendance.findOneAndUpdate(req.query, {
-//         $set: req.body
-//     })
-
-//     res.status(200).json({ status: "Success", data: attendance });
-
-
-    
-// } catch (error) {
-//     console.error("Error occurred:", error.message);
-//     res.status(500).json({ status: "Failed", message: error.message });
-// }
-
-// }
-
-//___________________________________________________
-
-
 
 // Patch attendance with image upload
-
-
 export const PatchUserAttendanceByUserId = async (req, res) => {
-  const { userId, date } = req.query;
 
+  console.log('hello user attendance')
+  const { userId, date } = req.query;
+  console.log(req.query)
 
   let {
     attendance,
@@ -433,284 +296,6 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
     res.status(500).json({ status: "Failed", message: error.message });
   }
 };
-
-
-
-
-
-
-
-
-
-// Patch attendance with image upload
-
-
-
-// export const PatchUserAttendanceByUserId = async (req, res) => {
-//   const { userId, date } = req.query;
-
-//   let {
-//     attendance,
-//     longitude,
-//     latitude,
-//     coordinateDifference,
-//     loginTime,
-//     logoutTime,
-//     logoutLongitude,
-//     logoutLatitude,
-//     logoutCoordinateDifference,
-//     attendanceType,
-//     visitingLocation
-//   } = req.body;
-
-//   // ✅ Handle coordinateDifference null or 'null' cases
-//   const safeCoordinateDifference =
-//     coordinateDifference === null ||
-//     coordinateDifference === "null" ||
-//     coordinateDifference === undefined
-//       ? 0
-//       : Number(coordinateDifference);
-
-//   // ✅ Handle longitude and latitude null or 'null' cases
-//   const safeLongitude =
-//     longitude === null || longitude === "null" || longitude === undefined
-//       ? 0
-//       : Number(longitude);
-
-//   const safeLatitude =
-//     latitude === null || latitude === "null" || latitude === undefined
-//       ? 0
-//       : Number(latitude);
-
-//   console.log("🧾 Request Body:", req.body);
-//   console.log("📁 File:", req.file);
-
-//   try {
-//     let fileUrl = null;
-//     let fileName = null;
-
-//     if (req.file) {
-//       const mimeType = req.file.mimetype;
-//       fileName = `attendance-${userId}-${Date.now()}.jpg`;
-//       fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
-//     }
-
-//     const updatePayload = {
-//       ...(attendance && { attendance }),
-//       ...(safeLongitude !== null && { longitude: safeLongitude }),
-//       ...(safeLatitude !== null && { latitude: safeLatitude }),
-//       ...(safeCoordinateDifference !== null && { coordinateDifference: safeCoordinateDifference }),
-//       ...(loginTime && { loginTime }),
-//       ...(logoutTime && { logoutTime }),
-//       ...(logoutLongitude && { logoutLongitude }),
-//       ...(logoutLatitude && { logoutLatitude }),
-//       ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
-//       ...(fileUrl && { fileUrl }),
-//       ...(fileName && { fileName }),
-//       attendanceType: attendanceType ? attendanceType : "NA", // ✅ added
-//       visitingLocation: visitingLocation ? visitingLocation : "NA", // ✅ added
-//     };
-
-//     const updated = await UserAttendance.findOneAndUpdate(
-//       { userId, date },
-//       { $set: updatePayload },
-//       { new: true }
-//     );
-
-//     res.status(200).json({ status: "Success", data: updated });
-//   } catch (error) {
-//     console.error("❌ Attendance Update Error:", error.message);
-//     res.status(500).json({ status: "Failed", message: error.message });
-//   }
-// };
-
-
-
-
-
-
-//Get Attendance Data by SchoolIds, Roles, and Districts.
-
-
-// export const getFilteredUserAttendanceSummary = async (req, res) => {
-//   try {
-//     const { roles, departments, districtIds, schoolIds, date } = req.body;
-
-
-//     //If date field has, two dates like then we will se between
-
-
-
-//     const matchConditions = {
-//       role: { $in: roles },
-//       department: { $in: departments },
-//       districtIds: { $elemMatch: { $in: districtIds } },
-//       userId: { $not: /^Dummy/i }, // 👈 exclude dummy userId
-//       name: { $not: /^Dummy/i },   // 👈 optional: exclude dummy name too
-//     };
-
-//     console.log(req.body);
-//     // console.log(req.body.date)
-
-//     if (schoolIds?.length) {
-//       matchConditions.schoolIds = { $elemMatch: { $in: schoolIds } };
-//     }
-
-//     const selectedDate = date || new Date().toISOString().split("T")[0];
-
-//     const result = await User.aggregate([
-//       {
-//         $match: matchConditions,
-//       },
-//       {
-//         $lookup: {
-//           from: "userattendances",
-//           let: { userId: "$userId" },
-//           pipeline: [
-//             {
-//               $match: {
-//                 $expr: {
-//                   $and: [
-//                     { $eq: ["$userId", "$$userId"] },
-//                     { $eq: ["$date", new Date(selectedDate)] },
-//                   ],
-//                 },
-//               },
-//             },
-//             { $limit: 1 },
-//           ],
-//           as: "latestAttendance",
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$latestAttendance",
-//           preserveNullAndEmptyArrays: true,
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: 1,
-//           name: 1,
-//           contact1:1,
-//           role: 1,
-//           department: 1,
-//           districtIds: 1,
-//           schoolIds: 1,
-//           attendance: "$latestAttendance.attendance",
-//           attendanceDate: "$latestAttendance.date",
-//           loginTime: "$latestAttendance.loginTime",
-//           logoutTime: "$latestAttendance.logoutTime",
-//           attendanceType: "$latestAttendance.attendanceType",
-//           visitingLocation: "$latestAttendance.visitingLocation",
-//         },
-//       },
-//     ]);
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Filtered user attendance fetched successfully",
-//       data: result,
-//     });
-//   } catch (err) {
-//     console.error("Error in fetching user attendance summary", err);
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//     });
-//   }
-// };
-
-
-
-
-
-
-// export const getFilteredUserAttendanceSummary = async (req, res) => {
-//   try {
-//     const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
-
-//     const start = new Date(startDate + 'T00:00:00.000Z');
-//     const end = new Date(endDate + 'T23:59:59.999Z');
-
-//     const result = await UserAttendance.aggregate([
-//       {
-//         $match: {
-//           date: {
-//             $gte: start,
-//             $lte: end,
-//           },
-//         },
-//       },
-//       {
-//         $lookup: {
-//           from: "users",
-//           localField: "userId",
-//           foreignField: "userId",
-//           as: "userInfo",
-//         },
-//       },
-//       {
-//         $unwind: {
-//           path: "$userInfo",
-//           preserveNullAndEmptyArrays: false,
-//         },
-//       },
-//       {
-//         $match: {
-//           "userInfo.role": { $in: roles },
-//           "userInfo.department": { $in: departments },
-//           "userInfo.districtIds": { $elemMatch: { $in: districtIds } },
-//           "userInfo.userId": { $not: /^Dummy/i },
-//           "userInfo.name": { $not: /^Dummy/i },
-//           ...(schoolIds?.length && {
-//             "userInfo.schoolIds": { $elemMatch: { $in: schoolIds } },
-//           }),
-//         },
-//       },
-//       {
-//         $project: {
-//           _id: 0,
-//           userId: 1,
-//           date: 1,
-//           attendance: 1,
-//           loginTime: 1,
-//           logoutTime: 1,
-//           attendanceType: 1,
-//           visitingLocation: 1,
-//           // User info
-//           name: "$userInfo.name",
-//           contact1: "$userInfo.contact1",
-//           role: "$userInfo.role",
-//           department: "$userInfo.department",
-//           districtIds: "$userInfo.districtIds",
-//           schoolIds: "$userInfo.schoolIds",
-//         },
-//       },
-//       {
-//         $sort: { date: 1 }, // Optional: sort by date ascending
-//       },
-//     ]);
-
-//     console.log("Start:", start.toISOString(), "End:", end.toISOString());
-//     console.log("Total Records:", result.length);
-
-//     res.status(200).json({
-//       success: true,
-//       message: "Attendance data fetched successfully",
-//       data: result,
-//     });
-//   } catch (err) {
-//     console.error("Error in fetching user attendance summary", err);
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//     });
-//   }
-// };
-
-
 
 
 
@@ -839,8 +424,131 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
 
 
 
+//--------------------------------------------------------
+export const getUserAttendanceSummaryData = async (req, res) => {
+  console.log("Hello attendance summary");
+
+  const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
+
+  console.log(req.body)
+
+  try {
+    const pipeline = [
+      // 1️⃣ Lookup Users
+      {
+        $lookup: {
+          from: "users",
+          localField: "unqUserObjectId",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+
+      // 2️⃣ Lookup UserAccess
+      {
+        $lookup: {
+          from: "useraccesses",
+          localField: "unqUserObjectId",
+          foreignField: "unqObjectId",
+          as: "access",
+        },
+      },
+      { $unwind: { path: "$access", preserveNullAndEmptyArrays: true } },
+
+      // 3️⃣ Lookup district_block_schools to fetch names
+      {
+        $lookup: {
+          from: "district_block_schools",
+          let: { regions: "$access.region" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $in: ["$districtId", { $map: { input: "$$regions", as: "r", in: "$$r.districtId" } }],
+                },
+              },
+            },
+          ],
+          as: "regionDetails",
+        },
+      },
+    ];
+
+    // 4️⃣ Filters
+    const matchStage = {};
+
+    if (roles && roles.length > 0) {
+      matchStage["user.role"] = { $in: roles };
+    }
+
+    if (departments && departments.length > 0) {
+      matchStage["user.department"] = { $in: departments };
+    }
+
+    if (startDate && endDate) {
+      matchStage.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    } else if (startDate) {
+      matchStage.date = { $gte: new Date(startDate) };
+    } else if (endDate) {
+      matchStage.date = { $lte: new Date(endDate) };
+    }
+
+    if (districtIds && districtIds.length > 0) {
+      matchStage["access.region.districtId"] = { $in: districtIds };
+    }
+
+    if (schoolIds && schoolIds.length > 0) {
+      matchStage["access.region.blockIds.schoolIds.schoolId"] = { $in: schoolIds };
+    }
+
+    if (Object.keys(matchStage).length > 0) {
+      pipeline.push({ $match: matchStage });
+    }
+
+    // 5️⃣ Final projection
+    pipeline.push({
+      $project: {
+        _id: 1,
+        date: 1,
+        attendance: 1,
+        loginTime: 1,
+        logoutTime: 1,
+        "user._id": 1,
+        "user.userId": 1,
+        "user.name": 1,
+        "user.email": 1,
+        "user.role": 1,
+        "user.contact1": 1,
+        "user.contact2": 1,
+        "user.department": 1,
+        "access.region": 1, // keep original ids
+        regionDetails: 1, // 👈 names from district_block_schools
+      },
+    });
+
+    const result = await UserAttendance.aggregate(pipeline);
 
 
+    console.log(result)
+
+    return res.status(200).json({
+      success: true,
+      count: result.length,
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error in getUserAttendanceSummaryData:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+};
 
 
 

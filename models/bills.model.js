@@ -6,6 +6,11 @@ import mongoose, { Schema } from "mongoose";
 const ExpenseSchema = new Schema(
   {
     //expenseId: { type: String, required: true, unique: true }, // Unique ID for each expense
+     unqUserObjectId: {
+              type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "User",
+              required: true,
+            },
     userId: { type: String, ref: "User", required: true }, // Reference to the user who created the expense
     role: {type: String, ref: "User", required: true},
     //userModelRef: { type: String, required: true }, // Reference model name of the user (e.g., 'User', 'Admin', etc.)

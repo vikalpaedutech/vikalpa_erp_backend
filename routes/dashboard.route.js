@@ -3,12 +3,14 @@
 
 import express from "express"
 
-import { attendancePdfUploadStatusCountByClass, studentAndAttendanceAndAbsenteeCallingCount,
+import { attendancePdfUploadStatusCountByClass, 
+    studentAndAttendanceAndAbsenteeCallingCount,
 
 
     getStudentCountsByClass,
     getTodayAttendanceSummaryByClass,
-    getAbsenteeCallingSummary
+    getAbsenteeCallingSummary,
+    PresentAbsentCallingDashboard
 
  } from "../controllers/dashboard.controller.js"
 
@@ -24,4 +26,7 @@ router.post("/student-count-by-class", getStudentCountsByClass);
 router.post("/attendance-summary-today", getTodayAttendanceSummaryByClass);
 router.post("/absentee-calling-summary", getAbsenteeCallingSummary);
 
+
+
+router.post("/totalstudent-present-absent-calling-count", PresentAbsentCallingDashboard)
 export default router;

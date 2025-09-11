@@ -13,7 +13,10 @@ import {
     getUsersByRole,
     toggleUserStatus,
     getUserByContact1, patchUser,
-    patchUserByContact
+    patchUserByContact,
+    setUserAccess,
+    userSignIn,
+    getAllUsersWithAccess, updateUserWithAccess
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -25,6 +28,9 @@ router.post("/user", createUser);
 router.get("/users", getAllUsers);
 router.get("/user/:userId", getUserById);
 router.get("/user/login/:contact1", getUserByContact1);
+
+router.post("/user-signin", userSignIn)
+
 router.get("/users/role/:role", getUsersByRole);
 
 // PUT route to update user by userId
@@ -42,6 +48,20 @@ router.delete("/user/:userId", deleteUserById);
 router.patch('/patch-user-by-contact/:contact1', patchUserByContact)
 
 // router.patch('/user/:userId', patchUser);
+
+
+
+
+//User access routes
+
+router.post('/set-user-access',setUserAccess)
+
+
+
+router.get("/get-all-users", getAllUsersWithAccess)
+
+
+router.patch("/patch-user-and-useraccess", updateUserWithAccess)
 
 
 export default router;

@@ -10,80 +10,6 @@ import {awardPoints} from "../utils/gamification.utils.js"
 
 //Student Attendance Cron Job
 
-// Function to create attendance records
-
-
-// export const createAttendanceRecords = async (req, res) => {
-//     console.log("I am inside the cron job function");
-
-//     const {date} = req.body;
-//     console.log(date)
-
-//     try {
-
-
-//         //Checks for duplicacy and if there is duplicacy then stops further executino
-
-//           // Step 1: Get current date at midnight UTC (00:00:00)
-//                 const currentDate = date || new Date();
-//                 currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
-        
-//                 // Step 2: Check if attendance for current date already exists
-//                 const existingAttendance = await StudentAttendance.findOne({ date: currentDate });
-        
-//                 if (existingAttendance) {
-//                     console.log("Attendance already created");
-//                     return res.status(400).json({ message: "Attendance already created for today" });
-//                 }
-
-//         //---------------------------------------------------------------------------
-
-//         const students = await Student.find({}); // Get all students
-
-//         console.log(students);
-
-//         console.log(`Found ${students.length} students`);
-
-//         // Loop through students and create attendance records
-//         for (const student of students) {
-//             console.log(`Processing student with SRN: ${student.studentSrn}`);
-            
-//             const attendanceRecord = new StudentAttendance({
-//                 studentSrn: student.studentSrn,
-//                 //firstName: student.firstName ,
-//                 //lastName: student.lastName,
-//                 //fatherName: student.fatherName,
-//                 date: date || new Date().toISOString().split("T")[0], // => "2025-04-10",
-//                 //districtId: student.districtId,
-//                 //blockId: student.blockId,
-//                 //schoolId: student.schoolId,
-//                 //classofStudent: student.classofStudent,
-//                 //batch: student.batch,
-//                 status: 'Absent', // Default status
-//                 isAttendanceMarked: false, // Not marked yet
-//                 //isAttendanceUpdated: false, // Not updated yet
-//                 TA: student.singleSideDistance * student.bothSideDistance, // Example calculation for TA
-//                 absenteeCallingStatus: "Not-called",
-//                 callingRemark1: null,
-//                 callingRemark2: null,
-//                 comments: null,
-//             });
-
-//             await attendanceRecord.save(); // Save the attendance data
-            
-            
-//             console.log(`Attendance saved for SRN: ${student.studentSrn}`);
-//         }
-//         res.status(200).json({status:"success", message:"Attendance instance created successfully"})
-//         console.log('Attendance records created for all students');
-//     } catch (error) {
-//         console.error('Error during attendance dump: ', error);
-//         res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
-//     }
-// };
-
-
-
 
 // // Function to create attendance records
 // export const createAttendanceRecords = async (req, res) => {
@@ -110,7 +36,7 @@ import {awardPoints} from "../utils/gamification.utils.js"
 
 //         //---------------------------------------------------------------------------
 
-//         const students = await Student.find({}); // Get all students
+//         const students = await Student.find({ isSlcTaken: false }); // Get all students
 
 //         console.log(students);
 
@@ -121,6 +47,7 @@ import {awardPoints} from "../utils/gamification.utils.js"
 //             console.log(`Processing student with SRN: ${student.studentSrn}`);
             
 //             const attendanceRecord = new StudentAttendance({
+//                 unqStudentObjectId:student._id,
 //                 studentSrn: student.studentSrn,
 //                 //firstName: student.firstName ,
 //                 //lastName: student.lastName,
@@ -153,6 +80,8 @@ import {awardPoints} from "../utils/gamification.utils.js"
 //         res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
 //     }
 // };
+
+
 
 
 
@@ -194,6 +123,7 @@ export const createAttendanceRecords = async (req, res) => {
             console.log(`Processing student with SRN: ${student.studentSrn}`);
             
             const attendanceRecord = new StudentAttendance({
+                unqStudentObjectId:student._id,
                 studentSrn: student.studentSrn,
                 //firstName: student.firstName ,
                 //lastName: student.lastName,
@@ -227,16 +157,42 @@ export const createAttendanceRecords = async (req, res) => {
     }
 };
 
+//Cron job time management
+// --------------------------- Configurable Time (IST) ---------------------------
+const attendanceRunTimeIST = "12:01 AM"; // Change this time for testing
 
+// Convert IST time string into 24h format (hours & minutes)
+function parseISTTime(timeStr) {
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
 
+    if (modifier === "PM" && hours !== 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
 
+    return { hours, minutes };
+}
 
+// --------------------------- Auto Scheduler ---------------------------
+// Convert IST -> Cron Expression (system UTC expected)
+const { hours, minutes } = parseISTTime(attendanceRunTimeIST);
 
+// Convert IST to UTC (because server may run in UTC)
+// const utcDate = new Date(Date.UTC(1970, 0, 1, hours - 5, minutes - 30));
+// const utcHours = utcDate.getUTCHours();
+// const utcMinutes = utcDate.getUTCMinutes();
 
+// Final cron expression
+const cronExp = `${minutes} ${hours} * * *`;
+console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
 
-
-
-
+cron.schedule(cronExp, async () => {
+    console.log("Running cron job at IST time:", attendanceRunTimeIST);
+    await createAttendanceRecords(
+        { body: {} }, 
+        { status: () => ({ json: () => {} }) } // dummy res for cron run
+    );
+});
+//---------------------------------------------------------------
 
 
 
@@ -315,6 +271,8 @@ export const getAllAttendance = async (req, res) => {
         absenteeCallingStatus,
     } = req.query;
 
+   
+
     // Normalize values to arrays if needed
     const districtIds = Array.isArray(districtId) ? districtId : districtId?.split(',') || [];
     
@@ -323,11 +281,7 @@ export const getAllAttendance = async (req, res) => {
     const statusList = Array.isArray(status) ? status : status?.split(',') || [];
     const classes = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
 
-    console.log(req.query)
-    console.log(statusList)
-    console.log(districtIds)
-    console.log(classes)
-    console.log(schoolIds)
+ 
 
     try {
         // Build query object based on the provided query params
@@ -345,6 +299,9 @@ export const getAllAttendance = async (req, res) => {
         if (status) query.status = status;
         if (isAttendanceMarked !== undefined) query.isAttendanceMarked = isAttendanceMarked;
         if (isAttendanceUpdated !== undefined) query.isAttendanceUpdated = isAttendanceUpdated;
+
+
+         console.log(req.query)
 
         // // Handle date range filtering if both startDate and endDate are provided
         // if (startDate && endDate) {
@@ -394,6 +351,8 @@ export const getAllAttendance = async (req, res) => {
         ]
 
         const attendanceRecords = await StudentAttendance.aggregate(pipeline);
+
+        console.log(attendanceRecords)
 
         if (!attendanceRecords || attendanceRecords.length === 0) {
             return res.status(404).json({

@@ -4,6 +4,11 @@ import mongoose, { Schema } from "mongoose";
 
 const StudentAttendanceSchema = new Schema(
   {
+     unqStudentObjectId: {
+              type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "Student",
+              required: true,
+            },
     //student: { type: Schema.Types.ObjectId, ref: "Student", required: true },
     studentSrn: {type: String, ref: "Student", required: true },
     //firstName: { type: String, ref: "Student", required: true },
