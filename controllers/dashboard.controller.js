@@ -10,7 +10,7 @@ import {AttendancePdf} from "../models/UploadAttendancePdf.model.js"
 
 
 export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
-  console.log(' i am inside studentAndAttendanceCount controller')
+  // console.log(' i am inside studentAndAttendanceCount controller')
   try {
     const {
       schoolIds,
@@ -20,9 +20,9 @@ export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
       date
     } = req.body;
 
-    console.log(req.body)
-    console.log(startDate)
-    console.log(endDate)
+    // console.log(req.body)
+    // console.log(startDate)
+    // console.log(endDate)
 
     const targetStartDate = new Date(startDate);
     targetStartDate.setHours(0, 0, 0, 0);
@@ -198,7 +198,7 @@ export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
       }
     ]);
 
-    console.log(`Fetched ${response.length} grouped results across dates`);
+    // console.log(`Fetched ${response.length} grouped results across dates`);
     // response.forEach(r => console.log("Date:", r.date?.toISOString?.().split("T")[0]));
 
     res.status(200).json({
@@ -219,7 +219,7 @@ export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
 
 // Attendance pdf api. Get counts by class and per date
 export const attendancePdfUploadStatusCountByClass = async (req, res) => {
-  console.log('Inside attendancePdfUploadStatusCountByClass controller');
+  // console.log('Inside attendancePdfUploadStatusCountByClass controller');
   try {
     const { schoolIds, startDate, endDate } = req.body;
 
@@ -323,7 +323,7 @@ export const attendancePdfUploadStatusCountByClass = async (req, res) => {
       results.push(...dailyResult);
     }
 
-    console.log(`Fetched ${results.length} grouped results across dates`);
+    // console.log(`Fetched ${results.length} grouped results across dates`);
 
     res.status(200).json({
       status: "PDF Upload Count By Class and Date Fetched",
@@ -1090,13 +1090,13 @@ export const getAbsenteeCallingSummary = async (req, res) => {
 
 
 export const PresentAbsentCallingDashboard = async (req, res) => {
-  console.log("Hello count");
+ 
 
   try {
     // 1️⃣ Get startDate, endDate and schoolIds from req.body
     let { startDate, endDate, schoolIds } = req.body;
 
-    console.log(req.body)
+    // console.log(req.body)
     const today = new Date();
     if (!startDate) startDate = today.toISOString().split("T")[0];
     if (!endDate) endDate = today.toISOString().split("T")[0];

@@ -77,18 +77,22 @@ export const getAllStudents = async (req, res) => {
 
 
     try {
-        
         const student = await Student.find();
-
         if (!student){
-            return res.status(404).json({status: "Error", message: "Student not found"})
+            
+          return res.status(404).json({status: "Error", message: "Student not found"})
+        
         }
-
+        
         res.status(200).json({status: "Success", data: student})
-    } catch (error) {
+    
+      } catch (error) {
+        
         console.log("Error fetching studnts data from db", error.message)
+       
         res.status(500).json({status: "Eroor" , message: "Server Error"})
-    }
+    
+      }
 
     
 
@@ -174,147 +178,11 @@ export const deleteStudentBySrn = async (req, res) => {
     }
 };
 
+
 //___________________________________________________________________
 
 
 //Api for getting students by query parmas.
-
-// export const getStudentsByQueryParams = async (req, res) => {
-
-//     console.log('I am inside get students by query params')
-
-//     const {studentSrn, 
-//         rollNumber, 
-//         firstName, 
-//         fatherName, 
-//         districtId, 
-//         blockId, 
-//         schoolId, 
-//         classofStudent,
-//         isSlcTaken
-//     }= req.query
-
-
-// console.log(req.query)
-
-
-//    const schoolIds = Array.isArray(schoolId) ? schoolId : schoolId?.split(',') || [];
-//     const classofStudents = Array.isArray(classofStudent) ? classofStudent : classofStudent?.split(',') || [];
-    
-
-//     try {
-
-//          const query = {};
-//          if(studentSrn) query.studentSrn = studentSrn;
-//          if (rollNumber) query.rollNumber = rollNumber;
-//          if (firstName) query.firstName = { $regex: `^${firstName}`, $options: "i" }; 
-//          if (fatherName) query.fatherName = fatherName;
-//          if (districtId) query.districtId = districtId;
-//          if (blockId) query.blockId = blockId;
-//          if (schoolIds) query.schoolId = {$in:schoolIds};
-//          if (classofStudents) query.classofStudent = {$in:classofStudents};
-
-//         console.log(query)
-//         const request = await Student.find(query);
-
-//         res.status(200).json({status: "Success", data: request})
-//     } catch (error) {
-//         res.status(500).json({status: "Failed", message: error.message})
-//     }
-
-// } ;  
-
-
-
-
-
-
-// export const getStudentsByQueryParams = async (req, res) => {
-//   console.log("I am inside get students by query params");
-
-//   const {
-//     studentSrn,
-//     rollNumber,
-//     firstName,
-//     fatherName,
-//     districtId,
-//     blockId,
-//     schoolId,
-//     classofStudent,
-//   } = req.query;
-
-//   const schoolIds = Array.isArray(schoolId)
-//     ? schoolId
-//     : schoolId?.split(",") || [];
-//   const classofStudents = Array.isArray(classofStudent)
-//     ? classofStudent
-//     : classofStudent?.split(",") || [];
-
-//   try {
-//     const matchQuery = {};
-//     if (studentSrn) matchQuery.studentSrn = studentSrn;
-//     if (rollNumber) matchQuery.rollNumber = rollNumber;
-//     if (firstName)
-//       matchQuery.firstName = { $regex: `^${firstName}`, $options: "i" };
-//     if (fatherName) matchQuery.fatherName = fatherName;
-//     if (districtId) matchQuery.districtId = districtId;
-//     if (blockId) matchQuery.blockId = blockId;
-//     if (schoolIds.length) matchQuery.schoolId = { $in: schoolIds };
-//     if (classofStudents.length)
-//       matchQuery.classofStudent = { $in: classofStudents };
-
-//     const pipeline = [
-//       { $match: matchQuery },
-
-//       {
-//         $lookup: {
-//           from: "studentdisciplinaries",
-//           localField: "studentSrn",
-//           foreignField: "studentSrn",
-//           as: "disciplinaryRecords",
-//         },
-//       },
-//       {
-//         $addFields: {
-//           disciplinaryCount: {
-//             $size: {
-//               $filter: {
-//                 input: "$disciplinaryRecords",
-//                 as: "record",
-//                 cond: { $eq: ["$$record.status", "Disciplinary"] },
-//               },
-//             },
-//           },
-//           countOfNotesChecking: {
-//             $size: {
-//               $filter: {
-//                 input: "$disciplinaryRecords",
-//                 as: "record",
-//                 cond: { $eq: ["$$record.status", "Copy Checking"] },
-//               },
-//             },
-//           },
-//         },
-//       },
-//       {
-//         $project: {
-//           disciplinaryRecords: 0, // exclude full array
-//         },
-//       },
-//     ];
-
-//     const students = await Student.aggregate(pipeline);
-
-//     res.status(200).json({ status: "Success", data: students });
-//   } catch (error) {
-//     console.error("Error in getStudentsByQueryParams:", error);
-//     res.status(500).json({ status: "Failed", message: error.message });
-//   }
-// };
-
-
-
-
 
 export const getStudentsByQueryParams = async (req, res) => {
   console.log("I am inside get students by query params");
@@ -425,4 +293,8 @@ export const getStudentsByQueryParams = async (req, res) => {
     res.status(500).json({ status: "Failed", message: error.message });
   }
 };
+
+
+
+//
 

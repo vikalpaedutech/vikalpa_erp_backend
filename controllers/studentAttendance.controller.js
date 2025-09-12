@@ -92,7 +92,7 @@ export const createAttendanceRecords = async (req, res) => {
     console.log("I am inside the cron job function");
 
     const {date} = req.body;
-    console.log(date)
+    // console.log(date)
 
     try {
 
@@ -301,7 +301,7 @@ export const getAllAttendance = async (req, res) => {
         if (isAttendanceUpdated !== undefined) query.isAttendanceUpdated = isAttendanceUpdated;
 
 
-         console.log(req.query)
+        
 
         // // Handle date range filtering if both startDate and endDate are provided
         // if (startDate && endDate) {
@@ -352,7 +352,7 @@ export const getAllAttendance = async (req, res) => {
 
         const attendanceRecords = await StudentAttendance.aggregate(pipeline);
 
-        console.log(attendanceRecords)
+        // console.log(attendanceRecords)
 
         if (!attendanceRecords || attendanceRecords.length === 0) {
             return res.status(404).json({
@@ -390,16 +390,18 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
         // Extract studentSrn and date from query parameters
         const { studentSrn, date, userId, schoolId, classofStudent, studentAttendanceGamificationDate } = req.query;
        const { isAttendanceMarked, absenteeCallingStatus, callingRemark1, callingRemark2, comments } = req.body; // The field to update (isAttendanceMarked)
-        console.log(classofStudent)
+        
 
           // Convert the date from the query param into a Date object
           const attendanceDate = new Date(date)
         
 
-        console.log(studentSrn, date)
-       // const isAttendanceMarked = true
-        console.log("i am coming from frontend", absenteeCallingStatus)
-        console.log("i am coming from frontend is attendance marked", isAttendanceMarked)
+       // console.log(studentSrn, date)
+       
+        // const isAttendanceMarked = true
+        
+    //    console.log("i am coming from frontend", absenteeCallingStatus)
+    //     console.log("i am coming from frontend is attendance marked", isAttendanceMarked)
 
         // Ensure both studentSrn and date are provided
         if (!studentSrn || !date) {
@@ -427,19 +429,6 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
             { absenteeCallingStatus, callingRemark1,callingRemark2 }, // Update the field
             { new: true, runValidators: true } // Return the updated document and validate it
         );
-
-
-        //Handling gamification point for attendance.
-            
-    // const date = loginTime
-
-          const keyValue = "absentee-calling"
-
-          const AwardPoints = awardPoints({keyValue, userId, studentAttendanceGamificationDate, schoolId, classofStudent})
-
-    //------------------------------------------------------------
-
-
 
 
 

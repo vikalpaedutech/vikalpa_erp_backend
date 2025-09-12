@@ -104,6 +104,8 @@ import disciplinaryGamificationRoute from "./routes/disciplinaryGamification.rou
 
 import s100AttendanceRoute from "./routes/s100attendance.route.js"
 
+import gamificationRoute from "./routes/Gamification.route.js"
+
 //using routes for route.g
 
 app.use('/api', districtRouter);
@@ -128,6 +130,7 @@ app.use("/api", district_block_buniyaadCentersRoute)
 app.use("/api", sendOtp)
 app.use("/api",disciplinaryGamificationRoute)
 app.use("/api",s100AttendanceRoute)
+app.use("/api",gamificationRoute)
 
 
 

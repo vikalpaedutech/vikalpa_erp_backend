@@ -50,7 +50,10 @@ const StudentSchema = new Schema(
     bankIFSC: { type: String },
     bankAccNumber: { type: String },
     bankHolderName: { type: String },
-    batchCompleted: {type: Boolean, default: false} //It is set to true when students have completed there two years in programme
+    batchCompleted: {type: Boolean, default: false}, //It is set to true when students have completed there two years in programme
+    // dressSizeInInches: [{s}],
+    shirtSizeInInches: {type: Number},
+    waistSizeInInches: {type: Number}
   },
   { timestamps: true }
 );
