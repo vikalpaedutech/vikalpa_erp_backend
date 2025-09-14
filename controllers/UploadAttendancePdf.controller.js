@@ -8,6 +8,7 @@ import DistrictBlockSchool from "./DistrictBlockSchool.json" assert { type: "jso
 import { uploadToDOStorage } from "../utils/digitalOceanSpacesAttendancePdf.utils.js";
 import path from "path";
 import multer from "multer";
+import mongoose from "mongoose";
 
 
 //Gamfication utility
@@ -71,7 +72,8 @@ export const createAttendancePdfCronJob = async (req, res) => {
   
           if (!alreadyExists) {
             const newRecord = new AttendancePdf({
-              userId: "", // keep empty, will be set during actual upload
+              unqUserObjectId: null,
+              userId: null, // keep empty, will be set during actual upload
               districtId: school.districtId,
               districtName: school.districtName,
               blockId: school.blockId,
@@ -138,13 +140,10 @@ export const uploadAttendancePdfFile = multer({ storage }).single('file');
 export const PatchAttendancePdf = async (req, res) => {
     console.log(" I am inside patch attendance pdf controller")
   try {
-    const { schoolId, classofStudent, dateOfUpload } = req.query;
+    const { schoolId, classofStudent, dateOfUpload} = req.query;
     const file = req.file;
-    const {userId} = req.body;
+    const {userId, unqUserObjectId} = req.body;
 
-    console.log(req.body)
-    console.log(req.query)
-    console.log(req.file)
 
     if (!schoolId || !classofStudent || !dateOfUpload) {
       return res.status(400).json({ status: "Error", message: "Missing query parameters" });
@@ -166,22 +165,16 @@ export const PatchAttendancePdf = async (req, res) => {
 
     const fileUrl = await uploadToDOStorage(file.buffer, `attendancepdf/${fileName}`, file.mimetype);
 
+
+    console.log(record)
+
     record.fileName = fileName;
     record.fileUrl = fileUrl;
     record.isPdfUploaded = true;
     record.userId = userId || "Admin";
+    record.unqUserObjectId = unqUserObjectId
 
     await record.save();
-
-   //Handling gamification point for attendance pdf upload.
-            
-    // const date = loginTime
-
-          const keyValue = "attendancePdf-upload"
-
-          const AwardPoints = awardPoints({keyValue, userId, schoolId, classofStudent, dateOfUpload})
-
-    //------------------------------------------------------------
 
 
 

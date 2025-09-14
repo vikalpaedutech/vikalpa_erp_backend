@@ -58,6 +58,8 @@ export const GetDistrictBlockSchoolByParams = async (req, res) =>{
 
 console.log('Hello region')
 
+  
+
   try {
     
 

@@ -75,7 +75,7 @@ const GamificationSchema = new Schema(
       averageRankCount: {type: Number},
       goodRankCount: {type:Number},
       excellentRankCount: {type: Number},
-      examId:{type: Number},
+      examId:{type: String},
       finalPoint: {type: Number},
       pointGivenBy: {type: Number},
       pointClaimed: {type: Boolean, default:false},

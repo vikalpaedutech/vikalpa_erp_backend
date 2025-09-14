@@ -9,6 +9,13 @@ import mongoose, {mongo, Schema} from "mongoose";
 const UploadAttendancePdfSchema = new Schema (
 
     {
+
+
+        unqUserObjectId: {
+                      type: mongoose.Schema.Types.ObjectId, // reference to User
+                      ref: "User",
+                     
+                    },
         userId: {type: String, ref: "User"},
         districtId: {type: String, ref: "District"},
         districtName: {type: String, ref: "District"},
