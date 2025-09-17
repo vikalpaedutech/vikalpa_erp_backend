@@ -90,3 +90,31 @@ const GamificationSchema = new Schema(
 
   export const Gamification = mongoose.model("Gamification", GamificationSchema);
   
+
+
+
+  const GamificationRankingSchema = new Schema (
+
+    {
+
+       unqUserObjectId: {
+          type: mongoose.Schema.Types.ObjectId, // reference to User
+          ref: "User",
+          required: true,
+        },   
+      userId: { type: String },
+       pointType: {type: String},
+      centerId: {type: String},
+      classOfCenter: {type:String},
+      poorRankCount: {type: Number},
+      averageRankCount: {type: Number},
+      goodRankCount: {type:Number},
+      excellentRankCount: {type: Number},  
+      date: {type: Date},           
+
+    },
+    { timestamps: true }
+  )
+
+
+  export const GamificationRanking = mongoose.model("GamificationRanking", GamificationRankingSchema);

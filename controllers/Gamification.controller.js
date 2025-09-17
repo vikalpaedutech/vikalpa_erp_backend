@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Gamification } from "../models/gamification.model.js";
+import { Gamification, GamificationRanking } from "../models/gamification.model.js";
 import { UserAccess } from "../models/user.model.js";
 import { User } from "../models/user.model.js";
 import { UserAttendance } from "../models/userAttendnace.model.js";
@@ -926,6 +926,8 @@ export const disciplinaryGamification = async (req, res) =>{
 
   const {unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
 
+ 
+
   console.log(req.body)
 
   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
@@ -1076,6 +1078,94 @@ const sumOfRankPoints = disciplinaryExist[0].poorRankCount +
                         disciplinaryExist[0].goodRankCount +
                         disciplinaryExist[0].excellentRankCount
 
+
+
+
+
+//Finding existing gamification data of users
+const findGamificationData = await GamificationRanking.find({
+  unqUserObjectId:unqUserObjectId,
+  centerId:schoolId,
+  classOfCenter:classOfCenter,
+  date: {$gte:startDate, $lte:endDate}
+})
+
+
+if (findGamificationData.length > 0){
+  //Crating gamification object dynamically for dsiciplinary
+let disciplinaryObject= {
+unqUserObjectId:unqUserObjectId,
+userId: userId,
+pointType:"Disciplinary",
+centerId: schoolId,
+classOfCenter: classOfCenter,
+poorRankCount: 0,
+averageRankCount:0,
+goodRankCount:0,
+excellentRankCount:0,
+ date: new Date()
+}
+
+if (rank === "Poor") {
+  findGamificationData[0].poorRankCount = findGamificationData[0].poorRankCount + 1 ;
+} else if (rank === "Average") {
+  findGamificationData[0].averageRankCount = findGamificationData[0].averageRankCount + 1;
+} else if (rank === "Good") {
+  findGamificationData[0].goodRankCount = findGamificationData[0].goodRankCount + 1;
+} else if (rank === "Excellent") {
+  findGamificationData[0].excellentRankCount = findGamificationData[0].excellentRankCount + 1;
+}
+
+
+const response = await GamificationRanking.create(findGamificationData[0])
+console.log("I am updated existing data")
+} else {
+console.log("i am insdie else block")
+console.log(findGamificationData)
+console.log(unqUserObjectId)
+
+
+//Crating gamification object dynamically for dsiciplinary
+let disciplinaryObject= {
+unqUserObjectId:unqUserObjectId,
+userId: userId,
+pointType:"Disciplinary",
+centerId: schoolId,
+classOfCenter: classOfCenter,
+poorRankCount: 0,
+averageRankCount:0,
+goodRankCount:0,
+excellentRankCount:0,
+ date: new Date()
+}
+
+if (rank === "Poor") {
+  disciplinaryObject.poorRankCount = 1;
+} else if (rank === "Average") {
+  disciplinaryObject.averageRankCount = 1;
+} else if (rank === "Good") {
+  disciplinaryObject.goodRankCount = 1;
+} else if (rank === "Excellent") {
+  disciplinaryObject.excellentRankCount = 1;
+}
+
+const response = await GamificationRanking.create(disciplinaryObject)
+
+
+}
+
+
+
+
+
+//-------------------------------------------------------------------------------------   
+
+
+
+
+
+
+//Per center only two ranks are allowed
 if (sumOfRankPoints>=2){
   console.log(sumOfRankPoints)
   console.log("No more points can be assigned to this center, limit exhausted")
@@ -1148,6 +1238,11 @@ const response  = await Gamification.create(disciplinaryExist[0])
 
 res.status(200).json({status:"Ok", data:response})
 
+
+
+
+
+
 console.log("existing data updated")
 
   return;
@@ -1158,7 +1253,7 @@ console.log("existing data updated")
 //Crating gamification object dynamically for dsiciplinary
 let disciplinaryObject= {
 unqUserObjectId:findCC[0]._id,
-userId: userId,
+userId: findCC[0].userId, //userId,
 pointType:"Disciplinary",
 centerId: schoolId,
 classOfCenter: classOfCenter,
@@ -1188,11 +1283,48 @@ console.log(disciplinaryObject)
 
   try {
 
-    //Creating gamification data and storing it into DB.
+    //Creating fresh gamification data and storing it into DB.
 
         const response  = await Gamification.create(disciplinaryObject)
+
         
     console.log("I am response",response)
+
+    
+    
+//Function that stores each users data who are giving ranking.
+const storeGamificationRankOfUsers = async () =>{
+//Crating gamification object dynamically for dsiciplinary
+let disciplinaryObject= {
+unqUserObjectId:unqUserObjectId,
+userId: userId,
+pointType:"Disciplinary",
+centerId: schoolId,
+classOfCenter: classOfCenter,
+poorRankCount: 0,
+averageRankCount:0,
+goodRankCount:0,
+excellentRankCount:0,
+ date: new Date()
+}
+
+if (rank === "Poor") {
+  disciplinaryObject.poorRankCount = 1;
+} else if (rank === "Average") {
+  disciplinaryObject.averageRankCount = 1;
+} else if (rank === "Good") {
+  disciplinaryObject.goodRankCount = 1;
+} else if (rank === "Excellent") {
+  disciplinaryObject.excellentRankCount = 1;
+}
+
+const response = await GamificationRanking.create(disciplinaryObject)
+
+console.log("I am inside new function")
+
+}
+
+storeGamificationRankOfUsers();
 
     res.status(200).json({status:"Ok", data:response})
   } catch (error) {
@@ -1326,6 +1458,50 @@ export const pointClaimedUpdation = async (req, res) =>{
   }
 
 
+  res.status(200).json({status:"Ok", count:response.length, data: response})
+
+  } catch (error) {
+    console.log("Error::::>", error)
+  } 
+    
+    
+}
+
+
+
+
+
+
+
+//Get all user marked gamification data.
+
+export const getUserMarkedGamificationData = async (req, res) =>{
+
+  // console.log('Hello Get all gamification data')
+
+  const {unqUserObjectId} = req.body;
+
+  console.log(req.body)
+
+  // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
+
+  const startDate = new Date();
+  const endDate = new Date ();
+
+  startDate.setUTCHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+
+console.log(startDate)
+
+
+  try {
+    const response = await GamificationRanking.find({
+      unqUserObjectId:unqUserObjectId,
+      date:{$gte:startDate, $lte:endDate}
+  })
+
+
+ 
   res.status(200).json({status:"Ok", count:response.length, data: response})
 
   } catch (error) {
