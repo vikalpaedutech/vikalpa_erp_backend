@@ -53,7 +53,8 @@ const StudentSchema = new Schema(
     batchCompleted: {type: Boolean, default: false}, //It is set to true when students have completed there two years in programme
     // dressSizeInInches: [{s}],
     shirtSizeInInches: {type: Number},
-    waistSizeInInches: {type: Number}
+    waistSizeInInches: {type: Number},
+    waistToBottomLengthInInches:{type: Number},
   },
   { timestamps: true }
 );

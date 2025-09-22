@@ -974,9 +974,6 @@ let allRegionIds = [];
 
 
 
-
-
-   
   }
 
   const findCC = await User.find({
@@ -1118,6 +1115,7 @@ if (rank === "Poor") {
 
 
 const response = await GamificationRanking.create(findGamificationData[0])
+
 console.log("I am updated existing data")
 } else {
 console.log("i am insdie else block")
@@ -1172,6 +1170,7 @@ if (sumOfRankPoints>=2){
   res.status(200).json({status:"Ok", message:"Point Exhausted"})
   return;
 }
+
 
 
   //Now if disciplniaryExist then we will update current object
@@ -1285,9 +1284,10 @@ console.log(disciplinaryObject)
 
     //Creating fresh gamification data and storing it into DB.
 
-        const response  = await Gamification.create(disciplinaryObject)
+    const response  = await Gamification.create(disciplinaryObject)
+    
+    
 
-        
     console.log("I am response",response)
 
     

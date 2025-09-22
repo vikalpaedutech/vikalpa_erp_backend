@@ -231,43 +231,6 @@ export const getUserByContact1 = async (req, res) => {
 
 //User login api.
 
-// export const userSignIn = async (req, res) => {
-//     console.log("I am inside user controller, getUserByContact1 API");
-
-//     try {
-
-//         const {contact1, password} = req.body
-
-//         // const { contact1 } = req.params;
-//         console.log(req.body);
-
-//         // Finding user by contact1
-//         const user = await User.findOne({ contact1: contact1, password:password });
-
-//         // Check if user array is empty
-//         if (!user) {
-//             return res.status(404).json({ status: "Error", message: "User not found" });
-//         }
-
-
-
-//         console.log(user)
-
-
-//         // If user found, send back the user details
-//         return res.status(200).json({ status: "Success", data: user });
-//     } catch (error) {
-//         console.log("Error fetching user by contact1", error.message);
-//         res.status(500).json({ status: "Error", message: "Server Error" });
-//     }
-// }
-
-
-
-
-
-
-
 export const userSignIn = async (req, res) => {
     console.log("I am inside userSignIn API");
 
@@ -620,6 +583,8 @@ export const updateUserWithAccess = async (req, res) => {
       );
     }
 
+    
+
     // ✅ Update UserAccess collection
     let updatedAccess = null;
     if (userAccess && Object.keys(userAccess).length > 0) {
@@ -639,5 +604,72 @@ export const updateUserWithAccess = async (req, res) => {
   } catch (error) {
     console.error("Error updating user with access:", error);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+
+
+
+
+export const getUsersByObjectId = async (req, res) => {
+  console.log("Hello user by object id");
+
+  try {
+    const { _id } = req.body;
+    console.log(req.body);
+
+    const user = await User.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(_id) // convert to ObjectId
+        }
+      },
+      {
+        $lookup: {
+          from: "useraccesses",
+          localField: "_id",
+          foreignField: "unqObjectId",
+          as: "accessDetails"
+        }
+      },
+      {
+        $unwind: {
+          path: "$accessDetails",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          name: 1,
+          email: 1,
+          role: 1,
+          department: 1,
+          contact1: 1,
+          contact2: 1,
+          isActive: 1,
+          longitude: 1,
+          latitude: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          "accessDetails.classId": 1,
+          "accessDetails.modules": 1,
+          "accessDetails.region": 1,
+          "accessDetails.createdAt": 1,
+          "accessDetails.updatedAt": 1
+        }
+      }
+    ]);
+
+    if (!user.length) {
+      return res.status(404).json({ status: "Error", message: "User not found" });
+    }
+
+    res.status(200).json({ status: "Success", data: user }); // return first user
+  } catch (error) {
+    console.log("Error fetching user by ID", error.message);
+    res.status(500).json({ status: "Error", message: "Server error" });
   }
 };

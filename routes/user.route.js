@@ -16,7 +16,8 @@ import {
     patchUserByContact,
     setUserAccess,
     userSignIn,
-    getAllUsersWithAccess, updateUserWithAccess
+    getAllUsersWithAccess, updateUserWithAccess,
+    getUsersByObjectId
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -63,5 +64,7 @@ router.get("/get-all-users", getAllUsersWithAccess)
 
 router.patch("/patch-user-and-useraccess", updateUserWithAccess)
 
+
+router.post("/get-user-data-by-object-id", getUsersByObjectId)
 
 export default router;
