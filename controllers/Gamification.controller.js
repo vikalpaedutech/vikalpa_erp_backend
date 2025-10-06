@@ -51,9 +51,175 @@ export const createGamificationData = async (req, res) => {
 
 
 
+// export const selfAttendanceGamification = async (req, res) =>{
+
+//     console.log('Hello self attendance')
+
+//     const {unqUserObjectId,  date  } = req.body //userId
+
+//     console.log(req.body)
+
+//     // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
+
+//     // Setting dates for querying
+//     const startDate = new Date()
+//     const endDate = new Date ()
+
+//     startDate.setUTCHours(0, 0, 0, 0);
+//     endDate.setHours(23, 59, 59, 999)
+
+// const findAttendance = await UserAttendance.findOne({
+//   unqUserObjectId: unqUserObjectId,
+//    date: { $gte: startDate, $lte: endDate }
+// });
+
+
+// const userLoginTime = findAttendance.loginTime
+
+// const istms = userLoginTime.getTime() + (5.5 * 60 * 60 *1000);
+// const formattedISTDate = new Date(istms)
+
+// // const utcms = userLoginTime.getTime();
+// // const formattedUtc = new Date(utcms)
+
+// console.log(userLoginTime)
+// console.log(formattedISTDate)
+// const hours = userLoginTime.getHours(); //Converts utc hours into ist hours
+// const minutes = userLoginTime.getMinutes(); //converts utc minutes into ist minutes
+// console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+
+
+
+// //Function to convert utc minute hour into milisecons
+// function timeToMs(timeStr) {
+//   const [h, m] = timeStr.split(":").map(Number);
+//   return (h * 60 * 60 * 1000) + (m * 60 * 1000);
+// }
+
+// const t1_userLoginTimeinMs =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
+// // const t1_userLoginTimeinMs =  timeToMs(`08:16`)
+
+// console.log(t1_userLoginTimeinMs)
+
+// //Point assignment logic
+
+// // 7:31 to 7:45: 5,
+// // 7:41 to 8:00: 2,
+// // 8:01 to 8:15: -5,
+// // Greater than 8:15: -10
+// let point;
+// async function getPoints(t1_userLoginTimeinMs) {
+//    point = 5; // default if before 7:31
+
+//   if (t1_userLoginTimeinMs >= 27060000 && t1_userLoginTimeinMs <= 27900000) {
+//     point = 5;
+//   } else if (t1_userLoginTimeinMs >= 27660000 && t1_userLoginTimeinMs <= 28800000) {
+//     point = 2;
+//   } else if (t1_userLoginTimeinMs >= 28860000 && t1_userLoginTimeinMs <= 29700000) {
+//     point = -5;
+//   } else if (t1_userLoginTimeinMs > 29700000) {
+//     point = -10;
+//   }
+
+//   return point;
+// }
+// await getPoints(t1_userLoginTimeinMs)
+
+// console.log("point is: ", point)
+
+//     try {
+        
+//             const pipeline = [
+//       {
+//         $match: { role: "CC",
+//              isActive: true,
+//               _id: new mongoose.Types.ObjectId(unqUserObjectId),
+//          } // filter only CC role
+//       },
+//       {
+//         $lookup: {
+//           from: "useraccesses",         // collection name in Mongo
+//           localField: "_id",            // User _id
+//           foreignField: "unqObjectId",  // matches useraccesses.unqObjectId
+//           as: "accesses"                // output array field
+//         }
+//       }
+//     ];
+
+
+//  const result = await User.aggregate(pipeline);
+
+//  console.log(result[0].accesses[0].region)
+
+
+
+
+// const schoolData = result[0].accesses[0].region
+ 
+
+
+// const schoolIdsArray = [
+//   ...new Set(
+//     schoolData.flatMap(district =>
+//       district.blockIds.flatMap(block =>
+//         block.schoolIds.map(school => school.schoolId)
+//       )
+//     )
+//   )
+// ];
+
+
+// const schoolIdsArrayToStringConversion = schoolIdsArray.join(",")
+
+// console.log(schoolIdsArray)
+ 
+// console.log(result[0].accesses[0].classId)
+
+// const classess = result[0].accesses[0].classId.join(",")
+// console.log(classess)
+
+// const response  = await Gamification.create({
+//     unqUserObjectId:result[0]._id,
+//     userId: result[0].userId,
+//     pointType:"Self_Attendance",
+//     centerId: schoolIdsArrayToStringConversion,
+//     classOfCenter: classess,
+//     poorRankCount: null,
+//     averageRankCount:null,
+//     goodRankCount:null,
+//     excellentRankCount:null,
+//     examId: null,
+//     finalPoint:point,
+//     pointGivenBy:null,
+//     pointClaimed:false,
+//     date: new Date()
+// })
+ 
+
+
+
+
+//  res.status(200).json({
+//       success: true,
+//       count: result.length,
+//       data: response //result[0].accesses[0].region
+//     });
+
+
+
+//     } catch (error) {
+//         console.log('Error::::>', error)
+
+//         res.status(500).json({status: "Success", message:"Error updating "})
+//     }
+
+
+// }
+
+
 export const selfAttendanceGamification = async (req, res) =>{
 
-    console.log('Hello self attendance')
+    console.log('Hello self attendance ERP TEST')
 
     const {unqUserObjectId,  date  } = req.body //userId
 
@@ -73,6 +239,12 @@ const findAttendance = await UserAttendance.findOne({
    date: { $gte: startDate, $lte: endDate }
 });
 
+if (!findAttendance) {
+  return res.status(404).json({
+    success: false,
+    message: "No attendance record found for this user on given date"
+  });
+}
 
 const userLoginTime = findAttendance.loginTime
 
@@ -151,9 +323,6 @@ console.log("point is: ", point)
 
  console.log(result[0].accesses[0].region)
 
-
-
-
 const schoolData = result[0].accesses[0].region
  
 
@@ -215,6 +384,8 @@ const response  = await Gamification.create({
 
 
 }
+
+
 
 
 

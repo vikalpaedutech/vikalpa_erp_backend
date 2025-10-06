@@ -106,6 +106,9 @@ import s100AttendanceRoute from "./routes/s100attendance.route.js"
 
 import gamificationRoute from "./routes/Gamification.route.js"
 
+//Erp test route
+import ErpTestRoute from "./routes/ErpTest.route.js"
+
 //using routes for route.g
 
 app.use('/api', districtRouter);
@@ -131,6 +134,7 @@ app.use("/api", sendOtp)
 app.use("/api",disciplinaryGamificationRoute)
 app.use("/api",s100AttendanceRoute)
 app.use("/api",gamificationRoute)
+app.use("/api",ErpTestRoute)
 
 
 
