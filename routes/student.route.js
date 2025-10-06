@@ -2,7 +2,10 @@
 
 import express from "express";
 
-import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents, updateStudentBySrn, patchStudentBySrn, deleteStudentBySrn, getStudentsByQueryParams} from "../controllers/student.controller.js";
+import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents, 
+    updateStudentBySrn, patchStudentBySrn, 
+    deleteStudentBySrn,
+     getStudentsByQueryParams, uploadDressSizePdf, uploadDressSizeConfirmationForm} from "../controllers/student.controller.js";
 
 //creating express router.
 
@@ -18,5 +21,10 @@ router.patch("/student/:studentSrn", patchStudentBySrn);
 router.delete("/student/:studentSrn", deleteStudentBySrn);
 router.get("/student-queryparams", getStudentsByQueryParams);
 
-
+// Upload dress size PDF for a student
+router.patch(
+  "/students/:studentSrn/dress-size-upload",
+  uploadDressSizePdf,
+  uploadDressSizeConfirmationForm
+);
 export default router;

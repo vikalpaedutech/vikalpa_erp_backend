@@ -55,6 +55,8 @@ const StudentSchema = new Schema(
     shirtSizeInInches: {type: Number},
     waistSizeInInches: {type: Number},
     waistToBottomLengthInInches:{type: Number},
+    dressAmountSubmitted: {type: Boolean, default: false},
+    dressSizeConfirmationForm: {type: String}, //File link of data uploaded.
   },
   { timestamps: true }
 );

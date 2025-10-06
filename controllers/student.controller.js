@@ -7,8 +7,11 @@ import mongoose from "mongoose";
 // import  {Student}  from "../models/student.model.js"
 // import  StudentDb  from "../models/student.model.js";
 
-
+import path from "path";
+import multer from "multer";
+import AWS from "aws-sdk"; 
 import {Student}  from "../models/student.model.js";
+
 
 
 
@@ -296,5 +299,67 @@ export const getStudentsByQueryParams = async (req, res) => {
 
 
 
-//
+
+//Below controller takes the file from frontend and uploads it in the drive
+//Dress size form
+// Multer memory storage
+const storage = multer.memoryStorage();
+export const uploadDressSizePdf = multer({ storage }).single("dressSizeConfirmationForm");
+// Controller
+export const uploadDressSizeConfirmationForm = async (req, res) => {
+  try {
+    const { studentSrn } = req.params;
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ status: "Error", message: "No file uploaded" });
+    }
+
+    // DigitalOcean Spaces configuration
+    const spacesEndpoint = new AWS.Endpoint(process.env.DO_SPACES_ENDPOINT || "https://blr1.digitaloceanspaces.com");
+    const s3 = new AWS.S3({
+      endpoint: spacesEndpoint,
+      accessKeyId: process.env.DO_SPACES_KEY || "DO00PWB6WHQMX2R4GED9",
+      secretAccessKey: process.env.DO_SPACES_SECRET || "F06Kgqhk88UCiCWqINK3K8fgis9Ba5TCBLOqa6sqWls",
+      region: process.env.DO_SPACES_REGION || "blr1",
+    });
+
+    // Create file name and path
+    const fileExt = file.originalname.split(".").pop();
+    const fileName = `${studentSrn}_dressSizeConfirmation.${fileExt}`;
+    const filePath = `dressSizeConfirmationForm/${fileName}`;
+
+    // Upload to DO Spaces
+    const uploadParams = {
+      Bucket: process.env.DO_SPACES_BUCKET || "vikalpaexamination",
+      Key: filePath,
+      Body: file.buffer,
+      ACL: "public-read",
+      ContentType: file.mimetype,
+    };
+
+    const uploadResult = await s3.upload(uploadParams).promise();
+    const fileUrl = uploadResult.Location; // Public URL of uploaded PDF
+
+    // Update student document
+    const student = await Student.findOneAndUpdate(
+      { studentSrn },
+      { dressSizeConfirmationForm: fileUrl },
+      { new: true, runValidators: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ status: "Error", message: "Student not found" });
+    }
+
+    res.status(200).json({
+      status: "Success",
+      message: "Dress size confirmation PDF uploaded successfully",
+      data: student,
+    });
+  } catch (error) {
+    console.error("Error uploading dress size PDF:", error.message);
+    res.status(500).json({ status: "Error", message: "Server error" });
+  }
+};
 
