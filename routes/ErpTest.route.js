@@ -8,7 +8,9 @@ import express from "express";
 
 import { ChangePassword, selfAttendance, studentAttendance, 
     downloadAttendancePdfFormat, uploadAttendancePdfFormat,
-uploadMarks, handlingConcern, GetErpTestByUnqUserObjectId, Disciplinary, CopyChecking } from "../controllers/ErpTest.controller.js";
+uploadMarks, handlingConcern, GetErpTestByUnqUserObjectId, Disciplinary, CopyChecking,
+updateErpTestAnswer, absenteeCalling,
+closeConcernController, UpdateMarks } from "../controllers/ErpTest.controller.js";
 
 const router = express.Router();
 
@@ -33,9 +35,18 @@ router.post("/erp-test-disciplinary", Disciplinary);
 
 router.post("/erp-test-copychecking", CopyChecking);
 
+router.post("/erp-test-absenteecalling", absenteeCalling);
+
+router.post("/erp-test-closeconcern", closeConcernController);
+
+router.post("/test-marks", UpdateMarks);
 
 
-
-
+/**
+ * @route   PATCH /erpTest/:id
+ * @desc    Update any field of an ErpTest document
+ * @body    { field: string, value: any }
+ */
+router.patch('/:id', updateErpTestAnswer);
 
 export default router;
