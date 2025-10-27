@@ -7,7 +7,9 @@ import {GetDataBySchoolId, uploadAttendancePdfFile, PatchAttendancePdf, createAt
 
 const router = express();
 
-router.get("/attendancepdf/:schoolId/:dateOfUpload", GetDataBySchoolId)
+//router.get("/attendancepdf/:schoolId/:dateOfUpload", GetDataBySchoolId)
+
+router.post("/attendancepdf", GetDataBySchoolId)
 router.patch("/attendancepdf-upload", uploadAttendancePdfFile,  PatchAttendancePdf)
 router.post("/initiate-attendance-pdf", createAttendancePdfCronJob)
 

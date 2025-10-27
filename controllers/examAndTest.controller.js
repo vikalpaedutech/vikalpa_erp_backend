@@ -38,14 +38,20 @@ export const createPost = async (req, res) => {
 
 export const GetTests = async (req, res) => {
 
+console.log("Hello get tests")
+const {classofStudent} = req.body;
+
+console.log(req.body)
 
 try {
 
   console.log('i am inside try block')
 
-  const response = await ExamAndTest.find({status: "Pending"});
+  const response = await ExamAndTest.find({status: "Pending", classofStudent});
 
   res.status(200).json({ status: "Success", data: response });
+
+  console.log(response)
   
 } catch (error) {
   

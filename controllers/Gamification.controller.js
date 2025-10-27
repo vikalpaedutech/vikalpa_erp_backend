@@ -9,6 +9,7 @@ import { AttendancePdf } from "../models/UploadAttendancePdf.model.js";
 import { FindCursor } from "mongodb";
 import { all } from "axios";
 import { Marks } from "../models/marks.model.js";
+import { GamificationUserRank } from "../models/gamification.model.js";
 
 
 export const createGamificationData = async (req, res) => {
@@ -51,170 +52,6 @@ export const createGamificationData = async (req, res) => {
 
 
 
-// export const selfAttendanceGamification = async (req, res) =>{
-
-//     console.log('Hello self attendance')
-
-//     const {unqUserObjectId,  date  } = req.body //userId
-
-//     console.log(req.body)
-
-//     // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
-
-//     // Setting dates for querying
-//     const startDate = new Date()
-//     const endDate = new Date ()
-
-//     startDate.setUTCHours(0, 0, 0, 0);
-//     endDate.setHours(23, 59, 59, 999)
-
-// const findAttendance = await UserAttendance.findOne({
-//   unqUserObjectId: unqUserObjectId,
-//    date: { $gte: startDate, $lte: endDate }
-// });
-
-
-// const userLoginTime = findAttendance.loginTime
-
-// const istms = userLoginTime.getTime() + (5.5 * 60 * 60 *1000);
-// const formattedISTDate = new Date(istms)
-
-// // const utcms = userLoginTime.getTime();
-// // const formattedUtc = new Date(utcms)
-
-// console.log(userLoginTime)
-// console.log(formattedISTDate)
-// const hours = userLoginTime.getHours(); //Converts utc hours into ist hours
-// const minutes = userLoginTime.getMinutes(); //converts utc minutes into ist minutes
-// console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
-
-
-
-// //Function to convert utc minute hour into milisecons
-// function timeToMs(timeStr) {
-//   const [h, m] = timeStr.split(":").map(Number);
-//   return (h * 60 * 60 * 1000) + (m * 60 * 1000);
-// }
-
-// const t1_userLoginTimeinMs =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
-// // const t1_userLoginTimeinMs =  timeToMs(`08:16`)
-
-// console.log(t1_userLoginTimeinMs)
-
-// //Point assignment logic
-
-// // 7:31 to 7:45: 5,
-// // 7:41 to 8:00: 2,
-// // 8:01 to 8:15: -5,
-// // Greater than 8:15: -10
-// let point;
-// async function getPoints(t1_userLoginTimeinMs) {
-//    point = 5; // default if before 7:31
-
-//   if (t1_userLoginTimeinMs >= 27060000 && t1_userLoginTimeinMs <= 27900000) {
-//     point = 5;
-//   } else if (t1_userLoginTimeinMs >= 27660000 && t1_userLoginTimeinMs <= 28800000) {
-//     point = 2;
-//   } else if (t1_userLoginTimeinMs >= 28860000 && t1_userLoginTimeinMs <= 29700000) {
-//     point = -5;
-//   } else if (t1_userLoginTimeinMs > 29700000) {
-//     point = -10;
-//   }
-
-//   return point;
-// }
-// await getPoints(t1_userLoginTimeinMs)
-
-// console.log("point is: ", point)
-
-//     try {
-        
-//             const pipeline = [
-//       {
-//         $match: { role: "CC",
-//              isActive: true,
-//               _id: new mongoose.Types.ObjectId(unqUserObjectId),
-//          } // filter only CC role
-//       },
-//       {
-//         $lookup: {
-//           from: "useraccesses",         // collection name in Mongo
-//           localField: "_id",            // User _id
-//           foreignField: "unqObjectId",  // matches useraccesses.unqObjectId
-//           as: "accesses"                // output array field
-//         }
-//       }
-//     ];
-
-
-//  const result = await User.aggregate(pipeline);
-
-//  console.log(result[0].accesses[0].region)
-
-
-
-
-// const schoolData = result[0].accesses[0].region
- 
-
-
-// const schoolIdsArray = [
-//   ...new Set(
-//     schoolData.flatMap(district =>
-//       district.blockIds.flatMap(block =>
-//         block.schoolIds.map(school => school.schoolId)
-//       )
-//     )
-//   )
-// ];
-
-
-// const schoolIdsArrayToStringConversion = schoolIdsArray.join(",")
-
-// console.log(schoolIdsArray)
- 
-// console.log(result[0].accesses[0].classId)
-
-// const classess = result[0].accesses[0].classId.join(",")
-// console.log(classess)
-
-// const response  = await Gamification.create({
-//     unqUserObjectId:result[0]._id,
-//     userId: result[0].userId,
-//     pointType:"Self_Attendance",
-//     centerId: schoolIdsArrayToStringConversion,
-//     classOfCenter: classess,
-//     poorRankCount: null,
-//     averageRankCount:null,
-//     goodRankCount:null,
-//     excellentRankCount:null,
-//     examId: null,
-//     finalPoint:point,
-//     pointGivenBy:null,
-//     pointClaimed:false,
-//     date: new Date()
-// })
- 
-
-
-
-
-//  res.status(200).json({
-//       success: true,
-//       count: result.length,
-//       data: response //result[0].accesses[0].region
-//     });
-
-
-
-//     } catch (error) {
-//         console.log('Error::::>', error)
-
-//         res.status(500).json({status: "Success", message:"Error updating "})
-//     }
-
-
-// }
 
 
 export const selfAttendanceGamification = async (req, res) =>{
@@ -1087,22 +924,884 @@ try {
 
 
 
+// export const disciplinaryGamification = async (req, res) =>{
+
+//   console.log("Hello disciplinary gamification!")
+
+  
+//   const {unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
+
+ 
+
+//   console.log(req.body)
+
+//   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
+    
+//   //   const schoolId = '4025'
+//   //  const classOfCenter = '9'
+
+//   //  const userId = 'TESTCC'
+
+
+//   //Logic for fetching user object id whose center and class is being given the points...
+//   ///...It will be cc. 
+//   //We fetch the data using classOfCenter, schoolId, and then fetch the data...
+//   //...from Users to find the role cc.
+
+//  const findRegionAccess = await UserAccess.find({
+//   classId: { $in: [classOfCenter] },
+//   region: {
+//     $elemMatch: {
+//       blockIds: {
+//         $elemMatch: {
+//           schoolIds: {
+//             $elemMatch: {
+//               schoolId: schoolId
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// });
+
+
+// let allRegionIds = [];
+//   if (findRegionAccess){
+//     // console.log(findRegionAccess)
+//     console.log('Hello find region')
+
+    
+//     findRegionAccess.map((eachObject)=>{
+//       allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId)) 
+//    })
+// // console.log(allRegionIds)
 
 
 
-export const disciplinaryGamification = async (req, res) =>{
+//   }
+
+//   const findCC = await User.find({
+//   _id:{$in:allRegionIds},
+//   role:'CC'
+// })
+
+// //----------------------------------------------------
+
+// //Calculating total student count in schoolId and classOfcenter.
+// const findStudentCount = await Student.find({
+//   schoolId:schoolId,
+//   classofStudent:classOfCenter,
+//   isSlcTaken:false
+// })
+
+// const totalStudentCount = findStudentCount.length
+
+// console.log("Student count", findStudentCount.length)
+// //--------------------------------------------------------
+
+
+// //Point assigning logic.
+// let point;
+// if(totalStudentCount >= 0 && totalStudentCount <= 9){
+//   if(rank === "Poor"){ point = -10;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 5;} // point/4
+//   else if(rank === "Excellent"){point = 10;} //point/2
+// } else if (totalStudentCount >= 10 && totalStudentCount <= 14){
+//   if(rank === "Poor"){ point = -12.5;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 6.25;} // point/4
+//   else if(rank === "Excellent"){point = 12.5;} //point/2
+// }else if (totalStudentCount >= 15 && totalStudentCount <= 19){
+//   if(rank === "Poor"){ point = -15;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 7.5;} // point/4
+//   else if(rank === "Excellent"){point = 15;} //point/2
+// } else if (totalStudentCount >= 20 && totalStudentCount <= 24){
+//   if(rank === "Poor"){ point = -17.5;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 8.75;} // point/4
+//   else if(rank === "Excellent"){point = 17.5;} //point/2
+// } else if (totalStudentCount >= 25 && totalStudentCount <= 29){
+//   if(rank === "Poor"){ point = -20;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 10;} // point/4
+//   else if(rank === "Excellent"){point = 20;} //point/2
+// }else if (totalStudentCount >= 30 && totalStudentCount <= 39){
+//   if(rank === "Poor"){ point = -25;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 12.5;} // point/4
+//   else if(rank === "Excellent"){point = 25;} //point/2
+// }else if (totalStudentCount >= 40 && totalStudentCount <= 49){
+//   if(rank === "Poor"){ point = -27.5;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 13.75;} // point/4
+//   else if(rank === "Excellent"){point = 27.5;} //point/2
+// }else if (totalStudentCount >= 50 && totalStudentCount <= 200){
+//   if(rank === "Poor"){ point = -30;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 15;} // point/4
+//   else if(rank === "Excellent"){point = 30;} //point/2
+// }
+
+
+// //Before updating point, we check if the object already exists by querying with...
+// //...pointType='Disciplinary' and date= currentDate. So that, if the object...
+// //...already exists so same object can be updated rather creating multiple duplicate...
+// //... objects.
+
+// const startDate = new Date();
+// const endDate = new Date ();
+
+// startDate.setUTCHours(0, 0, 0, 0)
+// endDate.setHours(23, 59, 59, 999)
+
+// const disciplinaryExist = await Gamification.find({
+//   centerId:schoolId,
+//   classOfCenter:classOfCenter,
+//   pointType:'Disciplinary',
+//   date: {$gte:startDate, $lte:endDate}
+// })
+
+// if (disciplinaryExist.length>0){
+//   console.log("Disciplinary already exist")
+//   // console.log(disciplinaryExist)
+
+// // console.log(disciplinaryExist[0].poorRankCount)
+// // console.log(disciplinaryExist[0].averageRankCount)
+// // console.log(disciplinaryExist[0].goodRankCount)
+// // console.log(disciplinaryExist[0].excellentRankCount)
+
+// const sumOfRankPoints = disciplinaryExist[0].poorRankCount + 
+//                         disciplinaryExist[0].averageRankCount +
+//                         disciplinaryExist[0].goodRankCount +
+//                         disciplinaryExist[0].excellentRankCount
+
+
+
+
+
+// //Finding existing gamification data of users
+// const findGamificationData = await GamificationRanking.find({
+//   unqUserObjectId:unqUserObjectId,
+//   centerId:schoolId,
+//   classOfCenter:classOfCenter,
+//   date: {$gte:startDate, $lte:endDate}
+// })
+
+
+// if (findGamificationData.length > 0){
+
+
+//   //Crating gamification object dynamically for dsiciplinary
+// let disciplinaryObject= {
+// unqUserObjectId:unqUserObjectId,
+// userId: userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   findGamificationData[0].poorRankCount = findGamificationData[0].poorRankCount + 1 ;
+// } else if (rank === "Average") {
+//   findGamificationData[0].averageRankCount = findGamificationData[0].averageRankCount + 1;
+// } else if (rank === "Good") {
+//   findGamificationData[0].goodRankCount = findGamificationData[0].goodRankCount + 1;
+// } else if (rank === "Excellent") {
+//   findGamificationData[0].excellentRankCount = findGamificationData[0].excellentRankCount + 1;
+// }
+
+
+// const response = await GamificationRanking.create(findGamificationData[0])
+
+// console.log("I am updated existing data")
+// } else {
+// console.log("i am insdie else block")
+// console.log(rank)
+// // console.log(findGamificationData)
+// // console.log(unqUserObjectId)
+
+
+// //Crating gamification object dynamically for dsiciplinary
+// let disciplinaryObject= {
+// unqUserObjectId:unqUserObjectId,
+// userId: userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   disciplinaryObject.poorRankCount = 1;
+// } else if (rank === "Average") {
+//   disciplinaryObject.averageRankCount = 1;
+// } else if (rank === "Good") {
+//   disciplinaryObject.goodRankCount = 1;
+// } else if (rank === "Excellent") {
+//   disciplinaryObject.excellentRankCount = 1;
+// }
+
+// const response = await GamificationRanking.create(disciplinaryObject)
+
+
+// }
+
+
+// //-------------------------------------------------------------------------------------   
+
+
+// //Per center only two ranks are allowed
+// if (sumOfRankPoints>=2){
+//   console.log(sumOfRankPoints)
+//   console.log("No more points can be assigned to this center, limit exhausted")
+//   res.status(200).json({status:"Ok", message:"Point Exhausted"})
+//   return;
+// }
+
+// if (rank === "Camera-off"){
+
+//   console.log('i am camera off matter closed')
+
+//   return
+// }
+
+
+
+//   //Now if disciplniaryExist then we will update current object
+// if(rank === 'Poor'){
+//   disciplinaryExist[0].poorRankCount = disciplinaryExist[0].poorRankCount + 1
+// } else if (rank === 'Average'){
+//   disciplinaryExist[0].averageRankCount = disciplinaryExist[0].averageRankCount + 1
+// } else if (rank === 'Good'){
+//   disciplinaryExist[0].goodRankCount = disciplinaryExist[0].goodRankCount + 1
+// } else if (rank === 'Excellent'){
+//   disciplinaryExist[0].excellentRankCount = disciplinaryExist[0].excellentRankCount + 1
+// }
+
+// //Point assigning logic.
+// let point;
+// if(totalStudentCount >= 0 && totalStudentCount <= 9){
+//   if(rank === "Poor"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -10;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 5;;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 10;} //point/2
+// } else if (totalStudentCount >= 10 && totalStudentCount <= 14){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -12.5;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 6.25;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 12.5;} //point/2
+// }else if (totalStudentCount >= 15 && totalStudentCount <= 19){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -15;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 7.5;} // point/4
+//   else if(rank === "Excellent"){point = 15;} //point/2
+// } else if (totalStudentCount >= 20 && totalStudentCount <= 24){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -17.5;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 8.75;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 17.5;} //point/2
+// } else if (totalStudentCount >= 25 && totalStudentCount <= 29){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -20;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 10;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 20;} //point/2
+// }else if (totalStudentCount >= 30 && totalStudentCount <= 39){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -25;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 12.5;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 25;} //point/2
+// }else if (totalStudentCount >= 40 && totalStudentCount <= 49){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -27.5;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 13.75;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 27.5;} //point/2
+// }else if (totalStudentCount >= 50 && totalStudentCount <= 200){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -30;} // -point/2
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 15;} // point/4
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 30;} //point/2
+// }
+
+
+//   console.log('I am total stu count', totalStudentCount)
+//   console.log('I am rank value', rank)
+
+
+// const response  = await Gamification.create(disciplinaryExist[0])
+
+// res.status(200).json({status:"Ok", data:response})
+
+
+
+
+
+
+// console.log("existing data updated")
+
+//   return;
+// } 
+
+
+// //Crating gamification object dynamically for dsiciplinary
+// let disciplinaryObject= {
+// unqUserObjectId:findCC[0]._id,
+// userId: findCC[0].userId, //userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+// examId: null,
+// finalPoint:point,
+// pointGivenBy:null,
+// pointClaimed:false,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   disciplinaryObject.poorRankCount = 1;
+// } else if (rank === "Average") {
+//   disciplinaryObject.averageRankCount = 1;
+// } else if (rank === "Good") {
+//   disciplinaryObject.goodRankCount = 1;
+// } else if (rank === "Excellent") {
+//   disciplinaryObject.excellentRankCount = 1;
+// }
+
+
+// console.log(disciplinaryObject)
+
+//   try {
+
+//     //Creating fresh gamification data and storing it into DB.
+
+//     const response  = await Gamification.create(disciplinaryObject)
+    
+    
+
+//     console.log("I am response",response)
+
+    
+    
+// //Function that stores each users data who are giving ranking.
+// const storeGamificationRankOfUsers = async () =>{
+// //Crating gamification object dynamically for dsiciplinary
+// let disciplinaryObject= {
+// unqUserObjectId:unqUserObjectId,
+// userId: userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   disciplinaryObject.poorRankCount = 1;
+// } else if (rank === "Average") {
+//   disciplinaryObject.averageRankCount = 1;
+// } else if (rank === "Good") {
+//   disciplinaryObject.goodRankCount = 1;
+// } else if (rank === "Excellent") {
+//   disciplinaryObject.excellentRankCount = 1;
+// }
+
+// const response = await GamificationRanking.create(disciplinaryObject)
+
+// console.log("I am inside new function")
+
+// }
+
+// storeGamificationRankOfUsers();
+
+//     res.status(200).json({status:"Ok", data:response})
+//   } catch (error) {
+//     console.log("Error::::>", error)
+//   }
+// }
+
+// //----------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// export const disciplinaryGamification = async (req, res) =>{
+
+//   console.log("Hello disciplinary gamification!")
+
+  
+//   const {unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
+
+ 
+
+//   console.log(req.body)
+
+//   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
+    
+//   //   const schoolId = '4025'
+//   //  const classOfCenter = '9'
+
+//   //  const userId = 'TESTCC'
+
+
+//   //Logic for fetching user object id whose center and class is being given the points...
+//   ///...It will be cc. 
+//   //We fetch the data using classOfCenter, schoolId, and then fetch the data...
+//   //...from Users to find the role cc.
+
+//  const findRegionAccess = await UserAccess.find({
+//   classId: { $in: [classOfCenter] },
+//   region: {
+//     $elemMatch: {
+//       blockIds: {
+//         $elemMatch: {
+//           schoolIds: {
+//             $elemMatch: {
+//               schoolId: schoolId
+//             }
+//           }
+//         }
+//       }
+//     }
+//   }
+// });
+
+
+// let allRegionIds = [];
+//   if (findRegionAccess){
+//     // console.log(findRegionAccess)
+//     console.log('Hello find region')
+
+    
+//     findRegionAccess.map((eachObject)=>{
+//       allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId)) 
+//    })
+// // console.log(allRegionIds)
+
+
+
+//   }
+
+//   const findCC = await User.find({
+//   _id:{$in:allRegionIds},
+//   role:'CC'
+// })
+
+// //----------------------------------------------------
+
+// //Calculating total student count in schoolId and classOfcenter.
+// const findStudentCount = await Student.find({
+//   schoolId:schoolId,
+//   classofStudent:classOfCenter,
+//   isSlcTaken:false
+// })
+
+// const totalStudentCount = findStudentCount.length
+
+// console.log("Student count", findStudentCount.length)
+// //--------------------------------------------------------
+
+
+// //Point assigning logic.
+// let point;
+// if(totalStudentCount >= 0 && totalStudentCount <= 9){
+//   if(rank === "Poor"){ point = -10;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 5;} // point/4
+//   else if(rank === "Excellent"){point = 10;} //point/2
+// } else if (totalStudentCount >= 10 && totalStudentCount <= 14){
+//   if(rank === "Poor"){ point = -12.5;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 6.25;} // point/4
+//   else if(rank === "Excellent"){point = 12.5;} //point/2
+// }else if (totalStudentCount >= 15 && totalStudentCount <= 19){
+//   if(rank === "Poor"){ point = -15;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 7.5;} // point/4
+//   else if(rank === "Excellent"){point = 15;} //point/2
+// } else if (totalStudentCount >= 20 && totalStudentCount <= 24){
+//   if(rank === "Poor"){ point = -17.5;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 8.75;} // point/4
+//   else if(rank === "Excellent"){point = 17.5;} //point/2
+// } else if (totalStudentCount >= 25 && totalStudentCount <= 29){
+//   if(rank === "Poor"){ point = -20;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 10;} // point/4
+//   else if(rank === "Excellent"){point = 20;} //point/2
+// }else if (totalStudentCount >= 30 && totalStudentCount <= 39){
+//   if(rank === "Poor"){ point = -25;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 12.5;} // point/4
+//   else if(rank === "Excellent"){point = 25;} //point/2
+// }else if (totalStudentCount >= 40 && totalStudentCount <= 49){
+//   if(rank === "Poor"){ point = -27.5;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 13.75;} // point/4
+//   else if(rank === "Excellent"){point = 27.5;} //point/2
+// }else if (totalStudentCount >= 50 && totalStudentCount <= 200){
+//   if(rank === "Poor"){ point = -30;} // -point/2
+//   else if(rank === "Average"){point = 0;} //0
+//   else if(rank === "Good"){point = 15;} // point/4
+//   else if(rank === "Excellent"){point = 30;} //point/2
+// }
+
+
+// //Before updating point, we check if the object already exists by querying with...
+// //...pointType='Disciplinary' and date= currentDate. So that, if the object...
+// //...already exists so same object can be updated rather creating multiple duplicate...
+
+// const startDate = new Date();
+// const endDate = new Date ();
+
+// startDate.setUTCHours(0, 0, 0, 0)
+// endDate.setHours(23, 59, 59, 999)
+
+// if(rank === "Camera-off"){
+//   const cameraOffExist = await Gamification.find({
+//     centerId: schoolId,
+//     classOfCenter: classOfCenter,
+//     pointType: "Camera-off",
+//     date: {$gte:startDate, $lte:endDate}
+//   })
+
+//   if(cameraOffExist.length > 0){
+//     console.log("this center's Camera off is already marked")
+//     return
+//   } else {
+//     // Create Camera-off document
+//     const cameraOffObj = {
+//       unqUserObjectId: findCC[0]._id,
+//       userId: findCC[0].userId,
+//       pointType: "Camera-off",
+//       centerId: schoolId,
+//       classOfCenter: classOfCenter,
+//       poorRankCount: 0,
+//       averageRankCount: 0,
+//       goodRankCount: 0,
+//       excellentRankCount: 0,
+//       examId: null,
+//       finalPoint: 0,
+//       pointGivenBy: null,
+//       pointClaimed: false,
+//       date: new Date()
+//     }
+
+//     const response = await Gamification.create(cameraOffObj)
+//     console.log("Camera-off document created", response)
+//     res.status(200).json({status:"Ok", data:response})
+//     return
+//   }
+// }
+
+
+// const disciplinaryExist = await Gamification.find({
+//   centerId:schoolId,
+//   classOfCenter:classOfCenter,
+//   pointType:'Disciplinary',
+//   date: {$gte:startDate, $lte:endDate}
+// })
+
+// if (disciplinaryExist.length>0){
+//   console.log("Disciplinary already exist")
+
+// const sumOfRankPoints = disciplinaryExist[0].poorRankCount + 
+//                         disciplinaryExist[0].averageRankCount +
+//                         disciplinaryExist[0].goodRankCount +
+//                         disciplinaryExist[0].excellentRankCount
+
+// //Finding existing gamification data of users
+// const findGamificationData = await GamificationRanking.find({
+//   unqUserObjectId:unqUserObjectId,
+//   centerId:schoolId,
+//   classOfCenter:classOfCenter,
+//   date: {$gte:startDate, $lte:endDate}
+// })
+
+
+// if (findGamificationData.length > 0){
+
+// let disciplinaryObject= {
+// unqUserObjectId:unqUserObjectId,
+// userId: userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   findGamificationData[0].poorRankCount = findGamificationData[0].poorRankCount + 1 ;
+// } else if (rank === "Average") {
+//   findGamificationData[0].averageRankCount = findGamificationData[0].averageRankCount + 1;
+// } else if (rank === "Good") {
+//   findGamificationData[0].goodRankCount = findGamificationData[0].goodRankCount + 1;
+// } else if (rank === "Excellent") {
+//   findGamificationData[0].excellentRankCount = findGamificationData[0].excellentRankCount + 1;
+// }
+
+// const response = await GamificationRanking.create(findGamificationData[0])
+
+// console.log("I am updated existing data")
+// } else {
+// console.log("i am insdie else block")
+// console.log(rank)
+
+// let disciplinaryObject= {
+// unqUserObjectId:unqUserObjectId,
+// userId: userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   disciplinaryObject.poorRankCount = 1;
+// } else if (rank === "Average") {
+//   disciplinaryObject.averageRankCount = 1;
+// } else if (rank === "Good") {
+//   disciplinaryObject.goodRankCount = 1;
+// } else if (rank === "Excellent") {
+//   disciplinaryObject.excellentRankCount = 1;
+// }
+
+// const response = await GamificationRanking.create(disciplinaryObject)
+// }
+
+// //-------------------------------------------------------------------------------------   
+
+// if (sumOfRankPoints>=2){
+//   console.log(sumOfRankPoints)
+//   console.log("No more points can be assigned to this center, limit exhausted")
+//   res.status(200).json({status:"Ok", message:"Point Exhausted"})
+//   return;
+// }
+
+//   if(rank === 'Poor'){
+//     disciplinaryExist[0].poorRankCount = disciplinaryExist[0].poorRankCount + 1
+//   } else if(rank === 'Average'){
+//     disciplinaryExist[0].averageRankCount = disciplinaryExist[0].averageRankCount + 1
+//   } else if(rank === 'Good'){
+//     disciplinaryExist[0].goodRankCount = disciplinaryExist[0].goodRankCount + 1
+//   } else if(rank === 'Excellent'){
+//     disciplinaryExist[0].excellentRankCount = disciplinaryExist[0].excellentRankCount + 1
+//   }
+
+// let point;
+// if(totalStudentCount >= 0 && totalStudentCount <= 9){
+//   if(rank === "Poor"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -10;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 5;;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 10;} 
+// } else if (totalStudentCount >= 10 && totalStudentCount <= 14){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -12.5;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 6.25;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 12.5;} 
+// }else if (totalStudentCount >= 15 && totalStudentCount <= 19){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -15;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 7.5;} 
+//   else if(rank === "Excellent"){point = 15;} 
+// } else if (totalStudentCount >= 20 && totalStudentCount <= 24){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -17.5;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 8.75;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 17.5;} 
+// } else if (totalStudentCount >= 25 && totalStudentCount <= 29){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -20;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 10;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 20;} 
+// }else if (totalStudentCount >= 30 && totalStudentCount <= 39){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -25;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 12.5;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 25;} 
+// }else if (totalStudentCount >= 40 && totalStudentCount <= 49){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -27.5;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 13.75;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 27.5;} 
+// }else if (totalStudentCount >= 50 && totalStudentCount <= 200){
+//   if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -30;} 
+//   else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} 
+//   else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 15;} 
+//   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 30;} 
+// }
+
+//   console.log('I am total stu count', totalStudentCount)
+//   console.log('I am rank value', rank)
+
+// const response  = await Gamification.create(disciplinaryExist[0])
+
+// res.status(200).json({status:"Ok", data:response})
+
+// console.log("existing data updated")
+
+//   return;
+// } 
+
+
+// //Crating gamification object dynamically for dsiciplinary
+// let disciplinaryObject= {
+// unqUserObjectId:findCC[0]._id,
+// userId: findCC[0].userId, //userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+// examId: null,
+// finalPoint:point,
+// pointGivenBy:null,
+// pointClaimed:false,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   disciplinaryObject.poorRankCount = 1;
+// } else if (rank === "Average") {
+//   disciplinaryObject.averageRankCount = 1;
+// } else if (rank === "Good") {
+//   disciplinaryObject.goodRankCount = 1;
+// } else if (rank === "Excellent") {
+//   disciplinaryObject.excellentRankCount = 1;
+// }
+
+
+// console.log(disciplinaryObject)
+
+//   try {
+
+//     //Creating fresh gamification data and storing it into DB.
+
+//     const response  = await Gamification.create(disciplinaryObject)
+    
+    
+
+//     console.log("I am response",response)
+
+    
+    
+// //Function that stores each users data who are giving ranking.
+// const storeGamificationRankOfUsers = async () =>{
+// //Crating gamification object dynamically for dsiciplinary
+// let disciplinaryObject= {
+// unqUserObjectId:unqUserObjectId,
+// userId: userId,
+// pointType:"Disciplinary",
+// centerId: schoolId,
+// classOfCenter: classOfCenter,
+// poorRankCount: 0,
+// averageRankCount:0,
+// goodRankCount:0,
+// excellentRankCount:0,
+//  date: new Date()
+// }
+
+// if (rank === "Poor") {
+//   disciplinaryObject.poorRankCount = 1;
+// } else if (rank === "Average") {
+//   disciplinaryObject.averageRankCount = 1;
+// } else if (rank === "Good") {
+//   disciplinaryObject.goodRankCount = 1;
+// } else if (rank === "Excellent") {
+//   disciplinaryObject.excellentRankCount = 1;
+// }
+
+// const response = await GamificationRanking.create(disciplinaryObject)
+
+// console.log("I am inside new function")
+
+// }
+
+// storeGamificationRankOfUsers();
+
+//     res.status(200).json({status:"Ok", data:response})
+//   } catch (error) {
+//     console.log("Error::::>", error)
+//   }
+// }
+
+// //----------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const disciplinaryGamification = async (req, res) => {
 
   console.log("Hello disciplinary gamification!")
 
 
-  const {unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
+  const { unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
 
- 
+
 
   console.log(req.body)
 
   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
-    
+
   //   const schoolId = '4025'
   //  const classOfCenter = '9'
 
@@ -1114,390 +1813,443 @@ export const disciplinaryGamification = async (req, res) =>{
   //We fetch the data using classOfCenter, schoolId, and then fetch the data...
   //...from Users to find the role cc.
 
- const findRegionAccess = await UserAccess.find({
-  classId: { $in: [classOfCenter] },
-  region: {
-    $elemMatch: {
-      blockIds: {
-        $elemMatch: {
-          schoolIds: {
-            $elemMatch: {
-              schoolId: schoolId
+  const findRegionAccess = await UserAccess.find({
+    classId: { $in: [classOfCenter] },
+    region: {
+      $elemMatch: {
+        blockIds: {
+          $elemMatch: {
+            schoolIds: {
+              $elemMatch: {
+                schoolId: schoolId
+              }
             }
           }
         }
       }
     }
-  }
-});
+  });
 
 
-let allRegionIds = [];
-  if (findRegionAccess){
+  let allRegionIds = [];
+  if (findRegionAccess) {
     // console.log(findRegionAccess)
     console.log('Hello find region')
 
-    
-    findRegionAccess.map((eachObject)=>{
-      allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId)) 
-   })
-// console.log(allRegionIds)
+
+    findRegionAccess.map((eachObject) => {
+      allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId))
+    })
+    // console.log(allRegionIds)
 
 
 
   }
 
   const findCC = await User.find({
-  _id:{$in:allRegionIds},
-  role:'CC'
-})
+    _id: { $in: allRegionIds },
+    role: 'CC'
+  })
 
-//----------------------------------------------------
+  //----------------------------------------------------
 
-//Calculating total student count in schoolId and classOfcenter.
-const findStudentCount = await Student.find({
-  schoolId:schoolId,
-  classofStudent:classOfCenter,
-  isSlcTaken:false
-})
+  //Calculating total student count in schoolId and classOfcenter.
+  const findStudentCount = await Student.find({
+    schoolId: schoolId,
+    classofStudent: classOfCenter,
+    isSlcTaken: false
+  })
 
-const totalStudentCount = findStudentCount.length
+  const totalStudentCount = findStudentCount.length
 
-console.log("Student count", findStudentCount.length)
-//--------------------------------------------------------
+  console.log("Student count", findStudentCount.length)
+  //--------------------------------------------------------
 
 
-//Point assigning logic.
-let point;
-if(totalStudentCount >= 0 && totalStudentCount <= 9){
-  if(rank === "Poor"){ point = -10;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 5;} // point/4
-  else if(rank === "Excellent"){point = 10;} //point/2
-} else if (totalStudentCount >= 10 && totalStudentCount <= 14){
-  if(rank === "Poor"){ point = -12.5;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 6.25;} // point/4
-  else if(rank === "Excellent"){point = 12.5;} //point/2
-}else if (totalStudentCount >= 15 && totalStudentCount <= 19){
-  if(rank === "Poor"){ point = -15;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 7.5;} // point/4
-  else if(rank === "Excellent"){point = 15;} //point/2
-} else if (totalStudentCount >= 20 && totalStudentCount <= 24){
-  if(rank === "Poor"){ point = -17.5;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 8.75;} // point/4
-  else if(rank === "Excellent"){point = 17.5;} //point/2
-} else if (totalStudentCount >= 25 && totalStudentCount <= 29){
-  if(rank === "Poor"){ point = -20;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 10;} // point/4
-  else if(rank === "Excellent"){point = 20;} //point/2
-}else if (totalStudentCount >= 30 && totalStudentCount <= 39){
-  if(rank === "Poor"){ point = -25;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 12.5;} // point/4
-  else if(rank === "Excellent"){point = 25;} //point/2
-}else if (totalStudentCount >= 40 && totalStudentCount <= 49){
-  if(rank === "Poor"){ point = -27.5;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 13.75;} // point/4
-  else if(rank === "Excellent"){point = 27.5;} //point/2
-}else if (totalStudentCount >= 50 && totalStudentCount <= 200){
-  if(rank === "Poor"){ point = -30;} // -point/2
-  else if(rank === "Average"){point = 0;} //0
-  else if(rank === "Good"){point = 15;} // point/4
-  else if(rank === "Excellent"){point = 30;} //point/2
+  //Point assigning logic.
+  let point;
+  if (totalStudentCount >= 0 && totalStudentCount <= 9) {
+    if (rank === "Poor") { point = -10; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 5; } // point/4
+    else if (rank === "Excellent") { point = 10; } //point/2
+  } else if (totalStudentCount >= 10 && totalStudentCount <= 14) {
+    if (rank === "Poor") { point = -12.5; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 6.25; } // point/4
+    else if (rank === "Excellent") { point = 12.5; } //point/2
+  } else if (totalStudentCount >= 15 && totalStudentCount <= 19) {
+    if (rank === "Poor") { point = -15; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 7.5; } // point/4
+    else if (rank === "Excellent") { point = 15; } //point/2
+  } else if (totalStudentCount >= 20 && totalStudentCount <= 24) {
+    if (rank === "Poor") { point = -17.5; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 8.75; } // point/4
+    else if (rank === "Excellent") { point = 17.5; } //point/2
+  } else if (totalStudentCount >= 25 && totalStudentCount <= 29) {
+    if (rank === "Poor") { point = -20; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 10; } // point/4
+    else if (rank === "Excellent") { point = 20; } //point/2
+  } else if (totalStudentCount >= 30 && totalStudentCount <= 39) {
+    if (rank === "Poor") { point = -25; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 12.5; } // point/4
+    else if (rank === "Excellent") { point = 25; } //point/2
+  } else if (totalStudentCount >= 40 && totalStudentCount <= 49) {
+    if (rank === "Poor") { point = -27.5; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 13.75; } // point/4
+    else if (rank === "Excellent") { point = 27.5; } //point/2
+  } else if (totalStudentCount >= 50 && totalStudentCount <= 200) {
+    if (rank === "Poor") { point = -30; } // -point/2
+    else if (rank === "Average") { point = 0; } //0
+    else if (rank === "Good") { point = 15; } // point/4
+    else if (rank === "Excellent") { point = 30; } //point/2
+  }
+
+
+  //Before updating point, we check if the object already exists by querying with...
+  //...pointType='Disciplinary' and date= currentDate. So that, if the object...
+  //...already exists so same object can be updated rather creating multiple duplicate...
+
+  const startDate = new Date();
+  const endDate = new Date();
+
+  startDate.setUTCHours(0, 0, 0, 0)
+  endDate.setHours(23, 59, 59, 999)
+
+  if (rank === "Camera-off") {
+    const cameraOffExist = await Gamification.find({
+      centerId: schoolId,
+      classOfCenter: classOfCenter,
+      pointType: "Camera-off",
+      date: { $gte: startDate, $lte: endDate }
+    })
+
+    //GamificationRanking check for Camera-off per user
+    const cameraOffRankingExist = await GamificationRanking.find({
+      unqUserObjectId: unqUserObjectId,
+      centerId: schoolId,
+      classOfCenter: classOfCenter,
+      pointType: "Camera-off",
+      date: { $gte: startDate, $lte: endDate }
+    })
+
+    if (cameraOffExist.length > 0) {
+      console.log("this center's Camera off is already marked")
+    } else {
+      // Create Camera-off document
+      const cameraOffObj = {
+        unqUserObjectId: findCC[0]._id,
+        userId: findCC[0].userId,
+        pointType: "Camera-off",
+        centerId: schoolId,
+        classOfCenter: classOfCenter,
+        poorRankCount: 0,
+        averageRankCount: 0,
+        goodRankCount: 0,
+        excellentRankCount: 0,
+        examId: null,
+        finalPoint: 0,
+        pointGivenBy: null,
+        pointClaimed: false,
+        date: new Date()
+      }
+
+      const response = await Gamification.create(cameraOffObj)
+      console.log("Camera-off document created", response)
+    }
+
+    if (cameraOffRankingExist.length > 0) {
+      console.log(`Camera-off for this center, user ${unqUserObjectId} and class ${classOfCenter} already exist`)
+    } else {
+      const cameraOffRankingObj = {
+        unqUserObjectId: unqUserObjectId,
+        userId: userId,
+        pointType: "Camera-off",
+        centerId: schoolId,
+        classOfCenter: classOfCenter,
+        poorRankCount: 0,
+        averageRankCount: 0,
+        goodRankCount: 0,
+        excellentRankCount: 0,
+        date: new Date()
+      }
+      await GamificationRanking.create(cameraOffRankingObj)
+      console.log("Camera-off recorded for user in GamificationRanking")
+    }
+
+    res.status(200).json({ status: "Ok", message: "Camera-off processed" })
+    return
+  }
+
+  // ... Rest of your original Disciplinary logic remains unchanged
+
+  const disciplinaryExist = await Gamification.find({
+    centerId: schoolId,
+    classOfCenter: classOfCenter,
+    pointType: 'Disciplinary',
+    date: { $gte: startDate, $lte: endDate }
+  })
+
+  // Existing disciplinary logic continues unchanged below...
+  if (disciplinaryExist.length > 0) {
+    console.log("Disciplinary already exist")
+
+    const sumOfRankPoints = disciplinaryExist[0].poorRankCount +
+      disciplinaryExist[0].averageRankCount +
+      disciplinaryExist[0].goodRankCount +
+      disciplinaryExist[0].excellentRankCount
+
+    //Finding existing gamification data of users
+    const findGamificationData = await GamificationRanking.find({
+      unqUserObjectId: unqUserObjectId,
+      centerId: schoolId,
+      classOfCenter: classOfCenter,
+      date: { $gte: startDate, $lte: endDate }
+    })
+
+    if (findGamificationData.length > 0) {
+
+      let disciplinaryObject = {
+        unqUserObjectId: unqUserObjectId,
+        userId: userId,
+        pointType: "Disciplinary",
+        centerId: schoolId,
+        classOfCenter: classOfCenter,
+        poorRankCount: 0,
+        averageRankCount: 0,
+        goodRankCount: 0,
+        excellentRankCount: 0,
+        date: new Date()
+      }
+
+      if (rank === "Poor") {
+        findGamificationData[0].poorRankCount = findGamificationData[0].poorRankCount + 1;
+      } else if (rank === "Average") {
+        findGamificationData[0].averageRankCount = findGamificationData[0].averageRankCount + 1;
+      } else if (rank === "Good") {
+        findGamificationData[0].goodRankCount = findGamificationData[0].goodRankCount + 1;
+      } else if (rank === "Excellent") {
+        findGamificationData[0].excellentRankCount = findGamificationData[0].excellentRankCount + 1;
+      }
+
+      const response = await GamificationRanking.create(findGamificationData[0])
+
+      console.log("I am updated existing data")
+    } else {
+      console.log("i am insdie else block")
+      console.log(rank)
+
+      let disciplinaryObject = {
+        unqUserObjectId: unqUserObjectId,
+        userId: userId,
+        pointType: "Disciplinary",
+        centerId: schoolId,
+        classOfCenter: classOfCenter,
+        poorRankCount: 0,
+        averageRankCount: 0,
+        goodRankCount: 0,
+        excellentRankCount: 0,
+        date: new Date()
+      }
+
+      if (rank === "Poor") {
+        disciplinaryObject.poorRankCount = 1;
+      } else if (rank === "Average") {
+        disciplinaryObject.averageRankCount = 1;
+      } else if (rank === "Good") {
+        disciplinaryObject.goodRankCount = 1;
+      } else if (rank === "Excellent") {
+        disciplinaryObject.excellentRankCount = 1;
+      }
+
+      const response = await GamificationRanking.create(disciplinaryObject)
+    }
+
+    //-------------------------------------------------------------------------------------   
+
+
+    //before and after 12:00 time validation
+    const now = new Date();
+
+// Create a Date object for today at 12:00 PM
+const noon = new Date();
+noon.setHours(12, 0, 0, 0); // 12:00:00.000
+
+if (now < noon) {
+  console.log("Below code will run after 12:00");
+  return res.status(200).json({ status: "Ok", message: "Action allowed after 12:00" });;
 }
 
+// Code here runs only after 12:00
+console.log("It's after 12:00 — running the code!");
+
+//-----------------------------------------------------
 
 
+// if(1===1){
 
-//Before updating point, we check if the object already exists by querying with...
-//...pointType='Disciplinary' and date= currentDate. So that, if the object...
-//...already exists so same object can be updated rather creating multiple duplicate...
-//... objects.
+//   console.log('below code is on halt')
+//   return;
+// }
 
-const startDate = new Date();
-const endDate = new Date ();
+    //Gamficiation existing updataion.
+    if (sumOfRankPoints >= 2) {
+      console.log(`sum of rank`, sumOfRankPoints)
+      console.log("No more points can be assigned to this center, limit exhausted")
+      res.status(200).json({ status: "Ok", message: "Point Exhausted" })
+      return;
+    }
 
-startDate.setUTCHours(0, 0, 0, 0)
-endDate.setHours(23, 59, 59, 999)
+    console.log('hello updating existing')
+    if (rank === 'Poor') {
+      disciplinaryExist[0].poorRankCount = disciplinaryExist[0].poorRankCount + 1
+    } else if (rank === 'Average') {
+      disciplinaryExist[0].averageRankCount = disciplinaryExist[0].averageRankCount + 1
+    } else if (rank === 'Good') {
+      disciplinaryExist[0].goodRankCount = disciplinaryExist[0].goodRankCount + 1
+    } else if (rank === 'Excellent') {
+      disciplinaryExist[0].excellentRankCount = disciplinaryExist[0].excellentRankCount + 1
+    }
 
-const disciplinaryExist = await Gamification.find({
-  centerId:schoolId,
-  classOfCenter:classOfCenter,
-  pointType:'Disciplinary',
-  date: {$gte:startDate, $lte:endDate}
-})
+    let point;
+    if (totalStudentCount >= 0 && totalStudentCount <= 9) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -10; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 5;; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 10; }
+    } else if (totalStudentCount >= 10 && totalStudentCount <= 14) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -12.5; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 6.25; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 12.5; }
+    } else if (totalStudentCount >= 15 && totalStudentCount <= 19) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -15; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 7.5; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 15; }
+    } else if (totalStudentCount >= 20 && totalStudentCount <= 24) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -17.5; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 8.75; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 17.5; }
+    } else if (totalStudentCount >= 25 && totalStudentCount <= 29) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -20; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 10; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 20; }
+    } else if (totalStudentCount >= 30 && totalStudentCount <= 39) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -25; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 12.5; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 25; }
+    } else if (totalStudentCount >= 40 && totalStudentCount <= 49) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -27.5; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 13.75; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 27.5; }
+    } else if (totalStudentCount >= 50 && totalStudentCount <= 200) {
+      if (rank === "Poor") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + -30; }
+      else if (rank === "Average") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 0; }
+      else if (rank === "Good") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 15; }
+      else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 30; }
+    }
 
-if (disciplinaryExist.length>0){
-  console.log("Disciplinary already exist")
-  console.log(disciplinaryExist)
+    console.log('I am total stu count', totalStudentCount)
+    console.log('I am rank value', rank)
 
-console.log(disciplinaryExist[0].poorRankCount)
-console.log(disciplinaryExist[0].averageRankCount)
-console.log(disciplinaryExist[0].goodRankCount)
-console.log(disciplinaryExist[0].excellentRankCount)
+    const response = await Gamification.create(disciplinaryExist[0])
 
-const sumOfRankPoints = disciplinaryExist[0].poorRankCount + 
-                        disciplinaryExist[0].averageRankCount +
-                        disciplinaryExist[0].goodRankCount +
-                        disciplinaryExist[0].excellentRankCount
+    res.status(200).json({ status: "Ok", data: response })
+
+    console.log("existing data updated")
+
+    return;
+  }
 
 
-
-
-
-//Finding existing gamification data of users
-const findGamificationData = await GamificationRanking.find({
-  unqUserObjectId:unqUserObjectId,
-  centerId:schoolId,
-  classOfCenter:classOfCenter,
-  date: {$gte:startDate, $lte:endDate}
-})
-
-
-if (findGamificationData.length > 0){
   //Crating gamification object dynamically for dsiciplinary
-let disciplinaryObject= {
-unqUserObjectId:unqUserObjectId,
-userId: userId,
-pointType:"Disciplinary",
-centerId: schoolId,
-classOfCenter: classOfCenter,
-poorRankCount: 0,
-averageRankCount:0,
-goodRankCount:0,
-excellentRankCount:0,
- date: new Date()
-}
+  let disciplinaryObject = {
+    unqUserObjectId: findCC[0]._id,
+    userId: findCC[0].userId, //userId,
+    pointType: "Disciplinary",
+    centerId: schoolId,
+    classOfCenter: classOfCenter,
+    poorRankCount: 0,
+    averageRankCount: 0,
+    goodRankCount: 0,
+    excellentRankCount: 0,
+    examId: null,
+    finalPoint: point,
+    pointGivenBy: null,
+    pointClaimed: false,
+    date: new Date()
+  }
 
-if (rank === "Poor") {
-  findGamificationData[0].poorRankCount = findGamificationData[0].poorRankCount + 1 ;
-} else if (rank === "Average") {
-  findGamificationData[0].averageRankCount = findGamificationData[0].averageRankCount + 1;
-} else if (rank === "Good") {
-  findGamificationData[0].goodRankCount = findGamificationData[0].goodRankCount + 1;
-} else if (rank === "Excellent") {
-  findGamificationData[0].excellentRankCount = findGamificationData[0].excellentRankCount + 1;
-}
-
-
-const response = await GamificationRanking.create(findGamificationData[0])
-
-console.log("I am updated existing data")
-} else {
-console.log("i am insdie else block")
-console.log(findGamificationData)
-console.log(unqUserObjectId)
+  if (rank === "Poor") {
+    disciplinaryObject.poorRankCount = 1;
+  } else if (rank === "Average") {
+    disciplinaryObject.averageRankCount = 1;
+  } else if (rank === "Good") {
+    disciplinaryObject.goodRankCount = 1;
+  } else if (rank === "Excellent") {
+    disciplinaryObject.excellentRankCount = 1;
+  }
 
 
-//Crating gamification object dynamically for dsiciplinary
-let disciplinaryObject= {
-unqUserObjectId:unqUserObjectId,
-userId: userId,
-pointType:"Disciplinary",
-centerId: schoolId,
-classOfCenter: classOfCenter,
-poorRankCount: 0,
-averageRankCount:0,
-goodRankCount:0,
-excellentRankCount:0,
- date: new Date()
-}
-
-if (rank === "Poor") {
-  disciplinaryObject.poorRankCount = 1;
-} else if (rank === "Average") {
-  disciplinaryObject.averageRankCount = 1;
-} else if (rank === "Good") {
-  disciplinaryObject.goodRankCount = 1;
-} else if (rank === "Excellent") {
-  disciplinaryObject.excellentRankCount = 1;
-}
-
-const response = await GamificationRanking.create(disciplinaryObject)
-
-
-}
-
-
-
-
-
-//-------------------------------------------------------------------------------------   
-
-
-
-
-
-
-//Per center only two ranks are allowed
-if (sumOfRankPoints>=2){
-  console.log(sumOfRankPoints)
-  console.log("No more points can be assigned to this center, limit exhausted")
-  res.status(200).json({status:"Ok", message:"Point Exhausted"})
-  return;
-}
-
-
-
-  //Now if disciplniaryExist then we will update current object
-if(rank === 'Poor'){
-  disciplinaryExist[0].poorRankCount = disciplinaryExist[0].poorRankCount + 1
-} else if (rank === 'Average'){
-  disciplinaryExist[0].averageRankCount = disciplinaryExist[0].averageRankCount + 1
-} else if (rank === 'Good'){
-  disciplinaryExist[0].goodRankCount = disciplinaryExist[0].goodRankCount + 1
-} else if (rank === 'Excellent'){
-  disciplinaryExist[0].excellentRankCount = disciplinaryExist[0].excellentRankCount + 1
-}
-
-//Point assigning logic.
-let point;
-if(totalStudentCount >= 0 && totalStudentCount <= 9){
-  if(rank === "Poor"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -10;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 5;;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 10;} //point/2
-} else if (totalStudentCount >= 10 && totalStudentCount <= 14){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -12.5;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 6.25;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 12.5;} //point/2
-}else if (totalStudentCount >= 15 && totalStudentCount <= 19){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -15;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 7.5;} // point/4
-  else if(rank === "Excellent"){point = 15;} //point/2
-} else if (totalStudentCount >= 20 && totalStudentCount <= 24){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -17.5;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 8.75;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 17.5;} //point/2
-} else if (totalStudentCount >= 25 && totalStudentCount <= 29){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -20;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 10;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 20;} //point/2
-}else if (totalStudentCount >= 30 && totalStudentCount <= 39){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -25;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 12.5;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 25;} //point/2
-}else if (totalStudentCount >= 40 && totalStudentCount <= 49){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -27.5;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 13.75;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 27.5;} //point/2
-}else if (totalStudentCount >= 50 && totalStudentCount <= 200){
-  if(rank === "Poor"){ disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + -30;} // -point/2
-  else if(rank === "Average"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 0;} //0
-  else if(rank === "Good"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 15;} // point/4
-  else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 30;} //point/2
-}
-
-
-  console.log('I am total stu count', totalStudentCount)
-  console.log('I am rank value', rank)
-
-
-const response  = await Gamification.create(disciplinaryExist[0])
-
-res.status(200).json({status:"Ok", data:response})
-
-
-
-
-
-
-console.log("existing data updated")
-
-  return;
-}
-
-
-
-//Crating gamification object dynamically for dsiciplinary
-let disciplinaryObject= {
-unqUserObjectId:findCC[0]._id,
-userId: findCC[0].userId, //userId,
-pointType:"Disciplinary",
-centerId: schoolId,
-classOfCenter: classOfCenter,
-poorRankCount: 0,
-averageRankCount:0,
-goodRankCount:0,
-excellentRankCount:0,
-examId: null,
-finalPoint:point,
-pointGivenBy:null,
-pointClaimed:false,
- date: new Date()
-}
-
-if (rank === "Poor") {
-  disciplinaryObject.poorRankCount = 1;
-} else if (rank === "Average") {
-  disciplinaryObject.averageRankCount = 1;
-} else if (rank === "Good") {
-  disciplinaryObject.goodRankCount = 1;
-} else if (rank === "Excellent") {
-  disciplinaryObject.excellentRankCount = 1;
-}
-
-
-console.log(disciplinaryObject)
+  console.log(disciplinaryObject)
 
   try {
 
     //Creating fresh gamification data and storing it into DB.
 
-    const response  = await Gamification.create(disciplinaryObject)
-    
-    
+    const response = await Gamification.create(disciplinaryObject)
 
-    console.log("I am response",response)
 
-    
-    
-//Function that stores each users data who are giving ranking.
-const storeGamificationRankOfUsers = async () =>{
-//Crating gamification object dynamically for dsiciplinary
-let disciplinaryObject= {
-unqUserObjectId:unqUserObjectId,
-userId: userId,
-pointType:"Disciplinary",
-centerId: schoolId,
-classOfCenter: classOfCenter,
-poorRankCount: 0,
-averageRankCount:0,
-goodRankCount:0,
-excellentRankCount:0,
- date: new Date()
-}
 
-if (rank === "Poor") {
-  disciplinaryObject.poorRankCount = 1;
-} else if (rank === "Average") {
-  disciplinaryObject.averageRankCount = 1;
-} else if (rank === "Good") {
-  disciplinaryObject.goodRankCount = 1;
-} else if (rank === "Excellent") {
-  disciplinaryObject.excellentRankCount = 1;
-}
+    console.log("I am response", response)
 
-const response = await GamificationRanking.create(disciplinaryObject)
 
-console.log("I am inside new function")
 
-}
+    //Function that stores each users data who are giving ranking.
+    const storeGamificationRankOfUsers = async () => {
+      //Crating gamification object dynamically for dsiciplinary
+      let disciplinaryObject = {
+        unqUserObjectId: unqUserObjectId,
+        userId: userId,
+        pointType: "Disciplinary",
+        centerId: schoolId,
+        classOfCenter: classOfCenter,
+        poorRankCount: 0,
+        averageRankCount: 0,
+        goodRankCount: 0,
+        excellentRankCount: 0,
+        date: new Date()
+      }
 
-storeGamificationRankOfUsers();
+      if (rank === "Poor") {
+        disciplinaryObject.poorRankCount = 1;
+      } else if (rank === "Average") {
+        disciplinaryObject.averageRankCount = 1;
+      } else if (rank === "Good") {
+        disciplinaryObject.goodRankCount = 1;
+      } else if (rank === "Excellent") {
+        disciplinaryObject.excellentRankCount = 1;
+      }
 
-    res.status(200).json({status:"Ok", data:response})
+      const response = await GamificationRanking.create(disciplinaryObject)
+
+      console.log("I am inside new function")
+
+    }
+
+    await storeGamificationRankOfUsers();
+
+    res.status(200).json({ status: "Ok", data: response })
   } catch (error) {
     console.log("Error::::>", error)
   }
@@ -1507,6 +2259,37 @@ storeGamificationRankOfUsers();
 
 
 
+
+
+//Api for get disciplinaryGamification data.
+
+export const getCameraOffGamificationData = async (req, res) =>{
+
+  console.log("Hello gamification disci data")
+
+  const startDate = new Date();
+  const endDate = new Date ();
+
+  startDate.setUTCHours(0, 0, 0, 0);
+  endDate.setHours(23, 59, 59, 999);
+
+
+
+
+  try {
+    const response = await Gamification.find({
+      pointType:"Camera-off",
+      date:{$gte:startDate, $lte:endDate}
+  })
+
+  res.status(200).json({status:"Ok", data: response})
+
+  } catch (error) {
+    console.log("Error::::>", error)
+  } 
+    
+    
+}
 
 
 
@@ -1542,6 +2325,13 @@ export const getDisciplinaryGamificationData = async (req, res) =>{
     
     
 }
+
+
+
+
+
+
+
 
 
 //Get all gamification data.
@@ -1681,3 +2471,340 @@ console.log(startDate)
     
     
 }
+
+
+
+
+//Gamification user rank controller.
+//Assigning users their rank. Cumulative average.
+
+// export const UserGamificationRank = async (req, res) => {
+
+// try {
+//   //Fetching gamification data of users
+
+//   const fetchGamificationData = await Gamification.find ({});
+
+
+
+//   res.status(200).json({status:"Ok", data: fetchGamificationData})
+
+// } catch (error) {
+//   console.log("Error occurrd", error)
+// }
+// }
+
+
+
+// export const UserGamificationRank = async (req, res) => {
+//   try {
+//     // Fetching gamification data of users
+//     const fetchGamificationData = await Gamification.find({});
+
+//     // Calculate average score for each unique unqUserObjectId
+//     const userMap = {};
+
+//     fetchGamificationData.forEach(item => {
+//       const id = item.unqUserObjectId.toString();
+//       if (!userMap[id]) {
+//         userMap[id] = { total: 0, count: 0 };
+//       }
+//       userMap[id].total += item.finalPoint;
+//       userMap[id].count += 1;
+//     });
+
+//     const avgScore = Object.keys(userMap).map(id => ({
+//       unqUserObjectId: id,
+//       avgScore: userMap[id].total / userMap[id].count
+//     }));
+
+//     res.status(200).json({
+//       status: "Ok",
+//       // data: fetchGamificationData,
+//       avgScore: avgScore
+//     });
+
+//   } catch (error) {
+//     console.log("Error occurred", error);
+//     res.status(500).json({ status: "Error", message: error.message });
+//   }
+// };
+
+
+
+
+
+
+// export const UserGamificationRank = async (req, res) => {
+
+//   try {
+//     // Fetching gamification data of users
+//     const fetchGamificationData = await Gamification.find({});
+
+//     // Calculate average score for each unique unqUserObjectId
+//     const userMap = {};
+
+//     fetchGamificationData.forEach(item => {
+//       const id = item.unqUserObjectId.toString();
+//       if (!userMap[id]) {
+//         userMap[id] = { total: 0, count: 0 };
+//       }
+//       userMap[id].total += item.finalPoint;
+//       userMap[id].count += 1;
+//     });
+
+//     const avgScore = Object.keys(userMap).map(id => ({
+//       unqUserObjectId: id,
+//       avgScore: userMap[id].total / userMap[id].count
+//     }));
+
+//     // Create userRank with competition ranking (ties share same rank; next rank skips)
+//     // Sort avgScore descending by avgScore value
+//     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
+
+//     const userRank = [];
+//     let previousScore = null;
+//     let previousRank = 0;
+//     let processedCount = 0;
+
+//     for (const entry of sorted) {
+//       processedCount += 1;
+//       if (previousScore === entry.avgScore) {
+//         // same score as previous -> same rank
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: previousRank
+//         });
+//       } else {
+//         // new score -> rank = processedCount (competition ranking)
+//         const rank = processedCount;
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: rank
+//         });
+//         previousRank = rank;
+//         previousScore = entry.avgScore;
+//       }
+//     }
+
+//     res.status(200).json({
+//       status: "Ok",
+//       // data: fetchGamificationData,
+//       // avgScore: avgScore,
+//       userRank: userRank
+//     });
+
+//   } catch (error) {
+//     console.log("Error occurred", error);
+//     res.status(500).json({ status: "Error", message: error.message });
+//   }
+
+
+// };
+
+
+
+
+// make sure you have User model imported in this file, e.g.
+// import User from '../models/User';
+// (Don't change the controller logic below)
+
+// export const UserGamificationRank = async (req, res) => {
+
+//   try {
+//     // Fetching gamification data of users
+//     const fetchGamificationData = await Gamification.find({});
+
+//     // Calculate average score for each unique unqUserObjectId
+//     const userMap = {};
+
+//     fetchGamificationData.forEach(item => {
+//       const id = item.unqUserObjectId.toString();
+//       if (!userMap[id]) {
+//         userMap[id] = { total: 0, count: 0 };
+//       }
+//       userMap[id].total += item.finalPoint;
+//       userMap[id].count += 1;
+//     });
+
+//     const avgScore = Object.keys(userMap).map(id => ({
+//       unqUserObjectId: id,
+//       avgScore: userMap[id].total / userMap[id].count
+//     }));
+
+//     // Create userRank with competition ranking (ties share same rank; next rank skips)
+//     // Sort avgScore descending by avgScore value
+//     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
+
+//     const userRank = [];
+//     let previousScore = null;
+//     let previousRank = 0;
+//     let processedCount = 0;
+
+//     for (const entry of sorted) {
+//       processedCount += 1;
+//       if (previousScore === entry.avgScore) {
+//         // same score as previous -> same rank
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: previousRank
+//         });
+//       } else {
+//         // new score -> rank = processedCount (competition ranking)
+//         const rank = processedCount;
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: rank
+//         });
+//         previousRank = rank;
+//         previousScore = entry.avgScore;
+//       }
+//     }
+
+//     // --- NEW: update each corresponding user document with avgScore and rank ---
+//     // Note: ensure `User` model is imported at top of this file (e.g. import User from '../models/User')
+//     for (const u of userRank) {
+//       try {
+//         await User.updateOne(
+//           { _id: u.unqUserObjectId }, // unqUserObjectId corresponds to users collection _id
+//           {
+//             $set: {
+//               avgScore: u.avgScore,
+//               rank: u.rank
+//             }
+//           }
+//         );
+//       } catch (updateErr) {
+//         console.error(`Failed to update user ${u.unqUserObjectId}:`, updateErr);
+//         // continue updating other users even if one fails
+//       }
+//     }
+//     // -----------------------------------------------------------------------
+
+//     res.status(200).json({
+//       status: "Ok",
+//       // data: fetchGamificationData,
+//       // avgScore: avgScore,
+//       userRank: userRank
+//     });
+
+//   } catch (error) {
+//     console.log("Error occurred", error);
+//     res.status(500).json({ status: "Error", message: error.message });
+//   }
+
+  
+// };
+
+
+
+//With auto trigger rank assignment
+
+// make sure User and Gamification are imported properly above
+// import User from '../models/User';
+// import Gamification from '../models/Gamification';
+
+export const UserGamificationRank = async (req, res) => {
+
+  try {
+    // Fetching gamification data of users
+    const fetchGamificationData = await Gamification.find({});
+
+    // Calculate average score for each unique unqUserObjectId
+    const userMap = {};
+
+    fetchGamificationData.forEach(item => {
+      const id = item.unqUserObjectId.toString();
+      if (!userMap[id]) {
+        userMap[id] = { total: 0, count: 0 };
+      }
+      userMap[id].total += item.finalPoint;
+      userMap[id].count += 1;
+    });
+
+    const avgScore = Object.keys(userMap).map(id => ({
+      unqUserObjectId: id,
+      avgScore: userMap[id].total / userMap[id].count
+    }));
+
+    // Create userRank with competition ranking (ties share same rank; next rank skips)
+    // Sort avgScore descending by avgScore value
+    const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
+
+    const userRank = [];
+    let previousScore = null;
+    let previousRank = 0;
+    let processedCount = 0;
+
+    for (const entry of sorted) {
+      processedCount += 1;
+      if (previousScore === entry.avgScore) {
+        // same score as previous -> same rank
+        userRank.push({
+          unqUserObjectId: entry.unqUserObjectId,
+          avgScore: entry.avgScore,
+          rank: previousRank
+        });
+      } else {
+        // new score -> rank = processedCount (competition ranking)
+        const rank = processedCount;
+        userRank.push({
+          unqUserObjectId: entry.unqUserObjectId,
+          avgScore: entry.avgScore,
+          rank: rank
+        });
+        previousRank = rank;
+        previousScore = entry.avgScore;
+      }
+    }
+
+    // --- NEW: update each corresponding user document with avgScore and rank ---
+    // Note: ensure `User` model is imported at top of this file (e.g. import User from '../models/User')
+    for (const u of userRank) {
+      try {
+        await User.updateOne(
+          { _id: u.unqUserObjectId }, // unqUserObjectId corresponds to users collection _id
+          {
+            $set: {
+              avgScore: u.avgScore,
+              rank: u.rank
+            }
+          }
+        );
+      } catch (updateErr) {
+        console.error(`Failed to update user ${u.unqUserObjectId}:`, updateErr);
+        // continue updating other users even if one fails
+      }
+    }
+    // -----------------------------------------------------------------------
+
+    res.status(200).json({
+      status: "Ok",
+      // data: fetchGamificationData,
+      // avgScore: avgScore,
+      userRank: userRank
+    });
+
+  } catch (error) {
+    console.log("Error occurred", error);
+    res.status(500).json({ status: "Error", message: error.message });
+  }
+
+  
+};
+
+// ---- 1-minute auto trigger ----
+// setInterval(async () => {
+//   try {
+//     await UserGamificationRank({ body: {} }, { 
+//       status: () => ({ json: () => {} }) // mock response to prevent errors
+//     });
+//     console.log("UserGamificationRank executed automatically at", new Date().toLocaleTimeString());
+//   } catch (err) {
+//     console.error("Auto trigger error:", err);
+//   }
+// }, 300 * 1000);

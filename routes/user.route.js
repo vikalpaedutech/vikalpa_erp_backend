@@ -17,7 +17,8 @@ import {
     setUserAccess,
     userSignIn,
     getAllUsersWithAccess, updateUserWithAccess,
-    getUsersByObjectId
+    getUsersByObjectId,
+    getAllUsersWithAccesswithoutPagination
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -60,6 +61,9 @@ router.post('/set-user-access',setUserAccess)
 
 
 router.get("/get-all-users", getAllUsersWithAccess)
+
+
+router.get("/get-all-users-without-pagination", getAllUsersWithAccesswithoutPagination)
 
 
 router.patch("/patch-user-and-useraccess", updateUserWithAccess)

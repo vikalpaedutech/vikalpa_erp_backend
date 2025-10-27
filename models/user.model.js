@@ -19,7 +19,13 @@ const UserSchema = new Schema(
     profileImage: { type: String, default:null },
     // lastLogin: { type: Date },
     longitude: {type: Number, default:null},
-    latitude: {type: Number, default:null}
+    latitude: {type: Number, default:null},
+    
+    //Gamification rankings are shown here for center coordinators
+    avgScore: { type: Number, default: 0 }, //Gets cumulative avg score
+    totalPoints: { type: String, default: 0 }, //sum of total points of each users
+    rank: { type: Number, default: 0 },
+    
   },
   { timestamps: true }
 );

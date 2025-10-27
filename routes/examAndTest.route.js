@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.post('/exam-controller', createPost);
 
-router.get("/get-tests", GetTests)
+router.post("/get-tests", GetTests)
 
 
 export default router;

@@ -549,11 +549,105 @@ export const getAllUsersWithAccess = async (req, res) =>{
         })
 
     } catch (error) {
-        console.error("Error fetching users", err);
+        console.error("Error fetching users", error);
         res.status(500).json({success: false, message: "Server Error"})
     }
 };
 
+
+
+
+
+
+
+export const getAllUsersWithAccesswithoutPagination = async (req, res) =>{
+
+    console.log('Hello get all users')
+
+
+    try {
+        const {page,
+            name,
+            userId,
+            contact1,
+            contact2,
+            department,
+            role,
+            isActive
+        } = req.query;
+
+        console.log(req.query)
+
+        const filters = {};
+
+        if (name) {
+            filters.name = {$regex: name, $options: "i"}; //case-insensitive regex
+        }
+        if (userId) filters.userId = userId;
+        if (contact1) filters.contact1 = contact1;
+        if (contact2) filters.contact2 = contact2;
+        if (department) filters.department = department;
+        // Force role to "CC" (fetch only users whose role is "CC")
+        filters.role = "CC";
+        // Force isActive to true (fetch only active users)
+        filters.isActive = true;
+
+        const pipeline = [
+            {$match: filters},
+
+            {
+                $lookup: {
+                    from:"useraccesses", 
+                    localField: "_id",
+                    foreignField:"unqObjectId",
+                    as: "access",
+
+                },
+            },
+            // Only keep documents that have an access (remove preserveNullAndEmptyArrays)
+            {$unwind: {path: "$access", preserveNullAndEmptyArrays: false}},
+
+            {
+                $project: {
+                    userId: 1,
+                    name: 1,
+                    email: 1,
+                    contact1: 1,
+                    contact2: 1,
+                    department: 1,
+                    role: 1,
+                    isActive: 1,
+                    createdAt: 1,
+                    avgScore:1,
+                    rank:1,
+                    "access.modules":1,
+                    "access.region": 1,
+                    "access.classId": 1,
+
+                },
+            },
+            {$sort:{createdAt: -1}},
+        ];
+
+        const users = await User.aggregate(pipeline);
+
+        //Count total users matching filters
+        const totalUsers = await User.countDocuments(filters);
+
+
+
+        res.json({
+            success: true,
+            totalUsers,
+            data: users,
+
+        })
+
+    } catch (error) {
+        console.error("Error fetching users", error);
+        res.status(500).json({success: false, message: "Server Error"})
+    }
+};
 
 
 //Update users data role and access.

@@ -3,7 +3,8 @@ import { selfAttendanceGamification, createGamificationData,
     studentAttendanceGamification, attendancePdfGamification,
     studentAbsenteeCallingGamification, studentMarksGamification,
     disciplinaryGamification, getDisciplinaryGamificationData, 
-    getAllGamificationData, pointClaimedUpdation, getUserMarkedGamificationData
+    getAllGamificationData, pointClaimedUpdation, getUserMarkedGamificationData,
+    UserGamificationRank
  } from "../controllers/Gamification.controller.js";
 
 const router = express.Router();
@@ -29,5 +30,7 @@ router.post('/get-all-gamification-data-by-unqUserObjectId', getAllGamificationD
 router.post('/update-gamification-data', pointClaimedUpdation )
 
 router.post('/get-user-marked-gamification-data', getUserMarkedGamificationData)
+
+router.post('/user-gamification-rank', UserGamificationRank)
 
 export default router;

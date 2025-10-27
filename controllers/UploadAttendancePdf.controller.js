@@ -109,16 +109,16 @@ export const createAttendancePdfCronJob = async (req, res) => {
 
 export const GetDataBySchoolId = async (req, res) => {
 
-    const  {schoolId, dateOfUpload} = req.params;
-    console.log(req.params)
+    const  {schoolId, dateOfUpload, classofStudent} = req.body;
+    console.log(req.body)
     console.log(new Date(dateOfUpload))
     const formattedDate = new Date(dateOfUpload)
       try {
-              const response = await AttendancePdf.find({schoolId: schoolId, dateOfUpload: formattedDate})
+              const response = await AttendancePdf.find({schoolId:schoolId, dateOfUpload:formattedDate, classofStudent:{$in:classofStudent} })
   
               res.status(200).json({status: "success", data: response})
 
-              // console.log(response)
+              console.log(response)
   
       } catch (error) {
           console.log("Error fetching data", error)
