@@ -121,17 +121,15 @@ const GamificationSchema = new Schema(
 
 
 
-
-
+  
   //Gamification user ranking schema.
 
-
+  //Gamification logs. Logs the ranking of users gamifications avgscore and ranking. each time the 
+  //...the ranking and score are updated
+    
+  const GamificationRankingLogSchema = new Schema(
   
-  const GamificationUserRankSchema = new Schema(
-  
-  
-      {
-  
+    {
           unqUserObjectId: {
               type: mongoose.Schema.Types.ObjectId, // reference to User
               ref: "User",
@@ -141,11 +139,11 @@ const GamificationSchema = new Schema(
           avgScore: { type: Number, default: 0 }, //Gets cumulative avg score
           totalPoints: { type: String, default: 0 }, //sum of total points of each users
           rank: { type: Number },
-      },
+    },
       { timestamps: true }
   );
   
   
-  export const GamificationUserRank = mongoose.model("GamificationUserRank", GamificationUserRankSchema);
+  export const GamificationRankingLog = mongoose.model("GamificationRankingLog", GamificationRankingLogSchema);
   
   

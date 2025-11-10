@@ -49,7 +49,7 @@ export const cronJobUserAttendance = async (req, res) => {
     try {
         // Step 1: Normalize date (midnight IST)
         const currentDate = date ? new Date(date) : new Date();
-        currentDate.setHours(0, 0, 0, 0);
+         currentDate.setUTCHours(0, 0, 0, 0); // ensures it's in format: 2025-05-19T00:00:00.000Z
 
         // Step 2: Prevent duplicate attendance creation
         const existingAttendance = await UserAttendance.findOne({ date: currentDate });

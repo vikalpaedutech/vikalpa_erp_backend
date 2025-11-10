@@ -18,7 +18,12 @@ const MarksSchema = new Schema(
     schoolId: { type: String, ref: "School", required: true },
     classofStudent: { type: String, ref: "Student",required: true },
     examId: {type: String, ref:"ExamAndTest", required: true},
-    marksObtained: { type: Number,  }, // Marks obtained by the student
+    // marksObtained: { type: Number,  }, // Marks obtained by the student
+
+    marksObtained: {
+  type: mongoose.Schema.Types.Mixed,
+ 
+},
     recordedBy: { type: String, ref: "User",}, // Reference to the user who recorded the marks
     remark: { type: String }, // Additional remarks if any
     marksUpdatedOn: { type: Date, default: Date.now }, // Date when marks were updated

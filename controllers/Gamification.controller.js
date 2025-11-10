@@ -9,8 +9,8 @@ import { AttendancePdf } from "../models/UploadAttendancePdf.model.js";
 import { FindCursor } from "mongodb";
 import { all } from "axios";
 import { Marks } from "../models/marks.model.js";
-import { GamificationUserRank } from "../models/gamification.model.js";
-
+import { GamificationRankingLog } from "../models/gamification.model.js";
+import cron from "node-cron";
 
 export const createGamificationData = async (req, res) => {
   try {
@@ -2708,11 +2708,228 @@ console.log(startDate)
 // import User from '../models/User';
 // import Gamification from '../models/Gamification';
 
+// export const UserGamificationRank = async (req, res) => {
+
+//   try {
+//     // Fetching gamification data of users
+//     const fetchGamificationData = await Gamification.find({});
+
+//     // Calculate average score for each unique unqUserObjectId
+//     const userMap = {};
+
+//     fetchGamificationData.forEach(item => {
+//       const id = item.unqUserObjectId.toString();
+//       if (!userMap[id]) {
+//         userMap[id] = { total: 0, count: 0 };
+//       }
+//       userMap[id].total += item.finalPoint;
+//       userMap[id].count += 1;
+//     });
+
+//     const avgScore = Object.keys(userMap).map(id => ({
+//       unqUserObjectId: id,
+//       avgScore: userMap[id].total / userMap[id].count
+//     }));
+
+//     // Create userRank with competition ranking (ties share same rank; next rank skips)
+//     // Sort avgScore descending by avgScore value
+//     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
+
+//     const userRank = [];
+//     let previousScore = null;
+//     let previousRank = 0;
+//     let processedCount = 0;
+
+//     for (const entry of sorted) {
+//       processedCount += 1;
+//       if (previousScore === entry.avgScore) {
+//         // same score as previous -> same rank
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: previousRank
+//         });
+//       } else {
+//         // new score -> rank = processedCount (competition ranking)
+//         const rank = processedCount;
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: rank
+//         });
+//         previousRank = rank;
+//         previousScore = entry.avgScore;
+//       }
+//     }
+
+//     // --- NEW: update each corresponding user document with avgScore and rank ---
+//     // Note: ensure `User` model is imported at top of this file (e.g. import User from '../models/User')
+//     for (const u of userRank) {
+//       try {
+//         await User.updateOne(
+//           { _id: u.unqUserObjectId }, // unqUserObjectId corresponds to users collection _id
+//           {
+//             $set: {
+//               avgScore: u.avgScore,
+//               rank: u.rank
+//             }
+//           }
+//         );
+//       } catch (updateErr) {
+//         console.error(`Failed to update user ${u.unqUserObjectId}:`, updateErr);
+//         // continue updating other users even if one fails
+//       }
+//     }
+//     // -----------------------------------------------------------------------
+
+//     res.status(200).json({
+//       status: "Ok",
+//       // data: fetchGamificationData,
+//       // avgScore: avgScore,
+//       userRank: userRank
+//     });
+
+//   } catch (error) {
+//     console.log("Error occurred", error);
+//     res.status(500).json({ status: "Error", message: error.message });
+//   }
+
+  
+// };
+
+// export const UserGamificationRank = async (req, res) => {
+
+//   try {
+//     // Fetching gamification data of users
+//     const fetchGamificationData = await Gamification.find({});
+//     // console.log("✅ Total Gamification Records Found:", fetchGamificationData.length);
+
+//     // Calculate average score for each unique unqUserObjectId
+//     const userMap = {};
+
+//     fetchGamificationData.forEach(item => {
+//       const id = item.unqUserObjectId.toString();
+//       if (!userMap[id]) {
+//         userMap[id] = { total: 0, count: 0 };
+//       }
+//       userMap[id].total += item.finalPoint;
+//       userMap[id].count += 1;
+//     });
+
+//     const avgScore = Object.keys(userMap).map(id => ({
+//       unqUserObjectId: id,
+//       avgScore: userMap[id].total / userMap[id].count
+//     }));
+
+//     // console.log("🧠 Gamification Unique User IDs Found:", avgScore.map(x => x.unqUserObjectId));
+
+//     // Create userRank with competition ranking (ties share same rank; next rank skips)
+//     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
+
+//     const userRank = [];
+//     let previousScore = null;
+//     let previousRank = 0;
+//     let processedCount = 0;
+
+//     for (const entry of sorted) {
+//       processedCount += 1;
+//       if (previousScore === entry.avgScore) {
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: previousRank
+//         });
+//       } else {
+//         const rank = processedCount;
+//         userRank.push({
+//           unqUserObjectId: entry.unqUserObjectId,
+//           avgScore: entry.avgScore,
+//           rank: rank
+//         });
+//         previousRank = rank;
+//         previousScore = entry.avgScore;
+//       }
+//     }
+
+//     // console.log("🏆 Final Ranked User IDs:", userRank.map(x => `${x.unqUserObjectId} (Rank: ${x.rank}, Score: ${x.avgScore})`));
+
+//     // --- Update each corresponding user document with avgScore and rank ---
+//     const updatedUserIds = [];
+
+//     for (const u of userRank) {
+//       try {
+//         await User.updateOne(
+//           { _id: u.unqUserObjectId },
+//           {
+//             $set: {
+//               avgScore: u.avgScore,
+//               rank: u.rank
+//             }
+//           }
+//         );
+//         updatedUserIds.push(u.unqUserObjectId);
+//       } catch (updateErr) {
+//         console.error(`❌ Failed to update user ${u.unqUserObjectId}:`, updateErr);
+//       }
+//     }
+
+//     // console.log("✅ Users Updated With Rank/Score:", updatedUserIds);
+
+//     // --- NEW PART: Set avgScore and rank = 0 ONLY for "CC" users not in gamification list ---
+//     try {
+//       const rankedUserIds = userRank.map(u => u.unqUserObjectId.toString());
+
+//       const ccUsersToUpdate = await User.find({
+//         role: "CC",
+//         _id: { $nin: rankedUserIds }
+//       }).select("_id");
+
+//       if (ccUsersToUpdate.length > 0) {
+//         console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
+
+//         await User.updateMany(
+//           {
+//             role: "CC",
+//             _id: { $nin: rankedUserIds }
+//           },
+//           {
+//             $set: {
+//               avgScore: 0,
+//               rank: 0
+//             }
+//           }
+//         );
+
+//         console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
+//       } else {
+//         console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
+//       }
+
+//     } catch (ccUpdateErr) {
+//       console.error("❌ Failed to update missing CC users with zero rank/score:", ccUpdateErr);
+//     }
+
+//     res.status(200).json({
+//       status: "Ok",
+//       userRank: userRank
+//     });
+
+//   } catch (error) {
+//     console.log("Error occurred", error);
+//     res.status(500).json({ status: "Error", message: error.message });
+//   }
+
+// };
+
+
+
+
 export const UserGamificationRank = async (req, res) => {
 
   try {
     // Fetching gamification data of users
     const fetchGamificationData = await Gamification.find({});
+    // console.log("✅ Total Gamification Records Found:", fetchGamificationData.length);
 
     // Calculate average score for each unique unqUserObjectId
     const userMap = {};
@@ -2731,8 +2948,9 @@ export const UserGamificationRank = async (req, res) => {
       avgScore: userMap[id].total / userMap[id].count
     }));
 
+    // console.log("🧠 Gamification Unique User IDs Found:", avgScore.map(x => x.unqUserObjectId));
+
     // Create userRank with competition ranking (ties share same rank; next rank skips)
-    // Sort avgScore descending by avgScore value
     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
 
     const userRank = [];
@@ -2743,14 +2961,12 @@ export const UserGamificationRank = async (req, res) => {
     for (const entry of sorted) {
       processedCount += 1;
       if (previousScore === entry.avgScore) {
-        // same score as previous -> same rank
         userRank.push({
           unqUserObjectId: entry.unqUserObjectId,
           avgScore: entry.avgScore,
           rank: previousRank
         });
       } else {
-        // new score -> rank = processedCount (competition ranking)
         const rank = processedCount;
         userRank.push({
           unqUserObjectId: entry.unqUserObjectId,
@@ -2762,12 +2978,15 @@ export const UserGamificationRank = async (req, res) => {
       }
     }
 
-    // --- NEW: update each corresponding user document with avgScore and rank ---
-    // Note: ensure `User` model is imported at top of this file (e.g. import User from '../models/User')
+    // console.log("🏆 Final Ranked User IDs:", userRank.map(x => `${x.unqUserObjectId} (Rank: ${x.rank}, Score: ${x.avgScore})`));
+
+    // --- Update each corresponding user document with avgScore and rank ---
+    const updatedUserEntries = []; // will store { id, avgScore, rank } for successful updates
+
     for (const u of userRank) {
       try {
         await User.updateOne(
-          { _id: u.unqUserObjectId }, // unqUserObjectId corresponds to users collection _id
+          { _id: u.unqUserObjectId },
           {
             $set: {
               avgScore: u.avgScore,
@@ -2775,17 +2994,84 @@ export const UserGamificationRank = async (req, res) => {
             }
           }
         );
+
+        // push to updated list
+        updatedUserEntries.push({
+          unqUserObjectId: u.unqUserObjectId,
+          avgScore: u.avgScore,
+          rank: u.rank
+        });
+
+        // --- Create a log entry for this update ---
+        try {
+          await GamificationRankingLog.create({
+            unqUserObjectId: u.unqUserObjectId,
+            userId: String(u.unqUserObjectId),
+            avgScore: u.avgScore,
+            rank: u.rank
+            // totalPoints left as default (or add if you compute it elsewhere)
+          });
+        } catch (logErr) {
+          console.error(`❌ Failed to create GamificationRankingLog for user ${u.unqUserObjectId}:`, logErr);
+        }
+
       } catch (updateErr) {
-        console.error(`Failed to update user ${u.unqUserObjectId}:`, updateErr);
-        // continue updating other users even if one fails
+        console.error(`❌ Failed to update user ${u.unqUserObjectId}:`, updateErr);
       }
     }
-    // -----------------------------------------------------------------------
+
+    // console.log("✅ Users Updated With Rank/Score:", updatedUserEntries.map(x => x.unqUserObjectId));
+
+    // --- NEW PART: Set avgScore and rank = 0 ONLY for "CC" users not in gamification list ---
+    try {
+      const rankedUserIds = userRank.map(u => u.unqUserObjectId.toString());
+
+      const ccUsersToUpdate = await User.find({
+        role: "CC",
+        _id: { $nin: rankedUserIds }
+      }).select("_id");
+
+      if (ccUsersToUpdate.length > 0) {
+        console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
+
+        await User.updateMany(
+          {
+            role: "CC",
+            _id: { $nin: rankedUserIds }
+          },
+          {
+            $set: {
+              avgScore: 0,
+              rank: 0
+            }
+          }
+        );
+
+        // Create logs for each CC user that was set to zero
+        for (const ccUser of ccUsersToUpdate) {
+          try {
+            await GamificationRankingLog.create({
+              unqUserObjectId: ccUser._id,
+              userId: String(ccUser._id),
+              avgScore: 0,
+              rank: 0
+            });
+          } catch (ccLogErr) {
+            console.error(`❌ Failed to create GamificationRankingLog for CC user ${ccUser._id}:`, ccLogErr);
+          }
+        }
+
+        console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
+      } else {
+        console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
+      }
+
+    } catch (ccUpdateErr) {
+      console.error("❌ Failed to update missing CC users with zero rank/score:", ccUpdateErr);
+    }
 
     res.status(200).json({
       status: "Ok",
-      // data: fetchGamificationData,
-      // avgScore: avgScore,
       userRank: userRank
     });
 
@@ -2794,10 +3080,15 @@ export const UserGamificationRank = async (req, res) => {
     res.status(500).json({ status: "Error", message: error.message });
   }
 
-  
 };
 
-// ---- 1-minute auto trigger ----
+
+
+
+// // ---- 1-minute auto trigger ----
+
+
+
 // setInterval(async () => {
 //   try {
 //     await UserGamificationRank({ body: {} }, { 
@@ -2807,4 +3098,57 @@ export const UserGamificationRank = async (req, res) => {
 //   } catch (err) {
 //     console.error("Auto trigger error:", err);
 //   }
-// }, 300 * 1000);
+// }, 5* 1000);
+
+
+// --------------------------- Configurable Times (IST) ---------------------------
+// Use readable format. You can change these to any "h:mm AM/PM" values.
+const gamificationRunTimesIST = ["11:00 AM", "3:00 PM", "4:00 PM"];
+
+// --------------------------- Helper: Convert "h:mm AM/PM" -> { hours, minutes } ---------------------------
+function parseISTTime(timeStr) {
+  const [time, modifier] = timeStr.split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+  if (modifier === "PM" && hours !== 12) hours += 12;
+  if (modifier === "AM" && hours === 12) hours = 0;
+  return { hours, minutes };
+}
+
+// --------------------------- Schedule using node-cron with timezone ---------------------------
+// Requires: npm install node-cron
+// Important: using the 'timezone' option makes scheduling robust across host timezone.
+const TIMEZONE = "Asia/Kolkata";
+
+gamificationRunTimesIST.forEach((timeStr) => {
+  const { hours, minutes } = parseISTTime(timeStr);
+
+  // Cron expression in "minute hour day month weekday" format (node-cron)
+  const cronExp = `${minutes} ${hours} * * *`; // runs daily at hours:minutes in the specified timezone
+
+  console.log(`Scheduling cron for ${timeStr} IST -> cron: "${cronExp}" with timezone ${TIMEZONE}`);
+
+  cron.schedule(
+    cronExp,
+    async () => {
+      const runTime = new Date().toLocaleString("en-IN", { timeZone: TIMEZONE });
+      console.log(`🚀 [${runTime}] Triggering UserGamificationRank for scheduled time ${timeStr} (IST)`);
+
+      try {
+        await UserGamificationRank(
+          { body: {} },
+          { status: () => ({ json: () => {} }) } // dummy response for controller call
+        );
+        console.log(`✅ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Completed UserGamificationRank (${timeStr})`);
+      } catch (err) {
+        console.error(`❌ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Error running UserGamificationRank (${timeStr}):`, err);
+      }
+    },
+    {
+      timezone: TIMEZONE
+    }
+  );
+});
+
+console.log("-----------------------------------------------------------");
+console.log("🎯 Gamification Auto Scheduler initialized for:", gamificationRunTimesIST.join(", "));
+console.log("-----------------------------------------------------------");
