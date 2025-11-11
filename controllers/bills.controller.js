@@ -22,7 +22,7 @@ export const uploadFile = multer({ storage }).single('file');
 
 // Create Expense with DigitalOcean upload
 export const createPost = async (req, res) => {
-  console.log("Inside expense controller, createPost API");
+  //console.log("Inside expense controller, createPost API");
 
   try {
     const {
@@ -115,7 +115,7 @@ export const getAllBills = async (req, res) => {
 
     
   } catch (error) {
-    console.log("Error Fetching data", error.message)
+    //console.log("Error Fetching data", error.message)
     res.status(500).json({status: "Failed", message: error})
   }
 
@@ -136,7 +136,7 @@ export const getAllBills = async (req, res) => {
 
     
 //   } catch (error) {
-//     console.log("Error Fetching data", error.message)
+//     //console.log("Error Fetching data", error.message)
 //     res.status(500).json({status: "Failed", message: error})
 //   }
 
@@ -147,19 +147,19 @@ export const getAllBills = async (req, res) => {
 //Get Pending Bills. ACI>> CC
 export const getPendingAndVerifiedBillsByAci = async (req, res) => {
 
-  console.log('Hi there')
+  //console.log('Hi there')
 
   try {
     const { userId, status, role, conditionalRole } = req.query;
 
     
-    console.log(req.query)
+    //console.log(req.query)
     
     let conditionalRoleArray = req.query.conditionalRole.split(',');
     let statusArray = req.query.status.split(',');
     
-    console.log(conditionalRoleArray); // ['CC', 'ACI']
-    console.log(statusArray)
+    //console.log(conditionalRoleArray); // ['CC', 'ACI']
+    //console.log(statusArray)
 
   
 
@@ -173,7 +173,7 @@ export const getPendingAndVerifiedBillsByAci = async (req, res) => {
     // Step 1: Find the ACI user and get their assigned districts
     const aciUser = await User.findOne({ userId: userId, role: role });
 
-    console.log(aciUser)
+    //console.log(aciUser)
 
 
     if (!aciUser) {
@@ -212,7 +212,7 @@ export const getPendingAndVerifiedBillsByAci = async (req, res) => {
     ]);
 
 
-    console.log(bills)
+    //console.log(bills)
     res.status(200).json({ status: "Success", data: bills });
   } catch (error) {
     console.error("Error fetching filtered bills for ACI:", error.message);
@@ -227,11 +227,11 @@ export const getPendingAndVerifiedBillsByAci = async (req, res) => {
 
 export const getAllTypesOfBillsStatusForApprovalAndRejection = async (req, res) =>{
 
-console.log("Hello all types of bills")
+//console.log("Hello all types of bills")
 
 const {conditionalRoleForWhoseBillsAreToBeFetched, status, _id} = req.body;
 
-console.log(req.body)
+//console.log(req.body)
 
 // const status = "Pending"   //This status is for Bill status like Pending, Approved
 
@@ -267,7 +267,7 @@ const pipeline1 = [];
  
 
 // res.status(200).json({satus:'Success', data:pipeline1Result})
-// console.log(pipeline1Result.verifier_details)
+// //console.log(pipeline1Result.verifier_details)
 //-----------------------------------------------------------------
 
  //Piplene 2. Fetches CC detalls
@@ -299,7 +299,7 @@ const schoolIds = [];
     });
   });
 } else {
-  console.log("No verifier details found for given _id");
+  //console.log("No verifier details found for given _id");
   return res.status(404).json({ message: "Verifier details not found" });
 }
 
@@ -307,9 +307,9 @@ const schoolIds = [];
 
 
 
-  // console.log('hello schoolIds')
-  // console.log(pipeline1Result[0].verifier_details[0].region)
-  // console.log(schoolIds)
+  // //console.log('hello schoolIds')
+  // //console.log(pipeline1Result[0].verifier_details[0].region)
+  // //console.log(schoolIds)
 
 const schoolIdsToMatch = schoolIds //["143", "356"];
  const pipeline2 =[];
@@ -372,7 +372,7 @@ pipeline2Result.map((eachId, index)=>{
 //We will use all the arrayOfIds to fetch the data and...
 //...we will joni expenses collectin with users
 
-console.log(arrayOfIds)
+//console.log(arrayOfIds)
 
 const pipeline3 = [];
 
@@ -413,7 +413,7 @@ const pipeline3Result = await User.aggregate(pipeline3);
 
  res.status(200).json({status:'Success',  data:pipeline3Result});
 
-//  console.log(pipeline3Result)
+//  //console.log(pipeline3Result)
 
 } catch (error) {
   console.error("Aggregation error:", error);
@@ -428,14 +428,14 @@ const pipeline3Result = await User.aggregate(pipeline3);
 //Update Bills Status. 
 export const updateBillVerificationAndApprovalStatus = async (req, res)=>{
 
-console.log("Hello bills verification")
+//console.log("Hello bills verification")
 
 const {checkingStatus, billObjectId, status,  approvedOrVerifiedBy, 
 
   verification, approval
 } = req.body;
 
-console.log(req.body)
+//console.log(req.body)
 // const checkingStatus = 'Approval'
 // const _id = "68ba9c65e0e79e7d95684713"
 // const status = "Verified"
@@ -454,7 +454,7 @@ console.log(req.body)
 //   comments: 'Okay'
 // }
 
-console.log(checkingStatus)
+//console.log(checkingStatus)
 try {
 
   let findUserBill;
@@ -476,7 +476,7 @@ try {
   
 } catch (error) {
 
-  console.log("Error finding bills", error)
+  //console.log("Error finding bills", error)
   
 }
 
@@ -496,7 +496,7 @@ export const getVerifiedBills = async (req, res) => {
 
     
   } catch (error) {
-    console.log("Error Fetching data", error.message)
+    //console.log("Error Fetching data", error.message)
     res.status(500).json({status: "Failed", message: error})
   }
 
@@ -531,7 +531,7 @@ export const getApprovedBills = async (req, res) => {
 
     
   } catch (error) {
-    console.log("Error Fetching data", error.message)
+    //console.log("Error Fetching data", error.message)
     res.status(500).json({status: "Failed", message: error})
   }
 
@@ -551,7 +551,7 @@ export const getRejectedBills = async (req, res) => {
 
     
   } catch (error) {
-    console.log("Error Fetching data", error.message)
+    //console.log("Error Fetching data", error.message)
     res.status(500).json({status: "Failed", message: error})
   }
 
@@ -564,12 +564,12 @@ export const getRejectedBills = async (req, res) => {
 export const getBillsDataByQueryParams = async (req, res) => {
 
   const {purposeOfExpense, expenseType, expenseId, userId, status} = req.query;
-console.log(req.query)
+//console.log(req.query)
   try {
     const response = await Expense.find(req.query);
     res.status(200).json({status:"Success", data: response});
   } catch (error) {
-    console.log(error.message)
+    //console.log(error.message)
     res.status(500).json({status:"Failed", message: error});
   }
 
@@ -585,8 +585,8 @@ export const patchBillsDataVerification = async (req, res) => {
   const {status, verification} = req.body;
  
   
-  console.log(req.query)
-  console.log(req.body)
+  //console.log(req.query)
+  //console.log(req.body)
 
 
   try {
@@ -608,11 +608,11 @@ export const patchBillsDataVerification = async (req, res) => {
 
     res.status(200).json({status: "Success", data: expense});
 
-    console.log("Update success", expense);
+    //console.log("Update success", expense);
 
 
   } catch (error) {
-    console.log(error.message);
+    //console.log(error.message);
     res.status(500).json({status:"Failed", message: error.message})
   }
 
@@ -630,8 +630,8 @@ export const patchBillsDataApproval = async (req, res) => {
   const {status, approval} = req.body;
  
   
-  console.log(req.query)
-  console.log(req.body)
+  //console.log(req.query)
+  //console.log(req.body)
 
 
   try {
@@ -649,11 +649,11 @@ export const patchBillsDataApproval = async (req, res) => {
 
     res.status(200).json({status: "Success", data: expense});
 
-    console.log("Update success", expense);
+    //console.log("Update success", expense);
 
 
   } catch (error) {
-    console.log(error.message);
+    //console.log(error.message);
     res.status(500).json({status:"Failed", message: error.message})
   }
 
@@ -670,8 +670,8 @@ export const patchBillsDataApproval = async (req, res) => {
 export const deleteBill = async (req, res) => {
   const { _id } = req.body;
   
-  console.log('hello delete bill')
-  console.log(req.body)
+  //console.log('hello delete bill')
+  //console.log(req.body)
 
   try {
     const deletedBill = await Expense.findByIdAndDelete(_id);
@@ -714,7 +714,7 @@ export const deleteBill = async (req, res) => {
 
 
 // export const getAllBillsWithUserDetails = async (req, res) => {
-//   console.log("Hello bills data by user details");
+//   //console.log("Hello bills data by user details");
 
 //   try {
 //     const bills = await Expense.aggregate([
@@ -834,7 +834,7 @@ export const deleteBill = async (req, res) => {
 
 // export const getAllBillsWithUserDetails = async (req, res) => {
 //   try {
-//     console.log("Fetching bills data with user details...");
+//     //console.log("Fetching bills data with user details...");
 
 //     let { startDate, endDate, status } = req.query;
 
@@ -930,7 +930,7 @@ export const deleteBill = async (req, res) => {
 
 // export const getAllBillsWithUserDetails = async (req, res) => {
 //   try {
-//     console.log("Fetching bills data with user details...");
+//     //console.log("Fetching bills data with user details...");
 
 //     let { startDate, endDate, status } = req.body;
 
@@ -1122,11 +1122,11 @@ export const deleteBill = async (req, res) => {
 
 export const getAllBillsWithUserDetails = async (req, res) => {
   try {
-    console.log("Fetching bills data with user details...");
+    //console.log("Fetching bills data with user details...");
 
     let { startDate, endDate, status, roles } = req.body; // roles added
 
-    console.log(req.body)
+    //console.log(req.body)
 
     // ✅ Default: current month’s start & end
     const now = new Date();

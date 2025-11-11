@@ -42,11 +42,11 @@ function parseISTTime(timeStr) {
 
 export const cronJobUserAttendance = async (req, res) => {
 
-    // console.log("I am inside the cron job function of user attendance");
+    // //console.log("I am inside the cron job function of user attendance");
 
     const { date } = req.body || {};
 
-    // console.log("Triggered for date:", date);
+    // //console.log("Triggered for date:", date);
 
     try {
         // Step 1: Normalize date (midnight IST)
@@ -57,7 +57,7 @@ export const cronJobUserAttendance = async (req, res) => {
         const existingAttendance = await UserAttendance.findOne({ date: currentDate });
         if (existingAttendance) {
 
-            // console.log("Attendance already created");
+            // //console.log("Attendance already created");
           
             if (res) return res.status(400).json({ message: "Attendance already created for today" });
             return;
@@ -66,7 +66,7 @@ export const cronJobUserAttendance = async (req, res) => {
         // Step 3: Get all active users
         const users = await User.find({ isActive: true });
 
-        // console.log(`Found ${users.length} users`);
+        // //console.log(`Found ${users.length} users`);
 
         for (const user of users) {
             const userAttendanceRecord = new UserAttendance({
@@ -91,14 +91,14 @@ export const cronJobUserAttendance = async (req, res) => {
 
             await userAttendanceRecord.save();
 
-            // console.log(`Attendance saved for user id: ${user.userId}`);
+            // //console.log(`Attendance saved for user id: ${user.userId}`);
         }
 
         if (res) {
             res.status(200).json({ status: "success", message: "Attendance instance created successfully" });
         }
 
-        // console.log("Attendance records created for all users");
+        // //console.log("Attendance records created for all users");
     
       } catch (error) {
         console.error("Error during user attendance dump: ", error);
@@ -120,11 +120,11 @@ const { hours, minutes } = parseISTTime(attendanceRunTimeIST);
 // Final cron expression
 const cronExp = `${minutes} ${hours} * * *`;
 
-// console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
+// //console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
 
 cron.schedule(cronExp, async () => {
 
-    // console.log("Running cron job at IST time:", attendanceRunTimeIST);
+    // //console.log("Running cron job at IST time:", attendanceRunTimeIST);
 
     await cronJobUserAttendance({ body: {} }, { 
         status: () => ({ json: () => {} }) // dummy res for cron run
@@ -175,11 +175,11 @@ cron.schedule(cronExp, async () => {
 
 // Cron job runs at midnight every day
 
-// console.log('Setting up the cron job');
+// //console.log('Setting up the cron job');
 // cron.schedule('0 0 * * *', createAttendanceRecords);
 
 // Manually run the function for testing purpose
-// console.log('Running the cron job immediately for testing');
+// //console.log('Running the cron job immediately for testing');
 // createAttendanceRecords();  // Call the function immediately to run it now
 
 
@@ -192,7 +192,7 @@ cron.schedule(cronExp, async () => {
 export const GetAttendanceByUserId = async (req, res) => {
     const { userId, date } = req.query;
 
-    // console.log(req.query)
+    // //console.log(req.query)
 
    
 
@@ -317,11 +317,11 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
 
 export const getFilteredUserAttendanceSummary = async (req, res) => {
 
-  // console.log('I am insdied get filtered user attendance summary.')
+  // //console.log('I am insdied get filtered user attendance summary.')
   try {
     const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
 
-    // console.log(req.body)
+    // //console.log(req.body)
 
     const start = new Date(startDate + 'T00:00:00.000Z');
     const end = new Date(endDate + 'T23:59:59.999Z');
@@ -417,8 +417,8 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
       },
     ]);
 
-    // console.log("Start:", start.toISOString(), "End:", end.toISOString());
-    // console.log("Total Records:", result.length);
+    // //console.log("Start:", start.toISOString(), "End:", end.toISOString());
+    // //console.log("Total Records:", result.length);
 
     res.status(200).json({
       success: true,
@@ -439,11 +439,11 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
 //--------------------------------------------------------
 export const getUserAttendanceSummaryData = async (req, res) => {
 
-  // console.log("Hello attendance summary");
+  // //console.log("Hello attendance summary");
 
   const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
   try {
     const pipeline = [
@@ -546,7 +546,7 @@ export const getUserAttendanceSummaryData = async (req, res) => {
     const result = await UserAttendance.aggregate(pipeline);
 
 
-    // console.log(result)
+    // //console.log(result)
 
     return res.status(200).json({
       success: true,
@@ -574,11 +574,11 @@ export const getUserAttendanceSummaryData = async (req, res) => {
 
 export const patchUserAttendanceWithoutImage = async (req, res) => {
 
-  // console.log('I AM INSIDE PATCH USER ATTENDANCE WITHOUT IMAGE.')
+  // //console.log('I AM INSIDE PATCH USER ATTENDANCE WITHOUT IMAGE.')
 
   const { userId, date } = req.query;
 
-  // console.log(req.query)
+  // //console.log(req.query)
 
   const {
     attendance,
@@ -589,8 +589,8 @@ export const patchUserAttendanceWithoutImage = async (req, res) => {
   } = req.body;
 
 
-  // console.log(req.query)
-  // console.log(req.body)
+  // //console.log(req.query)
+  // //console.log(req.body)
 
   if (!userId || !date) {
     return res.status(400).json({
@@ -662,9 +662,9 @@ export const GetAttendanceDataOfUsersByMonthAndYear = async (req, res) => {
   const { userId } = req.query;
   const { month, year } = req.body;
   
-// console.log('i am inside get user attendance')  
-// console.log(req.body)
-// console.log(req.query)
+// //console.log('i am inside get user attendance')  
+// //console.log(req.body)
+// //console.log(req.query)
 
   if (!userId || !month || !year) {
     return res.status(400).json({

@@ -19,7 +19,7 @@ export const uploadFile = multer({ storage }).single("file");
 //Post API
 
 export const createConcern = async (req, res) => {
-  console.log("I am inside createConcern controller");
+  //console.log("I am inside createConcern controller");
 
   try {
     const {
@@ -54,10 +54,10 @@ export const createConcern = async (req, res) => {
       actionRecommended
     } = req.body;
 
-    console.log(concernId);
-    console.log(userId)
+    //console.log(concernId);
+    //console.log(userId)
   
-    console.log(req.body)
+    //console.log(req.body)
 
     // ✅ Check if concernId already exists
 
@@ -77,7 +77,7 @@ export const createConcern = async (req, res) => {
     // const isStudentExist = await Student.findOne({ studentSrn });
     // if (req.body.studentSrn) {
     //   if (!isStudentExist) {
-    //     console.log("student not matched");
+    //     //console.log("student not matched");
     //     return res
     //       .status(409)
     //       .json({
@@ -127,7 +127,7 @@ export const createConcern = async (req, res) => {
     });
 
     const raisedByUserId = userId;
-    console.log("I am raised by user id:", raisedByUserId)
+    //console.log("I am raised by user id:", raisedByUserId)
 
     //Creating notification
     await createNotificationForConcern({
@@ -168,8 +168,8 @@ export const getConcernsByQueryParameters = async (req, res) => {
       classOfConcern,
     } = req.query;
 
-    // console.log('I am inside getConcernByQueryParameters');
-    // console.log(req.query);
+    // //console.log('I am inside getConcernByQueryParameters');
+    // //console.log(req.query);
 
     const districtIds = Array.isArray(districtId)
       ? districtId
@@ -204,8 +204,8 @@ export const getConcernsByQueryParameters = async (req, res) => {
       matchStage.concernStatusByResolver = { $in: concernStatusByResolvers };
     if (classOfConcern) matchStage.classOfConcern = { $in: calssOfConcerns };
 
-    console.log(matchStage);
-    // console.log(req.query)
+    //console.log(matchStage);
+    // //console.log(req.query)
     const pipeline = [
       {
         $match: matchStage,
@@ -227,7 +227,7 @@ export const getConcernsByQueryParameters = async (req, res) => {
     const response = await Concern.aggregate(pipeline);
     res.status(200).json({ status: "Success", data: response });
   } catch (error) {
-    console.log("Error occurred while fetching data:", error.message);
+    //console.log("Error occurred while fetching data:", error.message);
     res.status(500).json({ status: "Failed", message: error.message });
   }
 };
@@ -240,7 +240,7 @@ export const getConcernsByQueryParameters = async (req, res) => {
 
 
 // export const getConcernsPipeLineMethod = async (req, res) => {
-//   console.log("I am insied get concerns by pipeline method");
+//   //console.log("I am insied get concerns by pipeline method");
 //   try {
 //     const {
 //       userId,
@@ -254,7 +254,7 @@ export const getConcernsByQueryParameters = async (req, res) => {
 //       classOfConcern    
 //     } = req.query;
 
-//     console.log(req.query);
+//     //console.log(req.query);
 
 //     if (!userId) {
 //       return res.status(400).json({
@@ -365,7 +365,7 @@ export const getConcernsByQueryParameters = async (req, res) => {
 //     ]);
 
 //     res.status(200).json({ status: "Success", data: concerns });
-//     // console.log(concerns);
+//     // //console.log(concerns);
 //   } catch (error) {
 //     console.error("Error fetching filtered concerns for ACI:", error.message);
 //     res.status(500).json({
@@ -379,7 +379,7 @@ export const getConcernsByQueryParameters = async (req, res) => {
 
 
 export const getConcernsPipeLineMethod = async (req, res) => {
-  console.log("I am inside get concerns by pipeline method");
+  //console.log("I am inside get concerns by pipeline method");
   try {
     const {
       userId,
@@ -393,7 +393,7 @@ export const getConcernsPipeLineMethod = async (req, res) => {
       classOfConcern
     } = req.query;
 
-    console.log(req.query);
+    //console.log(req.query);
 
     if (!userId) {
       return res.status(400).json({
@@ -549,7 +549,7 @@ export const getConcernsPipeLineMethod = async (req, res) => {
 
 
 // export const getIndividualConcerns = async (req, res) => {
-//   console.log("I am inside get individual CONCERN");
+//   //console.log("I am inside get individual CONCERN");
 
 //   try {
 //     const {
@@ -560,9 +560,9 @@ export const getConcernsPipeLineMethod = async (req, res) => {
 //       conditionalDepartment,
 //     } = req.query;
 
-//     console.log(req.query);
+//     //console.log(req.query);
 
-//     console.log(conditionalRole.split(","));
+//     //console.log(conditionalRole.split(","));
 
 //     if (!userId) {
 //       return res.status(400).json({
@@ -632,7 +632,7 @@ export const getConcernsPipeLineMethod = async (req, res) => {
 
 
 export const getIndividualConcerns = async (req, res) => {
-  console.log("I am inside get individual CONCERN");
+  //console.log("I am inside get individual CONCERN");
 
   try {
     const {
@@ -730,7 +730,7 @@ export const getIndividualConcerns = async (req, res) => {
 //Updated on 26-06-2025
 
 // export const getIndividualLeave = async (req, res) => {
-//   console.log("I am inside get individual leave");
+//   //console.log("I am inside get individual leave");
 
 //   try {
 //     const {
@@ -741,9 +741,9 @@ export const getIndividualConcerns = async (req, res) => {
 //       conditionalDepartment,
 //     } = req.query;
 
-//     console.log(req.query);
+//     //console.log(req.query);
 
-//     console.log(conditionalRole.split(","));
+//     //console.log(conditionalRole.split(","));
 
 //     if (!userId) {
 //       return res.status(400).json({
@@ -811,7 +811,7 @@ export const getIndividualConcerns = async (req, res) => {
 
 
 export const getIndividualLeave = async (req, res) => {
-  console.log("I am inside get individual leave");
+  //console.log("I am inside get individual leave");
 
   try {
     const {
@@ -911,8 +911,8 @@ export const PatchConcernsByQueryParams = async (req, res) => {
   const { userId, concernId, _id } = req.query;
 
   
-  console.log('Hey there!')
-  console.log(req.query)
+  //console.log('Hey there!')
+  //console.log(req.query)
 
   const {
     concernStatusBySubmitter,
@@ -930,16 +930,16 @@ export const PatchConcernsByQueryParams = async (req, res) => {
     commentByResolver
   } = req.body;
 
-  console.log(req.query);
+  //console.log(req.query);
 
-  console.log(req.body);
+  //console.log(req.body);
 
   try {
     const response = await Concern.findOneAndUpdate(req.query, req.body);
 
     res.status(200).json({ status: "Ok", data: response });
-    // console.log(response)
+    // //console.log(response)
   } catch (error) {
-    console.log("Error patching concern", error);
+    //console.log("Error patching concern", error);
   }
 };

@@ -32,7 +32,7 @@ export const createGamificationData = async (req, res) => {
 
     const result = await User.aggregate(pipeline);
 
-    // console.log(result[1])
+    // //console.log(result[1])
 
 
     res.status(200).json({
@@ -56,11 +56,11 @@ export const createGamificationData = async (req, res) => {
 
 export const selfAttendanceGamification = async (req, res) =>{
 
-    // console.log('Hello self attendance ERP TEST')
+    // //console.log('Hello self attendance ERP TEST')
 
     const {unqUserObjectId,  date  } = req.body //userId
 
-    // console.log(req.body)
+    // //console.log(req.body)
 
     // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
 
@@ -91,11 +91,11 @@ const formattedISTDate = new Date(istms)
 // const utcms = userLoginTime.getTime();
 // const formattedUtc = new Date(utcms)
 
-// console.log(userLoginTime)
-// console.log(formattedISTDate)
+// //console.log(userLoginTime)
+// //console.log(formattedISTDate)
 const hours = userLoginTime.getHours(); //Converts utc hours into ist hours
 const minutes = userLoginTime.getMinutes(); //converts utc minutes into ist minutes
-// console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+// //console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
 
 
@@ -108,7 +108,7 @@ function timeToMs(timeStr) {
 const t1_userLoginTimeinMs =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
 // const t1_userLoginTimeinMs =  timeToMs(`08:16`)
 
-// console.log(t1_userLoginTimeinMs)
+// //console.log(t1_userLoginTimeinMs)
 
 //Point assignment logic
 
@@ -134,7 +134,7 @@ async function getPoints(t1_userLoginTimeinMs) {
 }
 await getPoints(t1_userLoginTimeinMs)
 
-// console.log("point is: ", point)
+// //console.log("point is: ", point)
 
     try {
         
@@ -158,7 +158,7 @@ await getPoints(t1_userLoginTimeinMs)
 
  const result = await User.aggregate(pipeline);
 
-//  console.log(result[0].accesses[0].region)
+//  //console.log(result[0].accesses[0].region)
 
 const schoolData = result[0].accesses[0].region
  
@@ -177,12 +177,12 @@ const schoolIdsArray = [
 
 const schoolIdsArrayToStringConversion = schoolIdsArray.join(",")
 
-// console.log(schoolIdsArray)
+// //console.log(schoolIdsArray)
  
-// console.log(result[0].accesses[0].classId)
+// //console.log(result[0].accesses[0].classId)
 
 const classess = result[0].accesses[0].classId.join(",")
-// console.log(classess)
+// //console.log(classess)
 
 const response  = await Gamification.create({
     unqUserObjectId:result[0]._id,
@@ -214,7 +214,7 @@ const response  = await Gamification.create({
 
 
     } catch (error) {
-        console.log('Error::::>', error)
+        //console.log('Error::::>', error)
 
         res.status(500).json({status: "Success", message:"Error updating "})
     }
@@ -228,11 +228,11 @@ const response  = await Gamification.create({
 
 export const studentAttendanceGamification = async (req, res) =>{
 
-    // console.log("Hello student attendance gamification")
+    // //console.log("Hello student attendance gamification")
 
     const {unqUserObjectId, schoolId, classOfCenter, userId} = req.body;
 
-    // console.log(req.body)
+    // //console.log(req.body)
 
 //     const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -267,7 +267,7 @@ export const studentAttendanceGamification = async (req, res) =>{
     startDate.setUTCHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    // console.log("dates are", startDate, endDate)
+    // //console.log("dates are", startDate, endDate)
 
     const fetchPresentStudentCountFromStudentAttendances = await StudentAttendance.find({
         unqStudentObjectId: {$in:allStudentId},
@@ -277,7 +277,7 @@ export const studentAttendanceGamification = async (req, res) =>{
 
     const PresentCount = fetchPresentStudentCountFromStudentAttendances.length
 
-    // console.log(fetchPresentStudentCountFromStudentAttendances.length)
+    // //console.log(fetchPresentStudentCountFromStudentAttendances.length)
     //--------------------------------------------------------
 
     //Point logic. And time validation logic.
@@ -295,7 +295,7 @@ export const studentAttendanceGamification = async (req, res) =>{
     
     const hours = currentTime.getHours(); //Converts utc hours into ist hours
     const minutes = currentTime.getMinutes(); //converts utc minutes into ist minutes
-    // console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+    // //console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
     //Function to convert utc minute hour into milisecons
     function timeToMs(timeStr) {
@@ -305,8 +305,8 @@ export const studentAttendanceGamification = async (req, res) =>{
 
     const timeWhenAttendaceIsMarked =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
     const validationTime = timeToMs(`14:40`)
-    // console.log(timeWhenAttendaceIsMarked)
-    // console.log(validationTime)
+    // //console.log(timeWhenAttendaceIsMarked)
+    // //console.log(validationTime)
 
     let point;
 
@@ -329,7 +329,7 @@ export const studentAttendanceGamification = async (req, res) =>{
     } else {
         point = -15
     }
-        // console.log("Point:", point);
+        // //console.log("Point:", point);
     try {
 
       //Case when student-attendance-gamification exist
@@ -345,18 +345,18 @@ export const studentAttendanceGamification = async (req, res) =>{
       
 
       if (studentAttendanceGamificationExist.length>0){
-        // console.log('Attendance gamification exist')
+        // //console.log('Attendance gamification exist')
         
         studentAttendanceGamificationExist[0].finalPoint = point;
         
 
         const response  = await Gamification.create(studentAttendanceGamificationExist[0])
        
-      //  console.log(response);
+      //  //console.log(response);
 
        res.status(200).json({status:"Ok", data: response})
 
-      //  console.log('Existed data updated')
+      //  //console.log('Existed data updated')
         return;
       }
 
@@ -375,7 +375,7 @@ export const studentAttendanceGamification = async (req, res) =>{
 
 
 
-        // console.log(findRegionWithItsUser[0])   
+        // //console.log(findRegionWithItsUser[0])   
         
         
 
@@ -401,7 +401,7 @@ export const studentAttendanceGamification = async (req, res) =>{
 
         res.status(200).json({status:'Success', count:fetchPresentStudentCountFromStudentAttendances.length, data:findRegionWithItsUser})
     } catch (error) {
-        console.log('Error::::>', error)
+        //console.log('Error::::>', error)
     }
 }
 
@@ -410,7 +410,7 @@ export const studentAttendanceGamification = async (req, res) =>{
 
 export const attendancePdfGamification = async (req, res) => {
 
-  // console.log('Hello attendance pdf gamification')
+  // //console.log('Hello attendance pdf gamification')
 
 
   const {unqUserObjectId, schoolId, classofStudent, userId} =  req.body;
@@ -421,7 +421,7 @@ export const attendancePdfGamification = async (req, res) => {
   // const classofStudent = '9'
   // const userId = 'TESTCC'
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
 
 
@@ -435,7 +435,7 @@ const endDate = new Date ();
 startDate.setUTCHours(0, 0, 0, 0);
 endDate.setUTCHours(23, 59, 59, 9999);
 
-// console.log(startDate, endDate)
+// //console.log(startDate, endDate)
 
   const findPdf = await AttendancePdf.find({
     unqUserObjectId:new mongoose.Types.ObjectId(unqUserObjectId),
@@ -444,9 +444,9 @@ endDate.setUTCHours(23, 59, 59, 9999);
     dateOfUpload:{$gte:startDate, $lte:endDate}
   })
 
-//   console.log(findPdf[0].dateOfUpload)
+//   //console.log(findPdf[0].dateOfUpload)
 // //comparing pdf date with current date.
-// console.log(startDate.toISOString().split('T')[0] === findPdf[0].dateOfUpload.toISOString().split('T')[0] )
+// //console.log(startDate.toISOString().split('T')[0] === findPdf[0].dateOfUpload.toISOString().split('T')[0] )
 
 
 
@@ -463,7 +463,7 @@ endDate.setUTCHours(23, 59, 59, 9999);
 
     const hours = currentDateAndTime.getHours(); //Converts utc hours into ist hours
     const minutes = currentDateAndTime.getMinutes(); //converts utc minutes into ist minutes
-    // console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+    // //console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
 //------------------------------------------------------------------
   
@@ -472,8 +472,8 @@ endDate.setUTCHours(23, 59, 59, 9999);
 //... time then he she will be given negative points else positive.
 
 const currentTimeInMiliseconds = timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
-// console.log("current time in ms: ", currentTimeInMiliseconds)
-// console.log("stati time in ms:", timeToMs(`14:40`))
+// //console.log("current time in ms: ", currentTimeInMiliseconds)
+// //console.log("stati time in ms:", timeToMs(`14:40`))
 const validationTime =  timeToMs(`14:40`)
     try {
 
@@ -509,8 +509,8 @@ const attendancePdfGamificationExist = await Gamification.find({
 })
 
 if (attendancePdfGamificationExist.length>0){
-  // console.log("Attendance pdf gamification exist")
-  // console.log(attendancePdfGamificationExist)
+  // //console.log("Attendance pdf gamification exist")
+  // //console.log(attendancePdfGamificationExist)
 
   attendancePdfGamificationExist[0].finalPoint = point;
 
@@ -544,7 +544,7 @@ res.status(200).json({status:"Ok", data:response})
 
         res.status(200).json({status:'Ok', data:findPdf})
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
     }
 }
 
@@ -565,11 +565,11 @@ res.status(200).json({status:"Ok", data:response})
 //Below api is exact same as studentAttendanceGamification
 export const studentAbsenteeCallingGamification = async (req, res) =>{
 
-    // console.log("Hello student absentee calling gamification")
+    // //console.log("Hello student absentee calling gamification")
 
     const {unqUserObjectId, schoolId, classOfCenter, userId} = req.body;
 
-    // console.log(req.body)
+    // //console.log(req.body)
 
   //   const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -594,7 +594,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
         allStudentId.push(new mongoose.Types.ObjectId(eachStudent._id))
         })
 
-        // console.log(allStudentId.length)
+        // //console.log(allStudentId.length)
 
     //-----------------------------------------------------------------------------
 
@@ -608,7 +608,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
     startDate.setUTCHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    // console.log("dates are", startDate, endDate)
+    // //console.log("dates are", startDate, endDate)
 
     const fetchPresentStudentCountFromStudentAttendances = await StudentAttendance.find({
         unqStudentObjectId: {$in:allStudentId},
@@ -618,7 +618,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
     const PresentCount = fetchPresentStudentCountFromStudentAttendances.length
 
-    // console.log(fetchPresentStudentCountFromStudentAttendances.length)
+    // //console.log(fetchPresentStudentCountFromStudentAttendances.length)
     //--------------------------------------------------------
 
     //Point logic. And time validation logic.
@@ -636,7 +636,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
     
     const hours = currentTime.getHours(); //Converts utc hours into ist hours
     const minutes = currentTime.getMinutes(); //converts utc minutes into ist minutes
-    // console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+    // //console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
     //Function to convert utc minute hour into milisecons
     function timeToMs(timeStr) {
@@ -646,8 +646,8 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
     const timeWhenAttendaceIsMarked =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
     const validationTime = timeToMs(`14:40`)
-    // console.log(timeWhenAttendaceIsMarked)
-    // console.log(validationTime)
+    // //console.log(timeWhenAttendaceIsMarked)
+    // //console.log(validationTime)
 
     let point;
 
@@ -670,7 +670,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
     } else {
         point = -15
     }
-        // console.log("Point:", point);
+        // //console.log("Point:", point);
     try {
 
         //Find user who is to be given points.
@@ -682,7 +682,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
 
 
-        // console.log(findRegionWithItsUser[0])   
+        // //console.log(findRegionWithItsUser[0])   
         
 
 
@@ -696,13 +696,13 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
         if (studentAbsenteeCallingGamificationExist.length>0){
 
 
-          // console.log('absentee calling gamification exist')
+          // //console.log('absentee calling gamification exist')
           studentAbsenteeCallingGamificationExist[0].finalPoint = point;
 
           const response  = await Gamification.create(
             studentAbsenteeCallingGamificationExist[0])
 
-            // console.log('Existing data updated')
+            // //console.log('Existing data updated')
 
             res.status(200).json({status:'Ok', data: response})
           return;
@@ -731,7 +731,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
         res.status(200).json({status:'Success', count:fetchPresentStudentCountFromStudentAttendances.length, data:fetchPresentStudentCountFromStudentAttendances})
     } catch (error) {
-        console.log('Error::::>', error)
+        //console.log('Error::::>', error)
     }
 }
 
@@ -747,12 +747,12 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
 export const studentMarksGamification = async (req, res)=>{
 
-// console.log("Hello Student Marks Gamification")
+// //console.log("Hello Student Marks Gamification")
 
 
 const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -785,7 +785,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
         allStudentId.push(new mongoose.Types.ObjectId(eachStudent._id))
         })
 
-        // console.log(allStudentId)
+        // //console.log(allStudentId)
 
     //-----------------------------------------------------------------------------
 
@@ -801,7 +801,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
     startDate.setUTCHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    // console.log("dates are", startDate, endDate)
+    // //console.log("dates are", startDate, endDate)
 
     const fetchMarksCount = await Marks.find({
         unqStudentObjectId: {$in:allStudentId},
@@ -812,7 +812,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
 
     const marksCount = fetchMarksCount.length
 
-    // console.log(fetchMarksCount.length)
+    // //console.log(fetchMarksCount.length)
     //--------------------------------------------------------
 
 
@@ -831,7 +831,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
     
     const hours = currentTime.getHours(); //Converts utc hours into ist hours
     const minutes = currentTime.getMinutes(); //converts utc minutes into ist minutes
-    // console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+    // //console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
     //Function to convert utc minute hour into milisecons
     function timeToMs(timeStr) {
@@ -841,8 +841,8 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
 
     const timeWhenMarkIsMarked =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
     const validationTime = timeToMs(`14:40`)
-    // console.log(timeWhenMarkIsMarked)
-    // console.log(validationTime)
+    // //console.log(timeWhenMarkIsMarked)
+    // //console.log(validationTime)
 
     let point;
 
@@ -866,7 +866,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
       
         point = -15
     }
-        // console.log("Point:", point);
+        // //console.log("Point:", point);
 
 try {
   
@@ -881,7 +881,7 @@ try {
   })
 
   if(studentMarksGamificationExist.length>0){
-    // console.log("marks gamificatio exixt")
+    // //console.log("marks gamificatio exixt")
 
     studentMarksGamificationExist[0].finalPoint = point;
 
@@ -889,7 +889,7 @@ try {
 
     res.status(200).json({status:"Ok", data:response});
 
-    // console.log('Exited marks gamification updated')
+    // //console.log('Exited marks gamification updated')
     return;
 
   }
@@ -918,7 +918,7 @@ try {
   res.status(200).json({status:'Ok', count:fetchMarksCount.length, data:response})
 } catch (error) {
   
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
 
 }
 }
@@ -927,14 +927,14 @@ try {
 
 // export const disciplinaryGamification = async (req, res) =>{
 
-//   console.log("Hello disciplinary gamification!")
+//   //console.log("Hello disciplinary gamification!")
 
   
 //   const {unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
 
  
 
-//   console.log(req.body)
+//   //console.log(req.body)
 
 //   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -969,14 +969,14 @@ try {
 
 // let allRegionIds = [];
 //   if (findRegionAccess){
-//     // console.log(findRegionAccess)
-//     console.log('Hello find region')
+//     // //console.log(findRegionAccess)
+//     //console.log('Hello find region')
 
     
 //     findRegionAccess.map((eachObject)=>{
 //       allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId)) 
 //    })
-// // console.log(allRegionIds)
+// // //console.log(allRegionIds)
 
 
 
@@ -998,7 +998,7 @@ try {
 
 // const totalStudentCount = findStudentCount.length
 
-// console.log("Student count", findStudentCount.length)
+// //console.log("Student count", findStudentCount.length)
 // //--------------------------------------------------------
 
 
@@ -1066,13 +1066,13 @@ try {
 // })
 
 // if (disciplinaryExist.length>0){
-//   console.log("Disciplinary already exist")
-//   // console.log(disciplinaryExist)
+//   //console.log("Disciplinary already exist")
+//   // //console.log(disciplinaryExist)
 
-// // console.log(disciplinaryExist[0].poorRankCount)
-// // console.log(disciplinaryExist[0].averageRankCount)
-// // console.log(disciplinaryExist[0].goodRankCount)
-// // console.log(disciplinaryExist[0].excellentRankCount)
+// // //console.log(disciplinaryExist[0].poorRankCount)
+// // //console.log(disciplinaryExist[0].averageRankCount)
+// // //console.log(disciplinaryExist[0].goodRankCount)
+// // //console.log(disciplinaryExist[0].excellentRankCount)
 
 // const sumOfRankPoints = disciplinaryExist[0].poorRankCount + 
 //                         disciplinaryExist[0].averageRankCount +
@@ -1122,12 +1122,12 @@ try {
 
 // const response = await GamificationRanking.create(findGamificationData[0])
 
-// console.log("I am updated existing data")
+// //console.log("I am updated existing data")
 // } else {
-// console.log("i am insdie else block")
-// console.log(rank)
-// // console.log(findGamificationData)
-// // console.log(unqUserObjectId)
+// //console.log("i am insdie else block")
+// //console.log(rank)
+// // //console.log(findGamificationData)
+// // //console.log(unqUserObjectId)
 
 
 // //Crating gamification object dynamically for dsiciplinary
@@ -1165,15 +1165,15 @@ try {
 
 // //Per center only two ranks are allowed
 // if (sumOfRankPoints>=2){
-//   console.log(sumOfRankPoints)
-//   console.log("No more points can be assigned to this center, limit exhausted")
+//   //console.log(sumOfRankPoints)
+//   //console.log("No more points can be assigned to this center, limit exhausted")
 //   res.status(200).json({status:"Ok", message:"Point Exhausted"})
 //   return;
 // }
 
 // if (rank === "Camera-off"){
 
-//   console.log('i am camera off matter closed')
+//   //console.log('i am camera off matter closed')
 
 //   return
 // }
@@ -1236,8 +1236,8 @@ try {
 // }
 
 
-//   console.log('I am total stu count', totalStudentCount)
-//   console.log('I am rank value', rank)
+//   //console.log('I am total stu count', totalStudentCount)
+//   //console.log('I am rank value', rank)
 
 
 // const response  = await Gamification.create(disciplinaryExist[0])
@@ -1249,7 +1249,7 @@ try {
 
 
 
-// console.log("existing data updated")
+// //console.log("existing data updated")
 
 //   return;
 // } 
@@ -1284,7 +1284,7 @@ try {
 // }
 
 
-// console.log(disciplinaryObject)
+// //console.log(disciplinaryObject)
 
 //   try {
 
@@ -1294,7 +1294,7 @@ try {
     
     
 
-//     console.log("I am response",response)
+//     //console.log("I am response",response)
 
     
     
@@ -1326,7 +1326,7 @@ try {
 
 // const response = await GamificationRanking.create(disciplinaryObject)
 
-// console.log("I am inside new function")
+// //console.log("I am inside new function")
 
 // }
 
@@ -1334,7 +1334,7 @@ try {
 
 //     res.status(200).json({status:"Ok", data:response})
 //   } catch (error) {
-//     console.log("Error::::>", error)
+//     //console.log("Error::::>", error)
 //   }
 // }
 
@@ -1363,14 +1363,14 @@ try {
 
 // export const disciplinaryGamification = async (req, res) =>{
 
-//   console.log("Hello disciplinary gamification!")
+//   //console.log("Hello disciplinary gamification!")
 
   
 //   const {unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
 
  
 
-//   console.log(req.body)
+//   //console.log(req.body)
 
 //   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -1405,14 +1405,14 @@ try {
 
 // let allRegionIds = [];
 //   if (findRegionAccess){
-//     // console.log(findRegionAccess)
-//     console.log('Hello find region')
+//     // //console.log(findRegionAccess)
+//     //console.log('Hello find region')
 
     
 //     findRegionAccess.map((eachObject)=>{
 //       allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId)) 
 //    })
-// // console.log(allRegionIds)
+// // //console.log(allRegionIds)
 
 
 
@@ -1434,7 +1434,7 @@ try {
 
 // const totalStudentCount = findStudentCount.length
 
-// console.log("Student count", findStudentCount.length)
+// //console.log("Student count", findStudentCount.length)
 // //--------------------------------------------------------
 
 
@@ -1502,7 +1502,7 @@ try {
 //   })
 
 //   if(cameraOffExist.length > 0){
-//     console.log("this center's Camera off is already marked")
+//     //console.log("this center's Camera off is already marked")
 //     return
 //   } else {
 //     // Create Camera-off document
@@ -1524,7 +1524,7 @@ try {
 //     }
 
 //     const response = await Gamification.create(cameraOffObj)
-//     console.log("Camera-off document created", response)
+//     //console.log("Camera-off document created", response)
 //     res.status(200).json({status:"Ok", data:response})
 //     return
 //   }
@@ -1539,7 +1539,7 @@ try {
 // })
 
 // if (disciplinaryExist.length>0){
-//   console.log("Disciplinary already exist")
+//   //console.log("Disciplinary already exist")
 
 // const sumOfRankPoints = disciplinaryExist[0].poorRankCount + 
 //                         disciplinaryExist[0].averageRankCount +
@@ -1582,10 +1582,10 @@ try {
 
 // const response = await GamificationRanking.create(findGamificationData[0])
 
-// console.log("I am updated existing data")
+// //console.log("I am updated existing data")
 // } else {
-// console.log("i am insdie else block")
-// console.log(rank)
+// //console.log("i am insdie else block")
+// //console.log(rank)
 
 // let disciplinaryObject= {
 // unqUserObjectId:unqUserObjectId,
@@ -1616,8 +1616,8 @@ try {
 // //-------------------------------------------------------------------------------------   
 
 // if (sumOfRankPoints>=2){
-//   console.log(sumOfRankPoints)
-//   console.log("No more points can be assigned to this center, limit exhausted")
+//   //console.log(sumOfRankPoints)
+//   //console.log("No more points can be assigned to this center, limit exhausted")
 //   res.status(200).json({status:"Ok", message:"Point Exhausted"})
 //   return;
 // }
@@ -1675,14 +1675,14 @@ try {
 //   else if(rank === "Excellent"){disciplinaryExist[0].finalPoint =  disciplinaryExist[0].finalPoint + 30;} 
 // }
 
-//   console.log('I am total stu count', totalStudentCount)
-//   console.log('I am rank value', rank)
+//   //console.log('I am total stu count', totalStudentCount)
+//   //console.log('I am rank value', rank)
 
 // const response  = await Gamification.create(disciplinaryExist[0])
 
 // res.status(200).json({status:"Ok", data:response})
 
-// console.log("existing data updated")
+// //console.log("existing data updated")
 
 //   return;
 // } 
@@ -1717,7 +1717,7 @@ try {
 // }
 
 
-// console.log(disciplinaryObject)
+// //console.log(disciplinaryObject)
 
 //   try {
 
@@ -1727,7 +1727,7 @@ try {
     
     
 
-//     console.log("I am response",response)
+//     //console.log("I am response",response)
 
     
     
@@ -1759,7 +1759,7 @@ try {
 
 // const response = await GamificationRanking.create(disciplinaryObject)
 
-// console.log("I am inside new function")
+// //console.log("I am inside new function")
 
 // }
 
@@ -1767,7 +1767,7 @@ try {
 
 //     res.status(200).json({status:"Ok", data:response})
 //   } catch (error) {
-//     console.log("Error::::>", error)
+//     //console.log("Error::::>", error)
 //   }
 // }
 
@@ -1792,14 +1792,14 @@ try {
 
 export const disciplinaryGamification = async (req, res) => {
 
-  // console.log("Hello disciplinary gamification!")
+  // //console.log("Hello disciplinary gamification!")
 
 
   const { unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
 
 
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
 
@@ -1834,14 +1834,14 @@ export const disciplinaryGamification = async (req, res) => {
 
   let allRegionIds = [];
   if (findRegionAccess) {
-    // console.log(findRegionAccess)
-    // console.log('Hello find region')
+    // //console.log(findRegionAccess)
+    // //console.log('Hello find region')
 
 
     findRegionAccess.map((eachObject) => {
       allRegionIds.push(new mongoose.Types.ObjectId(eachObject.unqObjectId))
     })
-    // console.log(allRegionIds)
+    // //console.log(allRegionIds)
 
 
 
@@ -1863,7 +1863,7 @@ export const disciplinaryGamification = async (req, res) => {
 
   const totalStudentCount = findStudentCount.length
 
-  // console.log("Student count", findStudentCount.length)
+  // //console.log("Student count", findStudentCount.length)
   //--------------------------------------------------------
 
 
@@ -1940,7 +1940,7 @@ export const disciplinaryGamification = async (req, res) => {
     })
 
     if (cameraOffExist.length > 0) {
-      console.log("this center's Camera off is already marked")
+      //console.log("this center's Camera off is already marked")
     } else {
       // Create Camera-off document
       const cameraOffObj = {
@@ -1961,11 +1961,11 @@ export const disciplinaryGamification = async (req, res) => {
       }
 
       const response = await Gamification.create(cameraOffObj)
-      // console.log("Camera-off document created", response)
+      // //console.log("Camera-off document created", response)
     }
 
     if (cameraOffRankingExist.length > 0) {
-      console.log(`Camera-off for this center, user ${unqUserObjectId} and class ${classOfCenter} already exist`)
+      //console.log(`Camera-off for this center, user ${unqUserObjectId} and class ${classOfCenter} already exist`)
     } else {
       const cameraOffRankingObj = {
         unqUserObjectId: unqUserObjectId,
@@ -1980,7 +1980,7 @@ export const disciplinaryGamification = async (req, res) => {
         date: new Date()
       }
       await GamificationRanking.create(cameraOffRankingObj)
-      // console.log("Camera-off recorded for user in GamificationRanking")
+      // //console.log("Camera-off recorded for user in GamificationRanking")
     }
 
     res.status(200).json({ status: "Ok", message: "Camera-off processed" })
@@ -1998,7 +1998,7 @@ export const disciplinaryGamification = async (req, res) => {
 
   // Existing disciplinary logic continues unchanged below...
   if (disciplinaryExist.length > 0) {
-    // console.log("Disciplinary already exist")
+    // //console.log("Disciplinary already exist")
 
     const sumOfRankPoints = disciplinaryExist[0].poorRankCount +
       disciplinaryExist[0].averageRankCount +
@@ -2040,10 +2040,10 @@ export const disciplinaryGamification = async (req, res) => {
 
       const response = await GamificationRanking.create(findGamificationData[0])
 
-      // console.log("I am updated existing data")
+      // //console.log("I am updated existing data")
     } else {
-      // console.log("i am insdie else block")
-      // console.log(rank)
+      // //console.log("i am insdie else block")
+      // //console.log(rank)
 
       let disciplinaryObject = {
         unqUserObjectId: unqUserObjectId,
@@ -2082,31 +2082,31 @@ const noon = new Date();
 noon.setHours(12, 0, 0, 0); // 12:00:00.000
 
 if (now < noon) {
-  // console.log("Below code will run after 12:00");
+  // //console.log("Below code will run after 12:00");
   return res.status(200).json({ status: "Ok", message: "Action allowed after 12:00" });;
 }
 
 // Code here runs only after 12:00
-// console.log("It's after 12:00 — running the code!");
+// //console.log("It's after 12:00 — running the code!");
 
 //-----------------------------------------------------
 
 
 // if(1===1){
 
-//   console.log('below code is on halt')
+//   //console.log('below code is on halt')
 //   return;
 // }
 
     //Gamficiation existing updataion.
     if (sumOfRankPoints >= 2) {
-      // console.log(`sum of rank`, sumOfRankPoints)
-      // console.log("No more points can be assigned to this center, limit exhausted")
+      // //console.log(`sum of rank`, sumOfRankPoints)
+      // //console.log("No more points can be assigned to this center, limit exhausted")
       res.status(200).json({ status: "Ok", message: "Point Exhausted" })
       return;
     }
 
-    console.log('hello updating existing')
+    //console.log('hello updating existing')
     if (rank === 'Poor') {
       disciplinaryExist[0].poorRankCount = disciplinaryExist[0].poorRankCount + 1
     } else if (rank === 'Average') {
@@ -2160,14 +2160,14 @@ if (now < noon) {
       else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 30; }
     }
 
-    // console.log('I am total stu count', totalStudentCount)
-    // console.log('I am rank value', rank)
+    // //console.log('I am total stu count', totalStudentCount)
+    // //console.log('I am rank value', rank)
 
     const response = await Gamification.create(disciplinaryExist[0])
 
     res.status(200).json({ status: "Ok", data: response })
 
-    // console.log("existing data updated")
+    // //console.log("existing data updated")
 
     return;
   }
@@ -2202,7 +2202,7 @@ if (now < noon) {
   }
 
 
-  // console.log(disciplinaryObject)
+  // //console.log(disciplinaryObject)
 
   try {
 
@@ -2212,7 +2212,7 @@ if (now < noon) {
 
 
 
-    // console.log("I am response", response)
+    // //console.log("I am response", response)
 
 
 
@@ -2244,7 +2244,7 @@ if (now < noon) {
 
       const response = await GamificationRanking.create(disciplinaryObject)
 
-      // console.log("I am inside new function")
+      // //console.log("I am inside new function")
 
     }
 
@@ -2252,7 +2252,7 @@ if (now < noon) {
 
     res.status(200).json({ status: "Ok", data: response })
   } catch (error) {
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
   }
 }
 
@@ -2266,7 +2266,7 @@ if (now < noon) {
 
 export const getCameraOffGamificationData = async (req, res) =>{
 
-  // console.log("Hello gamification disci data")
+  // //console.log("Hello gamification disci data")
 
   const startDate = new Date();
   const endDate = new Date ();
@@ -2286,7 +2286,7 @@ export const getCameraOffGamificationData = async (req, res) =>{
   res.status(200).json({status:"Ok", data: response})
 
   } catch (error) {
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
   } 
     
     
@@ -2301,7 +2301,7 @@ export const getCameraOffGamificationData = async (req, res) =>{
 
 export const getDisciplinaryGamificationData = async (req, res) =>{
 
-  // console.log("Hello gamification disci data")
+  // //console.log("Hello gamification disci data")
 
   const startDate = new Date();
   const endDate = new Date ();
@@ -2321,7 +2321,7 @@ export const getDisciplinaryGamificationData = async (req, res) =>{
   res.status(200).json({status:"Ok", data: response})
 
   } catch (error) {
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
   } 
     
     
@@ -2339,11 +2339,11 @@ export const getDisciplinaryGamificationData = async (req, res) =>{
 
 export const getAllGamificationData = async (req, res) =>{
 
-  // console.log('Hello Get all gamification data')
+  // //console.log('Hello Get all gamification data')
 
   const {unqUserObjectId} = req.body;
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
   // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
 
@@ -2353,7 +2353,7 @@ export const getAllGamificationData = async (req, res) =>{
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
 
-// console.log(startDate)
+// //console.log(startDate)
 
 
   try {
@@ -2365,7 +2365,7 @@ export const getAllGamificationData = async (req, res) =>{
   res.status(200).json({status:"Ok", count:response.length, data: response})
 
   } catch (error) {
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
   } 
     
     
@@ -2375,11 +2375,11 @@ export const getAllGamificationData = async (req, res) =>{
 //update pointClaimed field in gamification
 export const pointClaimedUpdation = async (req, res) =>{
 
-  // console.log('Hello Point claimed gamification data')
+  // //console.log('Hello Point claimed gamification data')
 
   const {unqUserObjectId, pointType, centerId, classOfCenter, date} = req.body;
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
   // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
   // const pointType = "Self_Attendance"
@@ -2392,7 +2392,7 @@ export const pointClaimedUpdation = async (req, res) =>{
   const startDate = new Date(date);
   const endDate = new Date (date);
 
-  // console.log("i am start date:", startDate)
+  // //console.log("i am start date:", startDate)
 
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
@@ -2416,14 +2416,14 @@ export const pointClaimedUpdation = async (req, res) =>{
 
     const Response = await Gamification.create(response[0])
 
-    // console.log("Upated gamification data")
+    // //console.log("Upated gamification data")
   }
 
 
   res.status(200).json({status:"Ok", count:response.length, data: response})
 
   } catch (error) {
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
   } 
     
     
@@ -2439,11 +2439,11 @@ export const pointClaimedUpdation = async (req, res) =>{
 
 export const getUserMarkedGamificationData = async (req, res) =>{
 
-  // console.log('Hello Get all gamification data')
+  // //console.log('Hello Get all gamification data')
 
   const {unqUserObjectId} = req.body;
 
-  // console.log(req.body)
+  // //console.log(req.body)
 
   // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
 
@@ -2453,7 +2453,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
 
-// console.log(startDate)
+// //console.log(startDate)
 
 
   try {
@@ -2467,7 +2467,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
   res.status(200).json({status:"Ok", count:response.length, data: response})
 
   } catch (error) {
-    console.log("Error::::>", error)
+    //console.log("Error::::>", error)
   } 
     
     
@@ -2491,7 +2491,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //   res.status(200).json({status:"Ok", data: fetchGamificationData})
 
 // } catch (error) {
-//   console.log("Error occurrd", error)
+//   //console.log("Error occurrd", error)
 // }
 // }
 
@@ -2526,7 +2526,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //     });
 
 //   } catch (error) {
-//     console.log("Error occurred", error);
+//     //console.log("Error occurred", error);
 //     res.status(500).json({ status: "Error", message: error.message });
 //   }
 // };
@@ -2598,7 +2598,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //     });
 
 //   } catch (error) {
-//     console.log("Error occurred", error);
+//     //console.log("Error occurred", error);
 //     res.status(500).json({ status: "Error", message: error.message });
 //   }
 
@@ -2694,7 +2694,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //     });
 
 //   } catch (error) {
-//     console.log("Error occurred", error);
+//     //console.log("Error occurred", error);
 //     res.status(500).json({ status: "Error", message: error.message });
 //   }
 
@@ -2791,7 +2791,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //     });
 
 //   } catch (error) {
-//     console.log("Error occurred", error);
+//     //console.log("Error occurred", error);
 //     res.status(500).json({ status: "Error", message: error.message });
 //   }
 
@@ -2803,7 +2803,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //   try {
 //     // Fetching gamification data of users
 //     const fetchGamificationData = await Gamification.find({});
-//     // console.log("✅ Total Gamification Records Found:", fetchGamificationData.length);
+//     // //console.log("✅ Total Gamification Records Found:", fetchGamificationData.length);
 
 //     // Calculate average score for each unique unqUserObjectId
 //     const userMap = {};
@@ -2822,7 +2822,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //       avgScore: userMap[id].total / userMap[id].count
 //     }));
 
-//     // console.log("🧠 Gamification Unique User IDs Found:", avgScore.map(x => x.unqUserObjectId));
+//     // //console.log("🧠 Gamification Unique User IDs Found:", avgScore.map(x => x.unqUserObjectId));
 
 //     // Create userRank with competition ranking (ties share same rank; next rank skips)
 //     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
@@ -2852,7 +2852,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //       }
 //     }
 
-//     // console.log("🏆 Final Ranked User IDs:", userRank.map(x => `${x.unqUserObjectId} (Rank: ${x.rank}, Score: ${x.avgScore})`));
+//     // //console.log("🏆 Final Ranked User IDs:", userRank.map(x => `${x.unqUserObjectId} (Rank: ${x.rank}, Score: ${x.avgScore})`));
 
 //     // --- Update each corresponding user document with avgScore and rank ---
 //     const updatedUserIds = [];
@@ -2874,7 +2874,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //       }
 //     }
 
-//     // console.log("✅ Users Updated With Rank/Score:", updatedUserIds);
+//     // //console.log("✅ Users Updated With Rank/Score:", updatedUserIds);
 
 //     // --- NEW PART: Set avgScore and rank = 0 ONLY for "CC" users not in gamification list ---
 //     try {
@@ -2886,7 +2886,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //       }).select("_id");
 
 //       if (ccUsersToUpdate.length > 0) {
-//         console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
+//         //console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
 
 //         await User.updateMany(
 //           {
@@ -2901,9 +2901,9 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //           }
 //         );
 
-//         console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
+//         //console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
 //       } else {
-//         console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
+//         //console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
 //       }
 
 //     } catch (ccUpdateErr) {
@@ -2916,7 +2916,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 //     });
 
 //   } catch (error) {
-//     console.log("Error occurred", error);
+//     //console.log("Error occurred", error);
 //     res.status(500).json({ status: "Error", message: error.message });
 //   }
 
@@ -2930,7 +2930,7 @@ export const UserGamificationRank = async (req, res) => {
   try {
     // Fetching gamification data of users
     const fetchGamificationData = await Gamification.find({});
-    // console.log("✅ Total Gamification Records Found:", fetchGamificationData.length);
+    // //console.log("✅ Total Gamification Records Found:", fetchGamificationData.length);
 
     // Calculate average score for each unique unqUserObjectId
     const userMap = {};
@@ -2949,7 +2949,7 @@ export const UserGamificationRank = async (req, res) => {
       avgScore: userMap[id].total / userMap[id].count
     }));
 
-    // console.log("🧠 Gamification Unique User IDs Found:", avgScore.map(x => x.unqUserObjectId));
+    // //console.log("🧠 Gamification Unique User IDs Found:", avgScore.map(x => x.unqUserObjectId));
 
     // Create userRank with competition ranking (ties share same rank; next rank skips)
     const sorted = [...avgScore].sort((a, b) => b.avgScore - a.avgScore);
@@ -2979,7 +2979,7 @@ export const UserGamificationRank = async (req, res) => {
       }
     }
 
-    // console.log("🏆 Final Ranked User IDs:", userRank.map(x => `${x.unqUserObjectId} (Rank: ${x.rank}, Score: ${x.avgScore})`));
+    // //console.log("🏆 Final Ranked User IDs:", userRank.map(x => `${x.unqUserObjectId} (Rank: ${x.rank}, Score: ${x.avgScore})`));
 
     // --- Update each corresponding user document with avgScore and rank ---
     const updatedUserEntries = []; // will store { id, avgScore, rank } for successful updates
@@ -3021,7 +3021,7 @@ export const UserGamificationRank = async (req, res) => {
       }
     }
 
-    // console.log("✅ Users Updated With Rank/Score:", updatedUserEntries.map(x => x.unqUserObjectId));
+    // //console.log("✅ Users Updated With Rank/Score:", updatedUserEntries.map(x => x.unqUserObjectId));
 
     // --- NEW PART: Set avgScore and rank = 0 ONLY for "CC" users not in gamification list ---
     try {
@@ -3033,7 +3033,7 @@ export const UserGamificationRank = async (req, res) => {
       }).select("_id");
 
       if (ccUsersToUpdate.length > 0) {
-        // console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
+        // //console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
 
         await User.updateMany(
           {
@@ -3062,9 +3062,9 @@ export const UserGamificationRank = async (req, res) => {
           }
         }
 
-        // console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
+        // //console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
       } else {
-        console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
+        //console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
       }
 
     } catch (ccUpdateErr) {
@@ -3077,7 +3077,7 @@ export const UserGamificationRank = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Error occurred", error);
+    //console.log("Error occurred", error);
     res.status(500).json({ status: "Error", message: error.message });
   }
 
@@ -3095,7 +3095,7 @@ export const UserGamificationRank = async (req, res) => {
 //     await UserGamificationRank({ body: {} }, { 
 //       status: () => ({ json: () => {} }) // mock response to prevent errors
 //     });
-//     console.log("UserGamificationRank executed automatically at", new Date().toLocaleTimeString());
+//     //console.log("UserGamificationRank executed automatically at", new Date().toLocaleTimeString());
 //   } catch (err) {
 //     console.error("Auto trigger error:", err);
 //   }
@@ -3126,14 +3126,14 @@ gamificationRunTimesIST.forEach((timeStr) => {
   // Cron expression in "minute hour day month weekday" format (node-cron)
   const cronExp = `${minutes} ${hours} * * *`; // runs daily at hours:minutes in the specified timezone
 
-  // console.log(`Scheduling cron for ${timeStr} IST -> cron: "${cronExp}" with timezone ${TIMEZONE}`);
+  // //console.log(`Scheduling cron for ${timeStr} IST -> cron: "${cronExp}" with timezone ${TIMEZONE}`);
 
   cron.schedule(
     cronExp,
     async () => {
       const runTime = new Date().toLocaleString("en-IN", { timeZone: TIMEZONE });
     
-      // console.log(`🚀 [${runTime}] Triggering UserGamificationRank for scheduled time ${timeStr} (IST)`);
+      // //console.log(`🚀 [${runTime}] Triggering UserGamificationRank for scheduled time ${timeStr} (IST)`);
 
       try {
         await UserGamificationRank(
@@ -3141,7 +3141,7 @@ gamificationRunTimesIST.forEach((timeStr) => {
           { status: () => ({ json: () => {} }) } // dummy response for controller call
         );
        
-        // console.log(`✅ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Completed UserGamificationRank (${timeStr})`);
+        // //console.log(`✅ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Completed UserGamificationRank (${timeStr})`);
       
       } catch (err) {
         console.error(`❌ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Error running UserGamificationRank (${timeStr}):`, err);
@@ -3153,6 +3153,6 @@ gamificationRunTimesIST.forEach((timeStr) => {
   );
 });
 
-// console.log("-----------------------------------------------------------");
-// console.log("🎯 Gamification Auto Scheduler initialized for:", gamificationRunTimesIST.join(", "));
-// console.log("-----------------------------------------------------------");
+// //console.log("-----------------------------------------------------------");
+// //console.log("🎯 Gamification Auto Scheduler initialized for:", gamificationRunTimesIST.join(", "));
+// //console.log("-----------------------------------------------------------");

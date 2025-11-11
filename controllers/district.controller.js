@@ -7,7 +7,7 @@ import {District} from "../models/district.model.js";
 
 export const createPost = async (req, res) => {
 
-    console.log("i am inside district controller, createDistrict api")
+    //console.log("i am inside district controller, createDistrict api")
 
     try {
 
@@ -32,7 +32,7 @@ export const createPost = async (req, res) => {
 //Get API for districts
 export const getDistrict = async (req, res) => {
 
-    console.log("i am inside district controller, getDisgtrict api")
+    //console.log("i am inside district controller, getDisgtrict api")
 
     try {
 
@@ -56,16 +56,16 @@ export const getDistrict = async (req, res) => {
 //Get API for districts
 export const getDistrictById = async (req, res) => {
 
-    // console.log("i am inside district controller, getDistrictById api")
+    // //console.log("i am inside district controller, getDistrictById api")
 
     const {districtId} = req.params
-    // console.log(...districtId)
+    // //console.log(...districtId)
 
-    console.log('hey there')
-    console.log(req.params)
+    //console.log('hey there')
+    //console.log(req.params)
 
  const arrayDistrictIds = districtId.split(','); // split by ',' not ', '
-console.log(arrayDistrictIds);
+//console.log(arrayDistrictIds);
     try {
 
 
@@ -73,8 +73,8 @@ console.log(arrayDistrictIds);
         const district = await District.find({districtId: {$in: arrayDistrictIds}})
 
         res.status(201).json({status:"Success", data: district});
-        // console.log(" i am fetched data")
-        // console.log(district)
+        // //console.log(" i am fetched data")
+        // //console.log(district)
         
     } catch (error) {
 

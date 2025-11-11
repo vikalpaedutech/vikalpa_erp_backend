@@ -24,13 +24,13 @@ export const awardPoints = async ({
   ,disciplinaryValue
 })=>{
 
-// console.log('i am inside awardpoints')
+// //console.log('i am inside awardpoints')
 
-// console.log(keyValue)
+// //console.log(keyValue)
 
-// console.log(userId)
+// //console.log(userId)
 
-// console.log(typeof(loginTime))
+// //console.log(typeof(loginTime))
 
 
 
@@ -40,7 +40,7 @@ export const awardPoints = async ({
     
 // if (keyValue === "self-attendance"){
 
-// console.log('Hello self attendances')
+// //console.log('Hello self attendances')
 
 // const formattedDate = new Date(Number(loginTime)).toISOString();
  
@@ -54,7 +54,7 @@ export const awardPoints = async ({
 // // const month = String(formattedDate.getMonth() + 1).padStart(2, '0');
 // // const year = formattedDate.getFullYear();
 // // const formattedCurrentDate = `${day}-${month}-${year}`;
-// // console.log(formattedCurrentDate); 
+// // //console.log(formattedCurrentDate); 
 
 
 
@@ -62,12 +62,12 @@ export const awardPoints = async ({
 
 // // const tempDate = new Date("2025-08-26T06:31:17.136Z");
 
-// // console.log('Full date', tempDate)
+// // //console.log('Full date', tempDate)
 
-// console.log("Formatted ISO Date:", formattedDate);
-// // console.log(tempDate)
-// console.log("Formatted std Date:", formattedDateLocalTime);
-// console.log("Formatted locale tinme", formattedLocaleTime);
+// //console.log("Formatted ISO Date:", formattedDate);
+// // //console.log(tempDate)
+// //console.log("Formatted std Date:", formattedDateLocalTime);
+// //console.log("Formatted locale tinme", formattedLocaleTime);
 
 
 //      let point;
@@ -96,7 +96,7 @@ export const awardPoints = async ({
 //         point = -10
 //       }
 
-//       console.log('Hello award points')
+//       //console.log('Hello award points')
 
 
 
@@ -111,7 +111,7 @@ export const awardPoints = async ({
 
 //       }
 
-//       console.log(payload)
+//       //console.log(payload)
 
      
 
@@ -132,23 +132,23 @@ export const awardPoints = async ({
 //   else if (keyValue === "student-attendance"){
 
 
-//     console.log("Hellow student-attendance");
+//     //console.log("Hellow student-attendance");
 
-//     console.log(userId);
+//     //console.log(userId);
 
-//     console.log(studentAttendanceGamificationDate);
+//     //console.log(studentAttendanceGamificationDate);
 
-//     console.log(schoolId);
+//     //console.log(schoolId);
 
-//     console.log(classofStudent);
+//     //console.log(classofStudent);
 
-//     console.log("Hellow student-attendance");
+//     //console.log("Hellow student-attendance");
 
 //    const formattedLocaleTime = new Date(studentAttendanceGamificationDate).toLocaleTimeString();
 
 //   // const formattedLocaleTime = "07:51:02 am"
 
-//   console.log(formattedLocaleTime);
+//   //console.log(formattedLocaleTime);
 
 //     //using schoolId and classOfStudent, finding the total present student count.
 //     //If count is in some certain range, then updating award pionts.
@@ -249,8 +249,8 @@ export const awardPoints = async ({
 //       }
 //      ])
 
-//      console.log("Attendance Data Summary:");
-//       console.log(attendanceData);
+//      //console.log("Attendance Data Summary:");
+//       //console.log(attendanceData);
 
 //       // Now you can decide how to award points based on present/absent counts
 //       // Example: Assign points if attendance is above a threshold
@@ -313,7 +313,7 @@ export const awardPoints = async ({
 //   existingGamification.point = point; // new point value from your logic
 //   existingGamification.updatedAt = new Date();
 //   await existingGamification.save();
-//   console.log("Updated existing gamification entry.");
+//   //console.log("Updated existing gamification entry.");
 // } else {
 //   // CREATE new
 //   const gamificationPayload = {
@@ -327,7 +327,7 @@ export const awardPoints = async ({
 
 //   const newGamification = new Gamification(gamificationPayload);
 //   await newGamification.save();
-//   console.log("Created new gamification entry.");
+//   //console.log("Created new gamification entry.");
 // }
 
 // //--------------------------------------------------------------------------------------------
@@ -337,24 +337,24 @@ export const awardPoints = async ({
 
 //    else if (keyValue === "makrs-upload"){
 
-// console.log("hellow award points")
+// //console.log("hellow award points")
 
-//     console.log(keyValue, 
+//     //console.log(keyValue, 
 //       userId, 
 //       examId,
 //        schoolId, 
 //        classofStudent)
 
-//   console.log("hellow award points")
+//   //console.log("hellow award points")
 
-//   console.log("hellow award points");
+//   //console.log("hellow award points");
 
-//   console.log(keyValue, userId, examId, schoolId, classofStudent);
-//   console.log("hellow award points");
+//   //console.log(keyValue, userId, examId, schoolId, classofStudent);
+//   //console.log("hellow award points");
 
 //   const now = new Date();
 //   const formattedLocaleTime = now.toLocaleTimeString();
-//   console.log("Upload Time:", formattedLocaleTime);
+//   //console.log("Upload Time:", formattedLocaleTime);
 
 //   // Step 1: Count students with marks uploaded
 //   const marksUploadedCount = await Marks.countDocuments({
@@ -364,7 +364,7 @@ export const awardPoints = async ({
 //     marksObtained: { $ne: "" }
 //   });
 
-//   console.log("Total Marks Uploaded:", marksUploadedCount);
+//   //console.log("Total Marks Uploaded:", marksUploadedCount);
 
 //   // Step 2: Calculate points
 //   let point = 0;
@@ -399,7 +399,7 @@ export const awardPoints = async ({
 //     existingGamification.point = point;
 //     existingGamification.updatedAt = now;
 //     await existingGamification.save();
-//     console.log("Updated existing gamification entry for marks-upload.");
+//     //console.log("Updated existing gamification entry for marks-upload.");
 //   } else {
 //     const gamificationPayload = {
 //       userId: userId,
@@ -414,7 +414,7 @@ export const awardPoints = async ({
 
 //     const newGamification = new Gamification(gamificationPayload);
 //     await newGamification.save();
-//     console.log("Created new gamification entry for marks-upload.");
+//     //console.log("Created new gamification entry for marks-upload.");
 //   }
 
 
@@ -428,16 +428,16 @@ export const awardPoints = async ({
 
 //    else if (keyValue === 'absentee-calling') {
 
-//   console.log("hellow absentee calling");
-//   console.log(userId);
-//   console.log(studentAttendanceGamificationDate);
-//   console.log(schoolId);
-//   console.log(classofStudent);
+//   //console.log("hellow absentee calling");
+//   //console.log(userId);
+//   //console.log(studentAttendanceGamificationDate);
+//   //console.log(schoolId);
+//   //console.log(classofStudent);
 
-//   console.log("hellow absentee calling");
+//   //console.log("hellow absentee calling");
 //   const formattedLocaleTime = new Date(studentAttendanceGamificationDate)
 //     .toLocaleTimeString();
-//   console.log(formattedLocaleTime);
+//   //console.log(formattedLocaleTime);
 
 //   // Normalize date range
 //   const dateOnly = new Date(studentAttendanceGamificationDate);
@@ -521,8 +521,8 @@ export const awardPoints = async ({
 //     }
 //   ]);
 
-//   console.log("Absentee Calling Data Summary:");
-//   console.log(attendanceData);
+//   //console.log("Absentee Calling Data Summary:");
+//   //console.log(attendanceData);
 
 //   const connected = attendanceData[0]?.connectedCount || 0;
 
@@ -564,7 +564,7 @@ export const awardPoints = async ({
 //     existingGamification.point = point;
 //     existingGamification.updatedAt = new Date();
 //     await existingGamification.save();
-//     console.log("Updated existing absentee-calling gamification entry.");
+//     //console.log("Updated existing absentee-calling gamification entry.");
 //   } else {
 //     const gamificationPayload = {
 //       userId: userId,
@@ -577,7 +577,7 @@ export const awardPoints = async ({
 
 //     const newGamification = new Gamification(gamificationPayload);
 //     await newGamification.save();
-//     console.log("Created new absentee-calling gamification entry.");
+//     //console.log("Created new absentee-calling gamification entry.");
 //   }
 
 
@@ -591,9 +591,9 @@ export const awardPoints = async ({
 
 //    else if (keyValue === "attendancePdf-upload"){
 
-//    console.log("Hello attendancePdf-upload");
-//   console.log(keyValue, userId, schoolId, classofStudent, dateOfUpload);
-//   console.log("Hello attendancePdf-upload");
+//    //console.log("Hello attendancePdf-upload");
+//   //console.log(keyValue, userId, schoolId, classofStudent, dateOfUpload);
+//   //console.log("Hello attendancePdf-upload");
 
 //   // Step 1: Find Attendance PDF record
 //   const attendancePdfDoc = await AttendancePdf.findOne({
@@ -605,7 +605,7 @@ export const awardPoints = async ({
 //   });
 
 //   if (!attendancePdfDoc) {
-//     console.log("No matching attendance PDF found or not uploaded.");
+//     //console.log("No matching attendance PDF found or not uploaded.");
 //     return;
 //   }
 
@@ -617,7 +617,7 @@ export const awardPoints = async ({
 //     second: "2-digit",
 //     hour12: true
 //   });
-//   console.log("Upload Time (IST):", createdAtIST);
+//   //console.log("Upload Time (IST):", createdAtIST);
 
 //   // Step 3: Calculate points using numeric comparison
 //   const cutoffTimeIST = new Date(`1970-01-01T14:40:00+05:30`).getTime();
@@ -651,7 +651,7 @@ export const awardPoints = async ({
 //     existingGamification.point = point;
 //     existingGamification.updatedAt = new Date();
 //     await existingGamification.save();
-//     console.log("Updated existing gamification entry for attendancePdf-upload.");
+//     //console.log("Updated existing gamification entry for attendancePdf-upload.");
 //   } else {
 //     const gamificationPayload = {
 //       userId: userId,
@@ -664,7 +664,7 @@ export const awardPoints = async ({
 
 //     const newGamification = new Gamification(gamificationPayload);
 //     await newGamification.save();
-//     console.log("Created new gamification entry for attendancePdf-upload.");
+//     //console.log("Created new gamification entry for attendancePdf-upload.");
 //   }
 
 
@@ -723,8 +723,8 @@ export const awardPoints = async ({
 // ]);
 
 
-//      console.log("Attendance Data Summary:");
-//     console.log(totalStudents[0].totalCount);
+//      //console.log("Attendance Data Summary:");
+//     //console.log(totalStudents[0].totalCount);
 
 //     //--------------------------------------------------
 
@@ -783,7 +783,7 @@ export const awardPoints = async ({
 
 
 // //---------------------------------------------------------------
-// console.log(points)
+// //console.log(points)
 
 
 
@@ -807,7 +807,7 @@ export const awardPoints = async ({
 
 //     //------------------------------------
 
-//   console.log("Hello disciplinary")
+//   //console.log("Hello disciplinary")
 
 //   // let disciplinaryValue = 'Average'
 
@@ -878,16 +878,16 @@ export const awardPoints = async ({
 
 //       for (let i=1; i<=4; i++){
 
-//         console.log('i am inside for loop')
+//         //console.log('i am inside for loop')
 
 //         if (isDisciplinaryGamificationExist[`disciplinaryRemark${i}`] === disciplinaryValue){
 //           updatedField = `disciplinaryRemark${i}Count`;
 
-//           console.log(updatedField)
+//           //console.log(updatedField)
 //           break;
 //         }
 
-//         console.log('Existing document updated')
+//         //console.log('Existing document updated')
         
 //       }
 
@@ -900,7 +900,7 @@ export const awardPoints = async ({
 
 
 //       if (!updatedField){
-//         console.log('No updated field found!')
+//         //console.log('No updated field found!')
 //       }
 
 //       //Increment The count
@@ -912,7 +912,7 @@ export const awardPoints = async ({
 //       const saveUpdatedDisciplnaryGamification = await isDisciplinaryGamificationExist.save();
 
 
-//     console.log('gamification exist')
+//     //console.log('gamification exist')
 
 //     }
 
@@ -923,7 +923,7 @@ export const awardPoints = async ({
 
 
 //   } catch (error) {
-//     console.log(error.message)
+//     //console.log(error.message)
 //   }
 
 

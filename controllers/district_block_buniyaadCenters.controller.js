@@ -7,7 +7,7 @@ import { District_Block_School } from "../models/district_block_buniyaadCenters.
 
 
 export const createPost = async (req, res) => {
-  console.log("I am inside District_Block_School controller, createPost API");
+  //console.log("I am inside District_Block_School controller, createPost API");
 
   try {
     const {
@@ -19,7 +19,7 @@ export const createPost = async (req, res) => {
       centerName
     } = req.body;
 
-    console.log(req.body)
+    //console.log(req.body)
 
     const newEntry = await District_Block_School.create({
       districtId,
@@ -56,7 +56,7 @@ export const GetDistrictBlockSchoolByParams = async (req, res) =>{
 
   const {districtId, blockId, centerId, role} = req.body;
 
-console.log('Hello region')
+//console.log('Hello region')
 
   
 
@@ -69,7 +69,7 @@ console.log('Hello region')
 
 
   } catch (error) {
-    console.log('Error fetching data')
+    //console.log('Error fetching data')
   }
 
 

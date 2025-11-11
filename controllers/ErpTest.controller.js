@@ -16,13 +16,13 @@ export const ChangePassword = async (req, res) =>{
     // const password = "2321"
    
 
-    console.log(unqUserObjectId)
+    //console.log(unqUserObjectId)
 
     try {
 
         //first we will check if the data exist in db using objectId.
         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
-        console.log(response[0])
+        //console.log(response[0])
 
         if (response.length > 0){
 
@@ -61,7 +61,7 @@ export const ChangePassword = async (req, res) =>{
         }
         
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Ok', message: 'Error occured!'})
     }
@@ -74,7 +74,7 @@ export const ChangePassword = async (req, res) =>{
 //Answer 2 api. selfAttendance
 
 export const selfAttendance = async (req, res) =>{
-    console.log('hello self attendance erp test')
+    //console.log('hello self attendance erp test')
 
     const {unqUserObjectId, userId, selfAttendance} = req.body;
 
@@ -83,14 +83,14 @@ export const selfAttendance = async (req, res) =>{
     // const password = "2321"
     // const selfAttendance = true
 
-    console.log(unqUserObjectId)
+    //console.log(unqUserObjectId)
 
     try {
-          console.log('hello self attendance')
+          //console.log('hello self attendance')
 
         //first we will check if the data exist in db using objectId.
         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
-        console.log(response)
+        //console.log(response)
 
         if (response.length > 0){
 
@@ -132,7 +132,7 @@ export const selfAttendance = async (req, res) =>{
         }
         
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Ok', message: 'Error occured!'})
     }
@@ -143,7 +143,7 @@ export const selfAttendance = async (req, res) =>{
 
 // export const studentAttendance = async (req, res) =>{
 
-//     console.log("Hello erp test student attendance.")
+//     //console.log("Hello erp test student attendance.")
 
 //     const {unqUserObjectId, userId, schoolId, classOfCenter} = req.body;
 
@@ -157,7 +157,7 @@ export const selfAttendance = async (req, res) =>{
 // //     const schoolId = '4025'
 // //    const classOfCenter = '9'
 
-//    console.log(unqUserObjectId)
+//    //console.log(unqUserObjectId)
 
 
 //    //Fetching student attendance count.
@@ -180,7 +180,7 @@ export const selfAttendance = async (req, res) =>{
 //            })
    
 
-//         //    console.log(allStudentId)
+//         //    //console.log(allStudentId)
 
 //        //-----------------------------------------------------------------------------
    
@@ -194,7 +194,7 @@ export const selfAttendance = async (req, res) =>{
 //        startDate.setUTCHours(0, 0, 0, 0);
 //        endDate.setHours(23, 59, 59, 999);
    
-//        // console.log("dates are", startDate, endDate)
+//        // //console.log("dates are", startDate, endDate)
    
 //        const fetchPresentStudentCountFromStudentAttendances = await StudentAttendance.find({
 //            unqStudentObjectId: {$in:allStudentId},
@@ -204,7 +204,7 @@ export const selfAttendance = async (req, res) =>{
    
 //        const PresentCount = fetchPresentStudentCountFromStudentAttendances.length
    
-//        //console.log(PresentCount)
+//        ////console.log(PresentCount)
 
 
 //        //--------------------------------------------------------------------
@@ -216,7 +216,7 @@ export const selfAttendance = async (req, res) =>{
 //         //first we will check if the data exist in db using objectId.
 //         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
 
-//         // console.log(response)
+//         // //console.log(response)
 
 //         if (response.length > 0){
 
@@ -255,7 +255,7 @@ export const selfAttendance = async (req, res) =>{
 //         }
         
 //     } catch (error) {
-//         console.log("Error::::>", error)
+//         //console.log("Error::::>", error)
 
 //          res.status(500).json({status: 'Ok', message: 'Error occured!'})
 //     }
@@ -265,13 +265,13 @@ export const selfAttendance = async (req, res) =>{
 
 export const studentAttendance = async (req, res) => {
 
-    console.log("Hello erp test student attendance.")
+    //console.log("Hello erp test student attendance.")
 
     const { unqUserObjectId, userId, schoolId, classOfCenter, student } = req.body;
 
-    console.log(student)
+    //console.log(student)
 
-    console.log(unqUserObjectId)
+    //console.log(unqUserObjectId)
 
     //Fetching student attendance count.
     //Fetching student attendance count based on schoolId, and class of student
@@ -313,7 +313,7 @@ export const studentAttendance = async (req, res) => {
 
     //If data exist then
     if (response.length>0) {
-        // console.log(response[0].studentAttendanceCount)
+        // //console.log(response[0].studentAttendanceCount)
 
 
 
@@ -322,7 +322,7 @@ export const studentAttendance = async (req, res) => {
             const studentName = student.firstName; // make sure StudentAttendance has studentName
             const classOfStudent = att.classOfStudent; // make sure StudentAttendance has classOfStudent
 
-            console.log
+            //console.log
 
             if (classOfCenter === '9') {
 
@@ -350,7 +350,7 @@ export const studentAttendance = async (req, res) => {
         });
 
 
-        console.log(student.firstName in response[0].studentAttendanceCount)
+        //console.log(student.firstName in response[0].studentAttendanceCount)
         //--------------------------------------------------------------------
 
 
@@ -375,7 +375,7 @@ export const studentAttendance = async (req, res) => {
             }
 
         } catch (error) {
-            console.log("Error::::>", error)
+            //console.log("Error::::>", error)
 
             res.status(500).json({ status: 'Ok', message: 'Error occured!' })
         }
@@ -482,7 +482,7 @@ export const studentAttendance = async (req, res) => {
 //Anser 4 api. Download attendance pdf format.
 export const downloadAttendancePdfFormat = async (req, res) =>{
 
-    console.log('Hello download attendance pdf format')
+    //console.log('Hello download attendance pdf format')
 
     const {unqUserObjectId, userId,  schoolId, classOfCenter} = req.body;
 
@@ -493,7 +493,7 @@ export const downloadAttendancePdfFormat = async (req, res) =>{
 
 //     const downloadAttendancePdfFormat = true
 
-//    console.log(unqUserObjectId)
+//    //console.log(unqUserObjectId)
 
 
 
@@ -502,7 +502,7 @@ export const downloadAttendancePdfFormat = async (req, res) =>{
         //first we will check if the data exist in db using objectId.
         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
 
-        // console.log(response)
+        // //console.log(response)
 
         if (response.length > 0){
 
@@ -541,7 +541,7 @@ export const downloadAttendancePdfFormat = async (req, res) =>{
         }
         
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Ok', message: 'Error occured!'})
     }
@@ -554,7 +554,7 @@ export const downloadAttendancePdfFormat = async (req, res) =>{
 //Anser 5 api. upload attendance pdf format.
 export const uploadAttendancePdfFormat = async (req, res) =>{
 
-    console.log("Hello upload attendance erp test")
+    //console.log("Hello upload attendance erp test")
 
     const {unqUserObjectId, userId, schoolId, classOfCenter} = req.body;
 
@@ -565,7 +565,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 
 //     const uploadAttendancePdfFormat = true
 
-//    console.log(unqUserObjectId)
+//    //console.log(unqUserObjectId)
 
 
 
@@ -574,7 +574,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
         //first we will check if the data exist in db using objectId.
         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
 
-        console.log(response)
+        //console.log(response)
 
         if (response.length > 0){
 
@@ -613,7 +613,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
         }
         
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Ok', message: 'Error occured!'})
     }
@@ -632,7 +632,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 // //Answer 6 api. Upload marks c
 // export const uploadMarks = async (req, res) =>{
 
-//     console.log("Hello upload marks erp test")
+//     //console.log("Hello upload marks erp test")
 
 //     const {unqUserObjectId, userId,
 //     schoolId, classOfCenter, examId} = req.body;
@@ -648,7 +648,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 // //    const classOfCenter = '9'
 
 // //     const examId = 'English-CBSE_HBSE-9-(SAT)-(2025-09-11)'
-// //    console.log(unqUserObjectId)
+// //    //console.log(unqUserObjectId)
 
 
 //     //Fetching student marks count based on schoolId, and clas of student
@@ -669,7 +669,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 //            allStudentId.push(new mongoose.Types.ObjectId(eachStudent._id))
 //            })
    
-//         //    console.log(allStudentId)
+//         //    //console.log(allStudentId)
    
 //        //-----------------------------------------------------------------------------
    
@@ -685,7 +685,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 //        startDate.setUTCHours(0, 0, 0, 0);
 //        endDate.setHours(23, 59, 59, 999);
    
-//        console.log("dates are", startDate, endDate)
+//        //console.log("dates are", startDate, endDate)
    
 //        const fetchMarksCount = await Marks.find({
 //            unqStudentObjectId: {$in:allStudentId},
@@ -696,7 +696,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
    
 //        const marksCount = fetchMarksCount.length
    
-//     //    console.log(marksCount)
+//     //    //console.log(marksCount)
 //        //--------------------------------------------------------
 
 
@@ -706,7 +706,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 //         //first we will check if the data exist in db using objectId.
 //         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
 
-//         console.log(response)
+//         //console.log(response)
 
 //         if (response.length > 0){
 
@@ -745,7 +745,7 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 //         }
         
 //     } catch (error) {
-//         console.log("Error::::>", error)
+//         //console.log("Error::::>", error)
 
 //          res.status(500).json({status: 'Ok', message: 'Error occured!'})
 //     }
@@ -761,11 +761,11 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 
 // // Answer 6 API: Upload marks
 // export const uploadMarks = async (req, res) => {
-//   console.log("Hello upload marks ERP test");
+//   //console.log("Hello upload marks ERP test");
 
 //   const { unqUserObjectId, userId, schoolId, classOfCenter, examId } = req.body;
 
-//   console.log(req.body)
+//   //console.log(req.body)
 
 //   try {
 //     // Fetch students for the school and class who haven't taken SLC
@@ -848,11 +848,11 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 
 // // Answer 6 API: Upload marks
 // export const uploadMarks = async (req, res) => {
-//   console.log("Hello upload marks ERP test");
+//   //console.log("Hello upload marks ERP test");
 
 //   const { unqUserObjectId, userId, schoolId, classOfCenter, examId } = req.body;
 
-//   console.log(req.body)
+//   //console.log(req.body)
 
 //   try {
 //     // Fetch students for the school and class who haven't taken SLC
@@ -953,11 +953,11 @@ export const uploadAttendancePdfFormat = async (req, res) =>{
 
 // Answer 6 API: Upload marks
 export const uploadMarks = async (req, res) => {
-  console.log("Hello upload marks ERP test");
+  //console.log("Hello upload marks ERP test");
 
   const { unqUserObjectId, userId, schoolId, classOfCenter, examId } = req.body;
 
-  console.log(req.body)
+  //console.log(req.body)
 
   try {
     // Predefined students list from schema with class information
@@ -1068,24 +1068,24 @@ export const uploadMarks = async (req, res) => {
 // //Disciplinary
 // export const Disciplinary = async (req, res) =>{
 
-//     console.log("Hello erp test disciplinary!")
+//     //console.log("Hello erp test disciplinary!")
 
 //     const {unqUserObjectId, userId, disciplinary} = req.body;
 
-//     console.log(req.body)
+//     //console.log(req.body)
 
 //     // const unqUserObjectId = "68c1f6bb42aa3b998a0ad867"
 //     // const userId = "23VFC0029"
 //     // const password = "2321"
    
 
-//     // console.log(unqUserObjectId)
+//     // //console.log(unqUserObjectId)
 
 //     try {
 
 //         //first we will check if the data exist in db using objectId.
 //         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
-//         // console.log(response[0])
+//         // //console.log(response[0])
 
 //         if (response.length > 0){
 
@@ -1125,7 +1125,7 @@ export const uploadMarks = async (req, res) => {
 //         }
         
 //     } catch (error) {
-//         console.log("Error::::>", error)
+//         //console.log("Error::::>", error)
 
 //          res.status(500).json({status: 'Ok', message: 'Error occured!'})
 //     }
@@ -1138,11 +1138,11 @@ export const uploadMarks = async (req, res) => {
 
 // Disciplinary
 export const Disciplinary = async (req, res) => {
-  console.log("Hello ERP test disciplinary!");
+  //console.log("Hello ERP test disciplinary!");
 
   const { unqUserObjectId, userId, disciplinary } = req.body;
 
-  console.log(req.body);
+  //console.log(req.body);
 
   try {
     // Check if the ERP record exists
@@ -1205,7 +1205,7 @@ export const Disciplinary = async (req, res) => {
       res.status(200).json({ status: "Ok", data: newErp });
     }
   } catch (error) {
-    console.log("Error::::>", error);
+    //console.log("Error::::>", error);
     res.status(500).json({ status: "Error", message: "Error occurred!" });
   }
 };
@@ -1217,24 +1217,24 @@ export const Disciplinary = async (req, res) => {
 // //Copy checking
 // export const CopyChecking = async (req, res) =>{
 
-//     console.log("Hello erp test copy checking!")
+//     //console.log("Hello erp test copy checking!")
 
 //     const {unqUserObjectId, userId} = req.body;
 
-//     console.log(req.body)
+//     //console.log(req.body)
 
 //     // const unqUserObjectId = "68c1f6bb42aa3b998a0ad867"
 //     // const userId = "23VFC0029"
 //     // const password = "2321"
    
 
-//     // console.log(unqUserObjectId)
+//     // //console.log(unqUserObjectId)
 
 //     try {
 
 //         //first we will check if the data exist in db using objectId.
 //         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
-//         // console.log(response[0])
+//         // //console.log(response[0])
 
 //         if (response.length > 0){
 
@@ -1275,7 +1275,7 @@ export const Disciplinary = async (req, res) => {
 //         }
         
 //     } catch (error) {
-//         console.log("Error::::>", error)
+//         //console.log("Error::::>", error)
 
 //          res.status(500).json({status: 'Ok', message: 'Error occured!'})
 //     }
@@ -1288,18 +1288,18 @@ export const Disciplinary = async (req, res) => {
 
 // export const CopyChecking = async (req, res) =>{
 
-//     console.log("Hello erp test copy checking!")
+//     //console.log("Hello erp test copy checking!")
 
 //     const {unqUserObjectId, userId, copyChecking} = req.body;
 
-//     console.log("incoming copyChecking (from req.body):", copyChecking)
+//     //console.log("incoming copyChecking (from req.body):", copyChecking)
 
 //     // const unqUserObjectId = "68c1f6bb42aa3b998a0ad867"
 //     // const userId = "23VFC0029"
 //     // const password = "2321"
    
 
-//     // console.log(unqUserObjectId)
+//     // //console.log(unqUserObjectId)
 
 //     try {
 
@@ -1315,7 +1315,7 @@ export const Disciplinary = async (req, res) => {
 //         }
 
 //         const response = await ErpTest.find({unqUserObjectId: unqIdFilter})
-//         // console.log(response[0])
+//         // //console.log(response[0])
 
 //         /**
 //          * NEW BEHAVIOR:
@@ -1332,7 +1332,7 @@ export const Disciplinary = async (req, res) => {
 //         if (isObjNonEmpty(copyChecking)) {
 //           // Use payload directly (trust frontend)
 //           builtCopyChecking = copyChecking;
-//           console.log("Using copyChecking from request body as builtCopyChecking:", builtCopyChecking);
+//           //console.log("Using copyChecking from request body as builtCopyChecking:", builtCopyChecking);
 //         } else {
 //           // Fetch students that have any todayCopyChecking entries (non-empty array).
 //           const studentsWithCopy = await Student.find({
@@ -1364,7 +1364,7 @@ export const Disciplinary = async (req, res) => {
 //             });
 //           });
 
-//           console.log("Built copyChecking from Student.todayCopyChecking:", builtCopyChecking);
+//           //console.log("Built copyChecking from Student.todayCopyChecking:", builtCopyChecking);
 //         }
 
 //         // Prepare default copyChecking shape same as model defaults
@@ -1391,7 +1391,7 @@ export const Disciplinary = async (req, res) => {
 //               merged[fname] = builtCopyChecking[fname];
 //             });
 
-//             console.log("Merged copyChecking to write:", merged);
+//             //console.log("Merged copyChecking to write:", merged);
 
 //             const updateResponse = await ErpTest.findOneAndUpdate(
 //                 { unqUserObjectId: unqIdFilter },
@@ -1436,7 +1436,7 @@ export const Disciplinary = async (req, res) => {
 //         }
         
 //     } catch (error) {
-//         console.log("Error::::>", error)
+//         //console.log("Error::::>", error)
 
 //          res.status(500).json({status: 'Ok', message: 'Error occured!'})
 //     }
@@ -1447,24 +1447,24 @@ export const Disciplinary = async (req, res) => {
 //Copy checking
 export const CopyChecking = async (req, res) =>{
 
-    console.log("Hello erp test copy checking!")
+    //console.log("Hello erp test copy checking!")
 
     const {unqUserObjectId, userId, copyChecking} = req.body;
 
-    console.log(copyChecking)
+    //console.log(copyChecking)
 
     // const unqUserObjectId = "68c1f6bb42aa3b998a0ad867"
     // const userId = "23VFC0029"
     // const password = "2321"
    
 
-    // console.log(unqUserObjectId)
+    // //console.log(unqUserObjectId)
 
     try {
 
         //first we will check if the data exist in db using objectId.
         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
-        // console.log(response[0])
+        // //console.log(response[0])
 
         /**
          * NEW BEHAVIOR:
@@ -1509,7 +1509,7 @@ export const CopyChecking = async (req, res) =>{
         if (isObjNonEmpty(copyChecking)) {
           // Use payload directly (frontend)
           builtCopyChecking = copyChecking;
-          console.log("Using copyChecking from request body:", builtCopyChecking);
+          //console.log("Using copyChecking from request body:", builtCopyChecking);
         } else {
           // Build from Student.todayCopyChecking (existing behavior)
           const studentsWithCopy = await Student.find({
@@ -1540,7 +1540,7 @@ export const CopyChecking = async (req, res) =>{
             });
           });
 
-          console.log("Built copyChecking from Student.todayCopyChecking:", builtCopyChecking);
+          //console.log("Built copyChecking from Student.todayCopyChecking:", builtCopyChecking);
         }
 
         // Merge builtCopyChecking into either existing ErpTest.copyChecking or into defaults for new doc
@@ -1563,7 +1563,7 @@ export const CopyChecking = async (req, res) =>{
               merged[fname] = builtCopyChecking[fname];
             });
 
-            console.log("Final merged copyChecking to write:", merged);
+            //console.log("Final merged copyChecking to write:", merged);
 
             const updateResponse = await ErpTest.findOneAndUpdate(
                 { unqUserObjectId },
@@ -1608,7 +1608,7 @@ export const CopyChecking = async (req, res) =>{
         }
         
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Ok', message: 'Error occured!'})
     }
@@ -1622,7 +1622,7 @@ export const CopyChecking = async (req, res) =>{
 // //Answer 7 api. Tech concern controller
 // export const handlingConcern = async (req, res) =>{
 
-//     console.log("Hello handling concern")
+//     //console.log("Hello handling concern")
 
 // const {unqUserObjectId, userId, concernType} = req.body;
 // //     const unqUserObjectId = "68c1f6bb42aa3b998a0ad867"
@@ -1637,7 +1637,7 @@ export const CopyChecking = async (req, res) =>{
 
 // //     const concernType = 'School-Concern'   //School-Concern, //Student-Concern, //Individual-Concern
 
-// //    console.log(unqUserObjectId)
+// //    //console.log(unqUserObjectId)
 
 
 
@@ -1647,7 +1647,7 @@ export const CopyChecking = async (req, res) =>{
 //         //first we will check if the data exist in db using objectId.
 //         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
 
-//         // console.log(response)
+//         // //console.log(response)
 
 //         if (response.length > 0){
 
@@ -1778,7 +1778,7 @@ export const CopyChecking = async (req, res) =>{
 //         }
         
 //     } catch (error) {
-//         console.log("Error::::>", error)
+//         //console.log("Error::::>", error)
 
 //          res.status(500).json({status: 'Ok', message: 'Error occured!'})
 //     }
@@ -1794,7 +1794,7 @@ export const CopyChecking = async (req, res) =>{
 //Answer 7 api. Tech concern controller
 export const handlingConcern = async (req, res) =>{
 
-    console.log("Hello handling concern")
+    //console.log("Hello handling concern")
 
 const {unqUserObjectId, userId, concernType, remark, classOfConcern, schoolId, dateOfSubmission, concern, comment, studentSrn} = req.body;
 //     const unqUserObjectId = "68c1f6bb42aa3b998a0ad867"
@@ -1809,7 +1809,7 @@ const {unqUserObjectId, userId, concernType, remark, classOfConcern, schoolId, d
 
 //     const concernType = 'School-Concern'   //School-Concern, //Student-Concern, //Individual-Concern
 
-//    console.log(unqUserObjectId)
+//    //console.log(unqUserObjectId)
 
 
 
@@ -1819,7 +1819,7 @@ const {unqUserObjectId, userId, concernType, remark, classOfConcern, schoolId, d
         //first we will check if the data exist in db using objectId.
         const response = await ErpTest.find({unqUserObjectId: unqUserObjectId})
 
-        // console.log(response)
+        // //console.log(response)
 
         // Build a standardized concern item to push into arrays
         const concernItem = {
@@ -1959,7 +1959,7 @@ const {unqUserObjectId, userId, concernType, remark, classOfConcern, schoolId, d
         }
         
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Ok', message: 'Error occured!'})
     }
@@ -1973,7 +1973,7 @@ const {unqUserObjectId, userId, concernType, remark, classOfConcern, schoolId, d
 
 // POST /api/erp/absenteecalling
 export const absenteeCalling = async (req, res) => {
-  console.log("Hello absentee calling");
+  //console.log("Hello absentee calling");
 
   const {
     unqUserObjectId,
@@ -1985,7 +1985,7 @@ export const absenteeCalling = async (req, res) => {
     remark2       // e.g. phone number when Wrong Number, else ''
   } = req.body;
 
-  console.log("payload:", {
+  //console.log("payload:", {
     unqUserObjectId,
     userId,
     studentSrn,
@@ -2117,7 +2117,7 @@ export const absenteeCalling = async (req, res) => {
 // POST /api/erp/close-concern
 
 export const closeConcernController = async (req, res) => {
-  console.log("Hello close concern");
+  //console.log("Hello close concern");
 
   const {
     unqUserObjectId,
@@ -2134,7 +2134,7 @@ export const closeConcernController = async (req, res) => {
     dateOfSubmission  // optional; if not provided will default to today
   } = req.body;
 
-console.log(req.body)
+//console.log(req.body)
 
   try {
     // basic validation
@@ -2287,7 +2287,7 @@ const updateObj = {
 //Get ErpTest data by unqUserObjectId
 export const GetErpTestByUnqUserObjectId = async (req, res) => {
 
-console.log("Hello get erp test data")
+//console.log("Hello get erp test data")
 
 const {unqUserObjectId} = req.body;
 
@@ -2299,7 +2299,7 @@ const {unqUserObjectId} = req.body;
 
         res.status(200).json({status: 'Success', data: response})
     } catch (error) {
-        console.log("Error::::>", error)
+        //console.log("Error::::>", error)
 
          res.status(500).json({status: 'Success', message: 'Error Occured!'})
     }
@@ -2553,7 +2553,7 @@ export const updateErpTestAnswer = async (req, res) => {
 
 
 // export const UpdateMarks = async (req, res) => {
-//   console.log("hello UpdateMarks called");
+//   //console.log("hello UpdateMarks called");
 //   const { unqUserObjectId, userId, marks } = req.body;
 
 //   if (!unqUserObjectId) {
@@ -2631,7 +2631,7 @@ export const updateErpTestAnswer = async (req, res) => {
 
 
 export const UpdateMarks = async (req, res) => {
-  console.log("hello UpdateMarks called");
+  //console.log("hello UpdateMarks called");
   const { unqUserObjectId, userId, marks, isTestSubmitted } = req.body;
 
   if (!unqUserObjectId) {

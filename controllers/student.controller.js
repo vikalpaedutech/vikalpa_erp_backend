@@ -17,7 +17,7 @@ import {Student}  from "../models/student.model.js";
 
 export const createPost = async (req, res) => {
 
-    console.log("i am inside student controller, createPost api")
+    //console.log("i am inside student controller, createPost api")
 
 
     try {
@@ -43,7 +43,7 @@ export const createPost = async (req, res) => {
          res.status(201).json({status: "Success", data: student})
 
     } catch (error) {
-        console.log("Student data has not posted to db due to server error", error.message)
+        //console.log("Student data has not posted to db due to server error", error.message)
     }
 }
 
@@ -51,7 +51,7 @@ export const createPost = async (req, res) => {
 //isSlcTaken === false
 //Get API for fetching all students in backend. 
 export const getStudentIfisSlcTakenIsFalse = async (req, res) => {
-    console.log("I am inside student controller, getStudent api");
+    //console.log("I am inside student controller, getStudent api");
 
     try {
         // const { studentSrn, id } = req.params;
@@ -64,9 +64,9 @@ export const getStudentIfisSlcTakenIsFalse = async (req, res) => {
         }
 
         res.status(200).json({ status: "Success", data: student });
-        // console.log(student)
+        // //console.log(student)
     } catch (error) {
-        console.log("Error fetching student data from DB", error.message);
+        //console.log("Error fetching student data from DB", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -76,7 +76,7 @@ export const getStudentIfisSlcTakenIsFalse = async (req, res) => {
 
 export const getAllStudents = async (req, res) => {
 
-    console.log("I am inside student controller, getAllStudents api");
+    //console.log("I am inside student controller, getAllStudents api");
 
 
     try {
@@ -91,7 +91,7 @@ export const getAllStudents = async (req, res) => {
     
       } catch (error) {
         
-        console.log("Error fetching studnts data from db", error.message)
+        //console.log("Error fetching studnts data from db", error.message)
        
         res.status(500).json({status: "Eroor" , message: "Server Error"})
     
@@ -107,7 +107,7 @@ export const getAllStudents = async (req, res) => {
 
 // PUT API to update student by SRN
 export const updateStudentBySrn = async (req, res) => {
-    console.log("I am inside student controller, updateStudentBySrn api");
+    //console.log("I am inside student controller, updateStudentBySrn api");
 
     try {
         const { studentSrn } = req.params;
@@ -125,7 +125,7 @@ export const updateStudentBySrn = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: student });
     } catch (error) {
-        console.log("Error updating student data", error.message);
+        //console.log("Error updating student data", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -134,7 +134,7 @@ export const updateStudentBySrn = async (req, res) => {
 
 // PATCH API to update student data by SRN
 export const patchStudentBySrn = async (req, res) => {
-    console.log("I am inside student controller, patchStudentBySrn api");
+    //console.log("I am inside student controller, patchStudentBySrn api");
 
     try {
         const { studentSrn } = req.params;
@@ -152,7 +152,7 @@ export const patchStudentBySrn = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: student });
     } catch (error) {
-        console.log("Error patching student data", error.message);
+        //console.log("Error patching student data", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -162,7 +162,7 @@ export const patchStudentBySrn = async (req, res) => {
 
 // DELETE API to delete student by SRN
 export const deleteStudentBySrn = async (req, res) => {
-    console.log("I am inside student controller, deleteStudentBySrn api");
+    //console.log("I am inside student controller, deleteStudentBySrn api");
 
     try {
         const { studentSrn } = req.params;
@@ -176,7 +176,7 @@ export const deleteStudentBySrn = async (req, res) => {
 
         res.status(200).json({ status: "Success", message: "Student deleted successfully" });
     } catch (error) {
-        console.log("Error deleting student data", error.message);
+        //console.log("Error deleting student data", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -188,7 +188,7 @@ export const deleteStudentBySrn = async (req, res) => {
 //Api for getting students by query parmas.
 
 export const getStudentsByQueryParams = async (req, res) => {
-  console.log("I am inside get students by query params");
+  //console.log("I am inside get students by query params");
 
   const {
     studentSrn,

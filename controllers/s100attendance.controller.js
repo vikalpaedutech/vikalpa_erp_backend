@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 // Controller to fetch attendance data
 export const getS100Attendances = async (req, res) => {
 
-  console.log('Hello gets100attendances')
+  //console.log('Hello gets100attendances')
 
 
   try {

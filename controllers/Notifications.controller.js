@@ -11,13 +11,13 @@ import { Notification } from "../models/Notification.model.js"
 // export const getNotificationsByUserId = async (req, res) => {
 
 
-//     console.log("I am inside get notification by user id API");
+//     //console.log("I am inside get notification by user id API");
     
 
 //     try {
 //         const { userId } = req.query;
 
-//         console.log(req.query)
+//         //console.log(req.query)
 
 //         if (!userId) {
 //             return res.status(400).json({
@@ -79,12 +79,12 @@ import { Notification } from "../models/Notification.model.js"
 
 // export const getNotificationsByUserId = async (req, res) => {
 
-//     console.log("I am inside get notification by user id API");
+//     //console.log("I am inside get notification by user id API");
 
 //     try {
 //         const { userId } = req.query;
 
-//         console.log(req.query);
+//         //console.log(req.query);
 
 //         if (!userId) {
 //             return res.status(400).json({
@@ -163,12 +163,12 @@ import { Notification } from "../models/Notification.model.js"
 
 export const getNotificationsByUserId = async (req, res) => {
 
-    console.log("I am inside get notification by user id API");
+    //console.log("I am inside get notification by user id API");
 
     try {
         const { userId } = req.query;
 
-        console.log(req.query);
+        //console.log(req.query);
 
         if (!userId) {
             return res.status(400).json({
@@ -238,11 +238,11 @@ export const getNotificationsByUserId = async (req, res) => {
 
 
 export const patchNotificationByConcernTypeAndRole = async (req, res) => {
-  console.log("I am inside patchNotificationByConcernTypeAndRole API");
+  //console.log("I am inside patchNotificationByConcernTypeAndRole API");
 
   try {
     const { concernType, role, userId } = req.query;
-console.log(req.query)
+//console.log(req.query)
     if (!concernType || !role) {
       return res.status(400).json({
         status: "Error",

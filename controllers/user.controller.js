@@ -5,14 +5,14 @@ import { User, UserAccess } from "../models/user.model.js";
 
 // Create a new user (POST)
 // export const createUser = async (req, res) => {
-//     console.log("I am inside user controller, createUser API");
+//     //console.log("I am inside user controller, createUser API");
 
 //     try {
 //         const { userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
 //                 isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
 //                 classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude } = req.body;
         
-//                 console.log(req.body)
+//                 //console.log(req.body)
 //         const user = await User.create({
 //             userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
 //             isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
@@ -21,7 +21,7 @@ import { User, UserAccess } from "../models/user.model.js";
 
 //         res.status(201).json({ status: "Success", data: user });
 //     } catch (error) {
-//         console.log("Error creating user", error.message);
+//         //console.log("Error creating user", error.message);
 //         res.status(500).json({ status: "Error", message: "Server error" });
 //     }
 // };
@@ -39,7 +39,7 @@ import { User, UserAccess } from "../models/user.model.js";
 
 // Create a new user (POST)
 export const createUser = async (req, res) => {
-  console.log("I am inside user controller, createUser API");
+  //console.log("I am inside user controller, createUser API");
 
   try {
     const {
@@ -57,7 +57,7 @@ export const createUser = async (req, res) => {
       latitude,
     } = req.body;
 
-    console.log(req.body);
+    //console.log(req.body);
 
     // Create user
     const user = await User.create({
@@ -77,7 +77,7 @@ export const createUser = async (req, res) => {
 
     res.status(201).json({ status: "Success", data: user });
   } catch (error) {
-    console.log("Error creating user", error.message);
+    //console.log("Error creating user", error.message);
     res.status(500).json({ status: "Error", message: "Server error" });
   }
 };
@@ -94,14 +94,14 @@ export const createUser = async (req, res) => {
 
 // Partially update user by ID (PATCH)
 export const patchUserById = async (req, res) => {
-    console.log("I am inside user controller, patchUserById API");
+    //console.log("I am inside user controller, patchUserById API");
 
     try {
         const { userId } = req.params;
         const {longitude, latitude} = req.body;
-        console.log(req.params)
+        //console.log(req.params)
        
-         console.log(req.body)
+         //console.log(req.body)
 
         
 
@@ -127,7 +127,7 @@ export const patchUserById = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: user });
     } catch (error) {
-        console.log("Error partially updating user", error.message);
+        //console.log("Error partially updating user", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -135,15 +135,15 @@ export const patchUserById = async (req, res) => {
 
 // Update an existing user (PATCH)
 export const patchUser = async (req, res) => {
-    console.log("I am inside user controller, patch user API");
+    //console.log("I am inside user controller, patch user API");
 
     try {
         const { userId } = req.params; // Assuming userId is passed in the URL params
         const updateData = req.body;
 
-        console.log(req.body)
-        console.log("Updating user:", userId);
-        console.log("Update data:", updateData);
+        //console.log(req.body)
+        //console.log("Updating user:", userId);
+        //console.log("Update data:", updateData);
 
         const updatedUser = await User.findOneAndUpdate(
             { userId },              // Query condition
@@ -157,7 +157,7 @@ export const patchUser = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: updatedUser });
     } catch (error) {
-        console.log("Error updating user:", error.message);
+        //console.log("Error updating user:", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -165,7 +165,7 @@ export const patchUser = async (req, res) => {
 
 // Get all users
 export const getAllUsers = async (req, res) => {
-    console.log("I am inside user controller, getAllUsers API");
+    //console.log("I am inside user controller, getAllUsers API");
 
     try {
         const users = await User.find();
@@ -176,14 +176,14 @@ export const getAllUsers = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: users });
     } catch (error) {
-        console.log("Error fetching users", error.message);
+        //console.log("Error fetching users", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
 
 // Get user by ID
 export const getUserById = async (req, res) => {
-    console.log("I am inside user controller, getUserById API");
+    //console.log("I am inside user controller, getUserById API");
 
     try {
         const { userId } = req.params;
@@ -196,7 +196,7 @@ export const getUserById = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: user });
     } catch (error) {
-        console.log("Error fetching user by ID", error.message);
+        //console.log("Error fetching user by ID", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -204,11 +204,11 @@ export const getUserById = async (req, res) => {
 // Get user by mobile/contact1
 
 export const getUserByContact1 = async (req, res) => {
-    console.log("I am inside user controller, getUserByContact1 API");
+    //console.log("I am inside user controller, getUserByContact1 API");
 
     try {
         const { contact1 } = req.params;
-        console.log(contact1);
+        //console.log(contact1);
 
         // Finding user by contact1
         const user = await User.find({ contact1: contact1 });
@@ -221,7 +221,7 @@ export const getUserByContact1 = async (req, res) => {
         // If user found, send back the user details
         return res.status(200).json({ status: "Success", data: user });
     } catch (error) {
-        console.log("Error fetching user by contact1", error.message);
+        //console.log("Error fetching user by contact1", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -232,11 +232,11 @@ export const getUserByContact1 = async (req, res) => {
 //User login api.
 
 export const userSignIn = async (req, res) => {
-    console.log("I am inside userSignIn API");
+    //console.log("I am inside userSignIn API");
 
     try {
         const { contact1, password } = req.body;
-        console.log("Request:", req.body);
+        //console.log("Request:", req.body);
 
         // Aggregation pipeline
         const user = await User.aggregate([
@@ -265,7 +265,7 @@ export const userSignIn = async (req, res) => {
         }
 
         
-        console.log(user)
+        //console.log(user)
 
         // Return combined object
         return res.status(200).json({
@@ -287,13 +287,13 @@ export const userSignIn = async (req, res) => {
 
 // Update user by ID (PUT)
 export const updateUserById = async (req, res) => {
-    console.log("I am inside user controller, updateUserById API");
+    //console.log("I am inside user controller, updateUserById API");
 
     try {
         const { userId } = req.params;
 
-        console.log(req.params)
-        console.log(req.body)
+        //console.log(req.params)
+        //console.log(req.body)
         const user = await User.findOneAndUpdate(
             { userId },
             req.body,  // Update with data from the request body
@@ -306,7 +306,7 @@ export const updateUserById = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: user });
     } catch (error) {
-        console.log("Error updating user", error.message);
+        //console.log("Error updating user", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -315,7 +315,7 @@ export const updateUserById = async (req, res) => {
 
 // Delete user by ID (DELETE)
 export const deleteUserById = async (req, res) => {
-    console.log("I am inside user controller, deleteUserById API");
+    //console.log("I am inside user controller, deleteUserById API");
 
     try {
         const { userId } = req.params;
@@ -328,14 +328,14 @@ export const deleteUserById = async (req, res) => {
 
         res.status(200).json({ status: "Success", message: "User deleted successfully" });
     } catch (error) {
-        console.log("Error deleting user", error.message);
+        //console.log("Error deleting user", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
 
 // Get all users by role (filter users by role)
 export const getUsersByRole = async (req, res) => {
-    console.log("I am inside user controller, getUsersByRole API");
+    //console.log("I am inside user controller, getUsersByRole API");
 
     try {
         const { role } = req.params;
@@ -348,14 +348,14 @@ export const getUsersByRole = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: users });
     } catch (error) {
-        console.log("Error fetching users by role", error.message);
+        //console.log("Error fetching users by role", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
 
 // Activate or deactivate user (PATCH)
 export const toggleUserStatus = async (req, res) => {
-    console.log("I am inside user controller, toggleUserStatus API");
+    //console.log("I am inside user controller, toggleUserStatus API");
 
     try {
         const { userId } = req.params;
@@ -371,7 +371,7 @@ export const toggleUserStatus = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: user });
     } catch (error) {
-        console.log("Error toggling user status", error.message);
+        //console.log("Error toggling user status", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -385,12 +385,12 @@ export const toggleUserStatus = async (req, res) => {
 
 // Partially update user by ID (PATCH)
 export const patchUserByContact = async (req, res) => {
-    console.log("I am inside user controller, patchUserById API");
+    //console.log("I am inside user controller, patchUserById API");
 
     try {
         const { contact1 } = req.params;
-        console.log(req.params)
-        console.log(req.body)
+        //console.log(req.params)
+        //console.log(req.body)
 
         
         const user = await User.findOneAndUpdate(
@@ -405,7 +405,7 @@ export const patchUserByContact = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: user });
     } catch (error) {
-        console.log("Error partially updating user", error.message);
+        //console.log("Error partially updating user", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
@@ -463,7 +463,7 @@ export const setUserAccess = async (req, res) => {
 
 export const getAllUsersWithAccess = async (req, res) =>{
 
-    console.log('Hello get all users')
+    //console.log('Hello get all users')
 
 
     try {
@@ -477,7 +477,7 @@ export const getAllUsersWithAccess = async (req, res) =>{
             isActive
         } = req.query;
 
-        console.log(req.query)
+        //console.log(req.query)
 
         const filters = {};
 
@@ -562,7 +562,7 @@ export const getAllUsersWithAccess = async (req, res) =>{
 
 export const getAllUsersWithAccesswithoutPagination = async (req, res) =>{
 
-    console.log('Hello get all users')
+    //console.log('Hello get all users')
 
 
     try {
@@ -576,7 +576,7 @@ export const getAllUsersWithAccesswithoutPagination = async (req, res) =>{
             isActive
         } = req.query;
 
-        console.log(req.query)
+        //console.log(req.query)
 
         const filters = {};
 
@@ -654,11 +654,11 @@ export const getAllUsersWithAccesswithoutPagination = async (req, res) =>{
 
 export const updateUserWithAccess = async (req, res) => {
 
-    console.log('hello update user with access')
+    //console.log('hello update user with access')
   try {
     const { _id, userData, userAccess } = req.body;
 
-    console.log(req.body)
+    //console.log(req.body)
 
     if (!_id) {
       return res.status(400).json({ success: false, message: "_id is required" });
@@ -707,11 +707,11 @@ export const updateUserWithAccess = async (req, res) => {
 
 
 export const getUsersByObjectId = async (req, res) => {
-  console.log("Hello user by object id");
+  //console.log("Hello user by object id");
 
   try {
     const { _id } = req.body;
-    console.log(req.body);
+    //console.log(req.body);
 
     const user = await User.aggregate([
       {
@@ -763,7 +763,7 @@ export const getUsersByObjectId = async (req, res) => {
 
     res.status(200).json({ status: "Success", data: user }); // return first user
   } catch (error) {
-    console.log("Error fetching user by ID", error.message);
+    //console.log("Error fetching user by ID", error.message);
     res.status(500).json({ status: "Error", message: "Server error" });
   }
 };
