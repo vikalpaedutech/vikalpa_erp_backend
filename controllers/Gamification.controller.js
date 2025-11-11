@@ -32,7 +32,7 @@ export const createGamificationData = async (req, res) => {
 
     const result = await User.aggregate(pipeline);
 
-    console.log(result[1])
+    // console.log(result[1])
 
 
     res.status(200).json({
@@ -56,11 +56,11 @@ export const createGamificationData = async (req, res) => {
 
 export const selfAttendanceGamification = async (req, res) =>{
 
-    console.log('Hello self attendance ERP TEST')
+    // console.log('Hello self attendance ERP TEST')
 
     const {unqUserObjectId,  date  } = req.body //userId
 
-    console.log(req.body)
+    // console.log(req.body)
 
     // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
 
@@ -91,11 +91,11 @@ const formattedISTDate = new Date(istms)
 // const utcms = userLoginTime.getTime();
 // const formattedUtc = new Date(utcms)
 
-console.log(userLoginTime)
-console.log(formattedISTDate)
+// console.log(userLoginTime)
+// console.log(formattedISTDate)
 const hours = userLoginTime.getHours(); //Converts utc hours into ist hours
 const minutes = userLoginTime.getMinutes(); //converts utc minutes into ist minutes
-console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+// console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
 
 
@@ -108,7 +108,7 @@ function timeToMs(timeStr) {
 const t1_userLoginTimeinMs =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
 // const t1_userLoginTimeinMs =  timeToMs(`08:16`)
 
-console.log(t1_userLoginTimeinMs)
+// console.log(t1_userLoginTimeinMs)
 
 //Point assignment logic
 
@@ -134,7 +134,7 @@ async function getPoints(t1_userLoginTimeinMs) {
 }
 await getPoints(t1_userLoginTimeinMs)
 
-console.log("point is: ", point)
+// console.log("point is: ", point)
 
     try {
         
@@ -158,7 +158,7 @@ console.log("point is: ", point)
 
  const result = await User.aggregate(pipeline);
 
- console.log(result[0].accesses[0].region)
+//  console.log(result[0].accesses[0].region)
 
 const schoolData = result[0].accesses[0].region
  
@@ -177,12 +177,12 @@ const schoolIdsArray = [
 
 const schoolIdsArrayToStringConversion = schoolIdsArray.join(",")
 
-console.log(schoolIdsArray)
+// console.log(schoolIdsArray)
  
-console.log(result[0].accesses[0].classId)
+// console.log(result[0].accesses[0].classId)
 
 const classess = result[0].accesses[0].classId.join(",")
-console.log(classess)
+// console.log(classess)
 
 const response  = await Gamification.create({
     unqUserObjectId:result[0]._id,
@@ -345,18 +345,18 @@ export const studentAttendanceGamification = async (req, res) =>{
       
 
       if (studentAttendanceGamificationExist.length>0){
-        console.log('Attendance gamification exist')
+        // console.log('Attendance gamification exist')
         
         studentAttendanceGamificationExist[0].finalPoint = point;
         
 
         const response  = await Gamification.create(studentAttendanceGamificationExist[0])
        
-       console.log(response);
+      //  console.log(response);
 
        res.status(200).json({status:"Ok", data: response})
 
-       console.log('Existed data updated')
+      //  console.log('Existed data updated')
         return;
       }
 
@@ -410,7 +410,7 @@ export const studentAttendanceGamification = async (req, res) =>{
 
 export const attendancePdfGamification = async (req, res) => {
 
-  console.log('Hello attendance pdf gamification')
+  // console.log('Hello attendance pdf gamification')
 
 
   const {unqUserObjectId, schoolId, classofStudent, userId} =  req.body;
@@ -509,8 +509,8 @@ const attendancePdfGamificationExist = await Gamification.find({
 })
 
 if (attendancePdfGamificationExist.length>0){
-  console.log("Attendance pdf gamification exist")
-  console.log(attendancePdfGamificationExist)
+  // console.log("Attendance pdf gamification exist")
+  // console.log(attendancePdfGamificationExist)
 
   attendancePdfGamificationExist[0].finalPoint = point;
 
@@ -565,11 +565,11 @@ res.status(200).json({status:"Ok", data:response})
 //Below api is exact same as studentAttendanceGamification
 export const studentAbsenteeCallingGamification = async (req, res) =>{
 
-    console.log("Hello student absentee calling gamification")
+    // console.log("Hello student absentee calling gamification")
 
     const {unqUserObjectId, schoolId, classOfCenter, userId} = req.body;
 
-    console.log(req.body)
+    // console.log(req.body)
 
   //   const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -594,7 +594,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
         allStudentId.push(new mongoose.Types.ObjectId(eachStudent._id))
         })
 
-        console.log(allStudentId.length)
+        // console.log(allStudentId.length)
 
     //-----------------------------------------------------------------------------
 
@@ -608,7 +608,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
     startDate.setUTCHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    console.log("dates are", startDate, endDate)
+    // console.log("dates are", startDate, endDate)
 
     const fetchPresentStudentCountFromStudentAttendances = await StudentAttendance.find({
         unqStudentObjectId: {$in:allStudentId},
@@ -618,7 +618,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
     const PresentCount = fetchPresentStudentCountFromStudentAttendances.length
 
-    console.log(fetchPresentStudentCountFromStudentAttendances.length)
+    // console.log(fetchPresentStudentCountFromStudentAttendances.length)
     //--------------------------------------------------------
 
     //Point logic. And time validation logic.
@@ -636,7 +636,7 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
     
     const hours = currentTime.getHours(); //Converts utc hours into ist hours
     const minutes = currentTime.getMinutes(); //converts utc minutes into ist minutes
-    console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+    // console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
     //Function to convert utc minute hour into milisecons
     function timeToMs(timeStr) {
@@ -646,8 +646,8 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
     const timeWhenAttendaceIsMarked =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
     const validationTime = timeToMs(`14:40`)
-    console.log(timeWhenAttendaceIsMarked)
-    console.log(validationTime)
+    // console.log(timeWhenAttendaceIsMarked)
+    // console.log(validationTime)
 
     let point;
 
@@ -696,13 +696,13 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
         if (studentAbsenteeCallingGamificationExist.length>0){
 
 
-          console.log('absentee calling gamification exist')
+          // console.log('absentee calling gamification exist')
           studentAbsenteeCallingGamificationExist[0].finalPoint = point;
 
           const response  = await Gamification.create(
             studentAbsenteeCallingGamificationExist[0])
 
-            console.log('Existing data updated')
+            // console.log('Existing data updated')
 
             res.status(200).json({status:'Ok', data: response})
           return;
@@ -746,12 +746,13 @@ export const studentAbsenteeCallingGamification = async (req, res) =>{
 
 
 export const studentMarksGamification = async (req, res)=>{
-console.log("Hello Student Marks Gamification")
+
+// console.log("Hello Student Marks Gamification")
 
 
 const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
 
-  console.log(req.body)
+  // console.log(req.body)
 
   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
     
@@ -784,7 +785,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
         allStudentId.push(new mongoose.Types.ObjectId(eachStudent._id))
         })
 
-        console.log(allStudentId)
+        // console.log(allStudentId)
 
     //-----------------------------------------------------------------------------
 
@@ -800,7 +801,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
     startDate.setUTCHours(0, 0, 0, 0);
     endDate.setHours(23, 59, 59, 999);
 
-    console.log("dates are", startDate, endDate)
+    // console.log("dates are", startDate, endDate)
 
     const fetchMarksCount = await Marks.find({
         unqStudentObjectId: {$in:allStudentId},
@@ -811,7 +812,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
 
     const marksCount = fetchMarksCount.length
 
-    console.log(fetchMarksCount.length)
+    // console.log(fetchMarksCount.length)
     //--------------------------------------------------------
 
 
@@ -830,7 +831,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
     
     const hours = currentTime.getHours(); //Converts utc hours into ist hours
     const minutes = currentTime.getMinutes(); //converts utc minutes into ist minutes
-    console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
+    // console.log(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`);
 
     //Function to convert utc minute hour into milisecons
     function timeToMs(timeStr) {
@@ -840,8 +841,8 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
 
     const timeWhenMarkIsMarked =  timeToMs(`${hours}:${minutes < 10 ? "0" + minutes : minutes}`)
     const validationTime = timeToMs(`14:40`)
-    console.log(timeWhenMarkIsMarked)
-    console.log(validationTime)
+    // console.log(timeWhenMarkIsMarked)
+    // console.log(validationTime)
 
     let point;
 
@@ -865,7 +866,7 @@ const {unqUserObjectId, schoolId, classOfCenter, userId, examId } = req.body;
       
         point = -15
     }
-        console.log("Point:", point);
+        // console.log("Point:", point);
 
 try {
   
@@ -880,7 +881,7 @@ try {
   })
 
   if(studentMarksGamificationExist.length>0){
-    console.log("marks gamificatio exixt")
+    // console.log("marks gamificatio exixt")
 
     studentMarksGamificationExist[0].finalPoint = point;
 
@@ -888,7 +889,7 @@ try {
 
     res.status(200).json({status:"Ok", data:response});
 
-    console.log('Exited marks gamification updated')
+    // console.log('Exited marks gamification updated')
     return;
 
   }
@@ -1791,14 +1792,14 @@ try {
 
 export const disciplinaryGamification = async (req, res) => {
 
-  console.log("Hello disciplinary gamification!")
+  // console.log("Hello disciplinary gamification!")
 
 
   const { unqUserObjectId, schoolId, classOfCenter, userId, rank } = req.body;
 
 
 
-  console.log(req.body)
+  // console.log(req.body)
 
   // const unqUserObjectId = '68c1f6c442aa3b998a0ad9e4'
 
@@ -1834,7 +1835,7 @@ export const disciplinaryGamification = async (req, res) => {
   let allRegionIds = [];
   if (findRegionAccess) {
     // console.log(findRegionAccess)
-    console.log('Hello find region')
+    // console.log('Hello find region')
 
 
     findRegionAccess.map((eachObject) => {
@@ -1862,7 +1863,7 @@ export const disciplinaryGamification = async (req, res) => {
 
   const totalStudentCount = findStudentCount.length
 
-  console.log("Student count", findStudentCount.length)
+  // console.log("Student count", findStudentCount.length)
   //--------------------------------------------------------
 
 
@@ -1960,7 +1961,7 @@ export const disciplinaryGamification = async (req, res) => {
       }
 
       const response = await Gamification.create(cameraOffObj)
-      console.log("Camera-off document created", response)
+      // console.log("Camera-off document created", response)
     }
 
     if (cameraOffRankingExist.length > 0) {
@@ -1979,7 +1980,7 @@ export const disciplinaryGamification = async (req, res) => {
         date: new Date()
       }
       await GamificationRanking.create(cameraOffRankingObj)
-      console.log("Camera-off recorded for user in GamificationRanking")
+      // console.log("Camera-off recorded for user in GamificationRanking")
     }
 
     res.status(200).json({ status: "Ok", message: "Camera-off processed" })
@@ -1997,7 +1998,7 @@ export const disciplinaryGamification = async (req, res) => {
 
   // Existing disciplinary logic continues unchanged below...
   if (disciplinaryExist.length > 0) {
-    console.log("Disciplinary already exist")
+    // console.log("Disciplinary already exist")
 
     const sumOfRankPoints = disciplinaryExist[0].poorRankCount +
       disciplinaryExist[0].averageRankCount +
@@ -2039,10 +2040,10 @@ export const disciplinaryGamification = async (req, res) => {
 
       const response = await GamificationRanking.create(findGamificationData[0])
 
-      console.log("I am updated existing data")
+      // console.log("I am updated existing data")
     } else {
-      console.log("i am insdie else block")
-      console.log(rank)
+      // console.log("i am insdie else block")
+      // console.log(rank)
 
       let disciplinaryObject = {
         unqUserObjectId: unqUserObjectId,
@@ -2081,12 +2082,12 @@ const noon = new Date();
 noon.setHours(12, 0, 0, 0); // 12:00:00.000
 
 if (now < noon) {
-  console.log("Below code will run after 12:00");
+  // console.log("Below code will run after 12:00");
   return res.status(200).json({ status: "Ok", message: "Action allowed after 12:00" });;
 }
 
 // Code here runs only after 12:00
-console.log("It's after 12:00 — running the code!");
+// console.log("It's after 12:00 — running the code!");
 
 //-----------------------------------------------------
 
@@ -2099,8 +2100,8 @@ console.log("It's after 12:00 — running the code!");
 
     //Gamficiation existing updataion.
     if (sumOfRankPoints >= 2) {
-      console.log(`sum of rank`, sumOfRankPoints)
-      console.log("No more points can be assigned to this center, limit exhausted")
+      // console.log(`sum of rank`, sumOfRankPoints)
+      // console.log("No more points can be assigned to this center, limit exhausted")
       res.status(200).json({ status: "Ok", message: "Point Exhausted" })
       return;
     }
@@ -2159,14 +2160,14 @@ console.log("It's after 12:00 — running the code!");
       else if (rank === "Excellent") { disciplinaryExist[0].finalPoint = disciplinaryExist[0].finalPoint + 30; }
     }
 
-    console.log('I am total stu count', totalStudentCount)
-    console.log('I am rank value', rank)
+    // console.log('I am total stu count', totalStudentCount)
+    // console.log('I am rank value', rank)
 
     const response = await Gamification.create(disciplinaryExist[0])
 
     res.status(200).json({ status: "Ok", data: response })
 
-    console.log("existing data updated")
+    // console.log("existing data updated")
 
     return;
   }
@@ -2201,7 +2202,7 @@ console.log("It's after 12:00 — running the code!");
   }
 
 
-  console.log(disciplinaryObject)
+  // console.log(disciplinaryObject)
 
   try {
 
@@ -2211,7 +2212,7 @@ console.log("It's after 12:00 — running the code!");
 
 
 
-    console.log("I am response", response)
+    // console.log("I am response", response)
 
 
 
@@ -2243,7 +2244,7 @@ console.log("It's after 12:00 — running the code!");
 
       const response = await GamificationRanking.create(disciplinaryObject)
 
-      console.log("I am inside new function")
+      // console.log("I am inside new function")
 
     }
 
@@ -2265,7 +2266,7 @@ console.log("It's after 12:00 — running the code!");
 
 export const getCameraOffGamificationData = async (req, res) =>{
 
-  console.log("Hello gamification disci data")
+  // console.log("Hello gamification disci data")
 
   const startDate = new Date();
   const endDate = new Date ();
@@ -2300,7 +2301,7 @@ export const getCameraOffGamificationData = async (req, res) =>{
 
 export const getDisciplinaryGamificationData = async (req, res) =>{
 
-  console.log("Hello gamification disci data")
+  // console.log("Hello gamification disci data")
 
   const startDate = new Date();
   const endDate = new Date ();
@@ -2338,11 +2339,11 @@ export const getDisciplinaryGamificationData = async (req, res) =>{
 
 export const getAllGamificationData = async (req, res) =>{
 
-  console.log('Hello Get all gamification data')
+  // console.log('Hello Get all gamification data')
 
   const {unqUserObjectId} = req.body;
 
-  console.log(req.body)
+  // console.log(req.body)
 
   // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
 
@@ -2352,7 +2353,7 @@ export const getAllGamificationData = async (req, res) =>{
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
 
-console.log(startDate)
+// console.log(startDate)
 
 
   try {
@@ -2374,11 +2375,11 @@ console.log(startDate)
 //update pointClaimed field in gamification
 export const pointClaimedUpdation = async (req, res) =>{
 
-  console.log('Hello Point claimed gamification data')
+  // console.log('Hello Point claimed gamification data')
 
   const {unqUserObjectId, pointType, centerId, classOfCenter, date} = req.body;
 
-  console.log(req.body)
+  // console.log(req.body)
 
   // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
   // const pointType = "Self_Attendance"
@@ -2391,7 +2392,7 @@ export const pointClaimedUpdation = async (req, res) =>{
   const startDate = new Date(date);
   const endDate = new Date (date);
 
-  console.log("i am start date:", startDate)
+  // console.log("i am start date:", startDate)
 
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
@@ -2415,7 +2416,7 @@ export const pointClaimedUpdation = async (req, res) =>{
 
     const Response = await Gamification.create(response[0])
 
-    console.log("Upated gamification data")
+    // console.log("Upated gamification data")
   }
 
 
@@ -2442,7 +2443,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
 
   const {unqUserObjectId} = req.body;
 
-  console.log(req.body)
+  // console.log(req.body)
 
   // const unqUserObjectId = "68c1f6c442aa3b998a0ad9e4"
 
@@ -2452,7 +2453,7 @@ export const getUserMarkedGamificationData = async (req, res) =>{
   startDate.setUTCHours(0, 0, 0, 0);
   endDate.setHours(23, 59, 59, 999);
 
-console.log(startDate)
+// console.log(startDate)
 
 
   try {
@@ -3032,7 +3033,7 @@ export const UserGamificationRank = async (req, res) => {
       }).select("_id");
 
       if (ccUsersToUpdate.length > 0) {
-        console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
+        // console.log("⚙️ CC Users To Be Set To Zero:", ccUsersToUpdate.map(u => u._id.toString()));
 
         await User.updateMany(
           {
@@ -3061,7 +3062,7 @@ export const UserGamificationRank = async (req, res) => {
           }
         }
 
-        console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
+        // console.log(`✅ ${ccUsersToUpdate.length} CC Users Set To avgScore:0, rank:0`);
       } else {
         console.log("ℹ️ No CC Users Needed Zero Update (All were ranked)");
       }
@@ -3125,20 +3126,23 @@ gamificationRunTimesIST.forEach((timeStr) => {
   // Cron expression in "minute hour day month weekday" format (node-cron)
   const cronExp = `${minutes} ${hours} * * *`; // runs daily at hours:minutes in the specified timezone
 
-  console.log(`Scheduling cron for ${timeStr} IST -> cron: "${cronExp}" with timezone ${TIMEZONE}`);
+  // console.log(`Scheduling cron for ${timeStr} IST -> cron: "${cronExp}" with timezone ${TIMEZONE}`);
 
   cron.schedule(
     cronExp,
     async () => {
       const runTime = new Date().toLocaleString("en-IN", { timeZone: TIMEZONE });
-      console.log(`🚀 [${runTime}] Triggering UserGamificationRank for scheduled time ${timeStr} (IST)`);
+    
+      // console.log(`🚀 [${runTime}] Triggering UserGamificationRank for scheduled time ${timeStr} (IST)`);
 
       try {
         await UserGamificationRank(
           { body: {} },
           { status: () => ({ json: () => {} }) } // dummy response for controller call
         );
-        console.log(`✅ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Completed UserGamificationRank (${timeStr})`);
+       
+        // console.log(`✅ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Completed UserGamificationRank (${timeStr})`);
+      
       } catch (err) {
         console.error(`❌ [${new Date().toLocaleString("en-IN", { timeZone: TIMEZONE })}] Error running UserGamificationRank (${timeStr}):`, err);
       }
@@ -3149,6 +3153,6 @@ gamificationRunTimesIST.forEach((timeStr) => {
   );
 });
 
-console.log("-----------------------------------------------------------");
-console.log("🎯 Gamification Auto Scheduler initialized for:", gamificationRunTimesIST.join(", "));
-console.log("-----------------------------------------------------------");
+// console.log("-----------------------------------------------------------");
+// console.log("🎯 Gamification Auto Scheduler initialized for:", gamificationRunTimesIST.join(", "));
+// console.log("-----------------------------------------------------------");
