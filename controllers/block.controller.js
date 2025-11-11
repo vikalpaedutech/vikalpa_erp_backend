@@ -6,7 +6,7 @@ import { Block } from "../models/block.model.js";
 // Post api
 export const createPost = async (req, res) => {
 
-    //console.log("i am inside block controller, createPost api")
+    console.log("i am inside block controller, createPost api")
 
   try {
     const { blockId, blockName, districtId } = req.body;
@@ -23,7 +23,7 @@ export const createPost = async (req, res) => {
 //Get API for Blocks
 export const getBlock = async (req, res) => {
 
-    //console.log("i am inside district controller, getDisgtrict api")
+    console.log("i am inside district controller, getDisgtrict api")
 
     try {
 
@@ -46,24 +46,24 @@ export const getBlock = async (req, res) => {
 //Get API for Blocks by district Id
 export const getBlocksByDistrictId = async (req, res) => {
 
-  //console.log("i am inside block controller, getBlocksByDistrictId api")
+  console.log("i am inside block controller, getBlocksByDistrictId api")
 
   try {
 
       
       const {districtId} = req.query;
-      // //console.log(" i am district id")
-      // //console.log(req.query.districtId)
+      // console.log(" i am district id")
+      // console.log(req.query.districtId)
 
-      // //console.log('Hey there')
-      //  //console.log(req.query.districtId.split(','))
-      // //console.log(districtId.split(','))
+      // console.log('Hey there')
+      //  console.log(req.query.districtId.split(','))
+      // console.log(districtId.split(','))
 
       const block = await Block.find({ districtId: { $in: districtId.split(',')}})
 
 
       res.status(201).json({status:"Success", data: block});
-      //console.log(block)
+      console.log(block)
       
   } catch (error) {
 

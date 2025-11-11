@@ -6,12 +6,12 @@ import { Gamification } from "../models/gamification.model.js";
 
 // export const disciplinaryGamification = (req, res) =>{
 
-// //console.log('hellow route')
+// console.log('hellow route')
 
 // const {keyValue, disciplinaryValue, schoolId, classofStudent } = req.body;
 
-// //console.log(req.body)
-// //console.log(keyValue)
+// console.log(req.body)
+// console.log(keyValue)
 
 //     //Handling gamification point for disciplinary.
             
@@ -30,10 +30,10 @@ import { Gamification } from "../models/gamification.model.js";
 
 
 
-// //console.log(req.query)
+// console.log(req.query)
 
 
-// //console.log(new Date())
+// console.log(new Date())
 
 // }
 
@@ -51,12 +51,12 @@ import { Gamification } from "../models/gamification.model.js";
 
 export const disciplinaryGamification = (req, res) =>{
 
-  //console.log('hellow route')
+  console.log('hellow route')
 
   const {keyValue, disciplinaryValue, schoolId, classofStudent } = req.body;
 
-  //console.log(req.body)
-  //console.log(keyValue, disciplinaryValue, schoolId, classofStudent)
+  console.log(req.body)
+  console.log(keyValue, disciplinaryValue, schoolId, classofStudent)
 
   try {
     // ✅ your existing logic (whatever processing / awardPoints etc.)
@@ -85,7 +85,7 @@ export const disciplinaryGamification = (req, res) =>{
 
 export const getDisciplinaryGamificationDocumentsForCurrentDate = async (req, res) =>{
 
-    //console.log('hello fetch disciplinary')
+    console.log('hello fetch disciplinary')
    try {
     const now = new Date();
 
@@ -103,14 +103,14 @@ export const getDisciplinaryGamificationDocumentsForCurrentDate = async (req, re
       23, 59, 59, 999
     ));
 
-    //console.log("Query range:", { startOfDay, endOfDay });
+    console.log("Query range:", { startOfDay, endOfDay });
 
     const documents = await Gamification.find({
       pointType: "disciplinary",
       dateOfPoint: { $gte: startOfDay, $lte: endOfDay }
     });
 
-    //console.log("Found documents:", documents);
+    console.log("Found documents:", documents);
 
     res.status(200).json({
       success: true,

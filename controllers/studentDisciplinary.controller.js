@@ -7,7 +7,7 @@ import { District_Block_School } from "../models/district_block_buniyaadCenters.
 
 export const createDisciplinaryOrInteraction = async (req, res) => {
 
-    //console.log('I am inside the createDisciplinaryOrInteraction interaction')
+    console.log('I am inside the createDisciplinaryOrInteraction interaction')
 
     const { studentSrn,
     firstName,
@@ -28,7 +28,7 @@ export const createDisciplinaryOrInteraction = async (req, res) => {
 
 } = req.body
 
-//console.log(req.body)
+console.log(req.body)
 try {
     
     const studentDisciplinaryOrInteraction = await StudentDisciplinary.create(req.body)
@@ -37,7 +37,7 @@ try {
 
 
 } catch (error) {
-    //console.log("Error Occured While Creating StudentDisciplinaryOrInteraction", error.message);
+    console.log("Error Occured While Creating StudentDisciplinaryOrInteraction", error.message);
 }
 
 
@@ -72,7 +72,7 @@ try {
 
 // export const GetDisciplinaryDataByQueryParams = async (req, res) => {
 
-//     //console.log('i am inside GetDisciplinaryDataByQueryParams api')
+//     console.log('i am inside GetDisciplinaryDataByQueryParams api')
 //   const {
 //     userId,
 //     createdAt,
@@ -81,7 +81,7 @@ try {
 //     homeWorkChecking
 //   } = req.query;
 
-//   //console.log(req.query)
+//   console.log(req.query)
 
 //   try {
 //     const query = {};
@@ -130,10 +130,10 @@ try {
 //   const { userId, districtId, schoolId, status, createdAt } = req.query;
 
 
-//    //console.log('i am inside GetDisciplinaryDataByQueryParams api')
+//    console.log('i am inside GetDisciplinaryDataByQueryParams api')
 
 
-// //console.log(req.query)
+// console.log(req.query)
 
 //   if ( !createdAt) {
 //     return res.status(400).json({
@@ -154,7 +154,7 @@ try {
 //       },
 //     });
 
-//     //console.log("Fetched records:", records.length);
+//     console.log("Fetched records:", records.length);
 
 //     return res.status(200).json({
 //       success: true,
@@ -192,9 +192,9 @@ try {
 
 //   const { userId, districtId, schoolId, status, createdAt } = req.query;
 
-//   //console.log('i am inside GetDisciplinaryDataByQueryParams api');
+//   console.log('i am inside GetDisciplinaryDataByQueryParams api');
 
-//   //console.log(req.query);
+//   console.log(req.query);
 
 //   if (!createdAt) {
 //     return res.status(400).json({
@@ -231,7 +231,7 @@ try {
 
 //     const records = await StudentDisciplinary.find(filterQuery);
 
-//     //console.log("Fetched records:", records.length);
+//     console.log("Fetched records:", records.length);
 
 //     return res.status(200).json({
 //       success: true,
@@ -278,9 +278,9 @@ try {
 
 //   const { userId, districtId, schoolId, status, createdAt } = req.query;
 
-//   //console.log('i am inside GetDisciplinaryDataByQueryParams api');
+//   console.log('i am inside GetDisciplinaryDataByQueryParams api');
 
-//   //console.log(req.query);
+//   console.log(req.query);
 
 //   if (!createdAt) {
 //     return res.status(400).json({
@@ -344,7 +344,7 @@ try {
 //       },
 //     ]);
 
-//     //console.log("Fetched records:", records.length);
+//     console.log("Fetched records:", records.length);
 
 //     return res.status(200).json({
 //       success: true,
@@ -374,9 +374,9 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
 
   const { userId, districtId, schoolId, status, createdAt } = req.query;
 
-  //console.log('i am inside GetDisciplinaryDataByQueryParams api');
+  console.log('i am inside GetDisciplinaryDataByQueryParams api');
 
-  //console.log(req.query);
+  console.log(req.query);
 
   if (!createdAt) {
     return res.status(400).json({
@@ -399,7 +399,7 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
         : schoolId.split(",")
       : [];
 
-      //console.log(schoolFilter)
+      console.log(schoolFilter)
 
     const matchQuery = {
       ...(schoolFilter.length && { schoolId: { $in: schoolFilter } }),
@@ -504,7 +504,7 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
       records = groupedSubjects;
     }
 
-    //console.log("Fetched records:", records.length);
+    console.log("Fetched records:", records.length);
 
     return res.status(200).json({
       success: true,
@@ -661,15 +661,15 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
 
 
 // export const GetStudentCopyCheckingDashboard = async (req, res) => {
-//   //console.log('I am inside get student copy checking dashboard')
+//   console.log('I am inside get student copy checking dashboard')
 //   try {
 //     const { createdAt } = req.query;
-//     //console.log(req.query)
+//     console.log(req.query)
 
 //     if (!createdAt) {
 //       return res.status(400).json({ error: 'Date is required in query (YYYY-MM-DD)' });
 //     }
-//     //console.log('I am ahead')
+//     console.log('I am ahead')
 
 //     const matchDate = new Date(createdAt);
 //     matchDate.setHours(0, 0, 0, 0);
@@ -753,7 +753,7 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
 //         });
 
 //         if (!schoolDoc) {
-//           //console.log('❌ Not Matched:', {
+//           console.log('❌ Not Matched:', {
 //             centerId: item.schoolId,
 //             classofStudent: item.classofStudent,
 //           });
@@ -769,7 +769,7 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
 //       })
 //     );
 
-//     //console.log(finalData)
+//     console.log(finalData)
 //     res.status(200).json({status:"Oka", data: finalData});
 //   } catch (error) {
 //     console.error('Dashboard Error:', error);
@@ -785,15 +785,15 @@ export const GetDisciplinaryDataByQueryParams = async (req, res) => {
 
 
 export const GetStudentCopyCheckingDashboard = async (req, res) => {
-  //console.log('I am inside get student copy checking dashboard')
+  console.log('I am inside get student copy checking dashboard')
   try {
     const { createdAt } = req.query;
-    //console.log(req.query)
+    console.log(req.query)
 
     if (!createdAt) {
       return res.status(400).json({ error: 'Date is required in query (YYYY-MM-DD)' });
     }
-    //console.log('I am ahead')
+    console.log('I am ahead')
 
     const matchDate = new Date(createdAt);
     matchDate.setHours(0, 0, 0, 0);
@@ -886,7 +886,7 @@ export const GetStudentCopyCheckingDashboard = async (req, res) => {
         });
 
         if (!schoolDoc) {
-          //console.log('❌ Not Matched:', {
+          console.log('❌ Not Matched:', {
             centerId: item.schoolId,
             classofStudent: item.classofStudent,
           });
@@ -902,7 +902,7 @@ export const GetStudentCopyCheckingDashboard = async (req, res) => {
       })
     );
 
-    //console.log(finalData)
+    console.log(finalData)
     res.status(200).json({status:"Oka", data: finalData});
   } catch (error) {
     console.error('Dashboard Error:', error);

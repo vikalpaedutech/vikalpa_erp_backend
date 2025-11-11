@@ -26,7 +26,7 @@
 //     const usersToNotify = await User.find({ userId: { $ne: raisedByUserId } });
 
 //     if (!usersToNotify.length) {
-//       //console.log("No other users to notify.");
+//       console.log("No other users to notify.");
 //       return;
 //     }
 
@@ -44,7 +44,7 @@
 
 //     // 3. Save them
 //     await Notification.insertMany(notifications);
-//     //console.log(`Created ${notifications.length} notifications.`);
+//     console.log(`Created ${notifications.length} notifications.`);
 //   } catch (err) {
 //     console.error("Failed to create notifications:", err.message);
 //   }
@@ -67,7 +67,7 @@
 //             res.status(200).json({status:"Ok", data:response})
 
 //     } catch (error) {
-//         //console.log('Error occurred getting notification,', error)
+//         console.log('Error occurred getting notification,', error)
 //     }
 
 
@@ -120,13 +120,13 @@
 //   uri3
 // }) => {
 //   try {
-//     //console.log("Triggering createNotificationForConcern for", raisedByUserId);
+//     console.log("Triggering createNotificationForConcern for", raisedByUserId);
 
 //     // 1. Get the user who raised the concern
 //     const raisedByUser = await User.findOne({ userId: raisedByUserId });
 
 //     if (!raisedByUser) {
-//       //console.log("Raising user not found.");
+//       console.log("Raising user not found.");
 //       return;
 //     }
 
@@ -139,7 +139,7 @@
 //     });
 
 //     if (!usersToNotify.length) {
-//       //console.log("No other users to notify.");
+//       console.log("No other users to notify.");
 //       return;
 //     }
 
@@ -160,7 +160,7 @@
 
 //     // 4. Save them
 //     await Notification.insertMany(notifications);
-//     //console.log(`Created ${notifications.length} notifications.`);
+//     console.log(`Created ${notifications.length} notifications.`);
 //   } catch (err) {
 //     console.error("Failed to create notifications:", err.message);
 //   }
@@ -172,7 +172,7 @@
 
 // export const GetNotificationByUserIdOnQueryParams = async (req, res) =>{
 
-//   //console.log('i am insided notificatio')
+//   console.log('i am insided notificatio')
 
 //     const {userId, concernId, ConcernType, isNotified, isRead, isSomeoneReverted } = req.query; 
 
@@ -184,7 +184,7 @@
 //             res.status(200).json({status:"Ok", data:response})
 
 //     } catch (error) {
-//         //console.log('Error occurred getting notification,', error)
+//         console.log('Error occurred getting notification,', error)
 //     }
 
 
@@ -223,14 +223,14 @@ export const createNotificationForConcern = async ({
   conditionalRole,
 }) => {
   try {
-    //console.log("Triggering createNotificationForConcern for", raisedByUserId);
-    //console.log(conditionalRole)
+    console.log("Triggering createNotificationForConcern for", raisedByUserId);
+    console.log(conditionalRole)
 
     // 1. Get the user who raised the concern
     const raisedByUser = await User.findOne({ userId: raisedByUserId });
 
     if (!raisedByUser) {
-      //console.log("Raising user not found.");
+      console.log("Raising user not found.");
       return;
     }
 
@@ -247,7 +247,7 @@ export const createNotificationForConcern = async ({
     });
 
     if (!usersToNotify.length) {
-      //console.log("No other users to notify.");
+      console.log("No other users to notify.");
       return;
     }
 
@@ -269,7 +269,7 @@ export const createNotificationForConcern = async ({
 
     // 4. Save them
     await Notification.insertMany(notifications);
-    //console.log(`Created ${notifications.length} notifications.`);
+    console.log(`Created ${notifications.length} notifications.`);
   } catch (err) {
     console.error("Failed to create notifications:", err.message);
   }
@@ -280,7 +280,7 @@ export const createNotificationForConcern = async ({
 
 export const GetNotificationByUserIdOnQueryParams = async (req, res) =>{
 
-  //console.log('i am insided notificatio')
+  console.log('i am insided notificatio')
 
     const {userId, concernId, ConcernType, isNotified, isRead, isSomeoneReverted } = req.query; 
 
@@ -292,7 +292,7 @@ export const GetNotificationByUserIdOnQueryParams = async (req, res) =>{
             res.status(200).json({status:"Ok", data:response})
 
     } catch (error) {
-        //console.log('Error occurred getting notification,', error)
+        console.log('Error occurred getting notification,', error)
     }
 
 

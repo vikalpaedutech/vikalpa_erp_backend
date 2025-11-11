@@ -16,10 +16,10 @@ import {awardPoints} from "../utils/gamification.utils.js"
 
 // Function to create attendance records
 export const createAttendanceRecords = async (req, res) => {
-    //console.log("I am inside the cron job function");
+    console.log("I am inside the cron job function");
 
     const {date} = req.body;
-    // //console.log(date)
+    // console.log(date)
 
     try {
 
@@ -33,7 +33,7 @@ export const createAttendanceRecords = async (req, res) => {
                 const existingAttendance = await StudentAttendance.findOne({ date: currentDate });
         
                 if (existingAttendance) {
-                    //console.log("Attendance already created");
+                    console.log("Attendance already created");
                     return res.status(400).json({ message: "Attendance already created for today" });
                 }
 
@@ -41,13 +41,13 @@ export const createAttendanceRecords = async (req, res) => {
 
         const students = await Student.find({ isSlcTaken: false }); // Get all students
 
-        //console.log(students);
+        console.log(students);
 
-        //console.log(`Found ${students.length} students`);
+        console.log(`Found ${students.length} students`);
 
         // Loop through students and create attendance records
         for (const student of students) {
-            //console.log(`Processing student with SRN: ${student.studentSrn}`);
+            console.log(`Processing student with SRN: ${student.studentSrn}`);
             
             const attendanceRecord = new StudentAttendance({
                 unqStudentObjectId:student._id,
@@ -74,10 +74,10 @@ export const createAttendanceRecords = async (req, res) => {
             await attendanceRecord.save(); // Save the attendance data
             
             
-            //console.log(`Attendance saved for SRN: ${student.studentSrn}`);
+            console.log(`Attendance saved for SRN: ${student.studentSrn}`);
         }
         res.status(200).json({status:"success", message:"Attendance instance created successfully"})
-        //console.log('Attendance records created for all students');
+        console.log('Attendance records created for all students');
     } catch (error) {
         console.error('Error during attendance dump: ', error);
         res.status(500).json({status:"Failed", message:"Attendance instance could not be created"})
@@ -110,10 +110,10 @@ const { hours, minutes } = parseISTTime(attendanceRunTimeIST);
 
 // Final cron expression
 const cronExp = `${minutes} ${hours} * * *`;
-//console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
+console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
 
 cron.schedule(cronExp, async () => {
-    //console.log("Running cron job at IST time:", attendanceRunTimeIST);
+    console.log("Running cron job at IST time:", attendanceRunTimeIST);
     await createAttendanceRecords(
         { body: {} }, 
         { status: () => ({ json: () => {} }) } // dummy res for cron run
@@ -131,11 +131,11 @@ cron.schedule(cronExp, async () => {
 
 // Cron job runs at midnight every day
 
-// //console.log('Setting up the cron job');
+// console.log('Setting up the cron job');
 // cron.schedule('0 0 * * *', createAttendanceRecords);
 
 // Manually run the function for testing purpose
-// //console.log('Running the cron job immediately for testing');
+// console.log('Running the cron job immediately for testing');
 // createAttendanceRecords();  // Call the function immediately to run it now
 
 
@@ -145,7 +145,7 @@ cron.schedule(cronExp, async () => {
 // Post api
 export const createPost = async (req, res) => {
 
-    //console.log("i am inside stident attendance  controller, createPost api")
+    console.log("i am inside stident attendance  controller, createPost api")
 
 
     try {
@@ -167,7 +167,7 @@ export const createPost = async (req, res) => {
          res.status(201).json({status: "Success", data: studentAttendance})
 
     } catch (error) {
-        //console.log("Student data has not posted to db due to server error", error.message)
+        console.log("Student data has not posted to db due to server error", error.message)
     }
 }
 
@@ -178,7 +178,7 @@ export const createPost = async (req, res) => {
 // API to get attendance based on query params
 // API to get attendance based on query params
 export const getAllAttendance = async (req, res) => {
-    //console.log("I am inside attendance controller, getAllAttendance API");
+    console.log("I am inside attendance controller, getAllAttendance API");
 
     const {
         studentSrn,
@@ -279,7 +279,7 @@ export const getAllAttendance = async (req, res) => {
 
         const attendanceRecords = await StudentAttendance.aggregate(pipeline);
 
-        // //console.log(attendanceRecords)
+        // console.log(attendanceRecords)
 
         if (!attendanceRecords || attendanceRecords.length === 0) {
             return res.status(404).json({
@@ -294,7 +294,7 @@ export const getAllAttendance = async (req, res) => {
             data: attendanceRecords
         });
     } catch (error) {
-        //console.log("Error fetching attendance data from db", error.message);
+        console.log("Error fetching attendance data from db", error.message);
         res.status(500).json({
             status: "Error",
             message: "Server Error"
@@ -310,10 +310,10 @@ export const getAllAttendance = async (req, res) => {
 
 // Update attendance status by studentSrn and date (PUT). Updates the student's attendance status
 export const updateAttendanceBySrnAndDate = async (req, res) => {
-    //console.log("I am inside attendance controller, updateAttendanceBySrnAndDate API");
+    console.log("I am inside attendance controller, updateAttendanceBySrnAndDate API");
 
     try {
-        //console.log(" i am inside try block")
+        console.log(" i am inside try block")
         // Extract studentSrn and date from query parameters
         const { studentSrn, date, userId, schoolId, classofStudent, studentAttendanceGamificationDate } = req.query;
        const { isAttendanceMarked, absenteeCallingStatus, callingRemark1, callingRemark2, comments } = req.body; // The field to update (isAttendanceMarked)
@@ -323,12 +323,12 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
           const attendanceDate = new Date(date)
         
 
-       // //console.log(studentSrn, date)
+       // console.log(studentSrn, date)
        
         // const isAttendanceMarked = true
         
-    //    //console.log("i am coming from frontend", absenteeCallingStatus)
-    //     //console.log("i am coming from frontend is attendance marked", isAttendanceMarked)
+    //    console.log("i am coming from frontend", absenteeCallingStatus)
+    //     console.log("i am coming from frontend is attendance marked", isAttendanceMarked)
 
         // Ensure both studentSrn and date are provided
         if (!studentSrn || !date) {
@@ -407,7 +407,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
 
        
     } catch (error) {
-        //console.log("Error updating attendance", error.message);
+        console.log("Error updating attendance", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };

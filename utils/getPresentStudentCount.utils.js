@@ -12,10 +12,10 @@ export const getPresentStudentCount = async ({ classofStudent, schoolId, date })
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
-    //console.log("Fetching present student count for:");
-    //console.log("classofStudent:", classofStudent);
-    //console.log("schoolId:", schoolId);
-    //console.log("Date range:", startOfDay, "to", endOfDay);
+    console.log("Fetching present student count for:");
+    console.log("classofStudent:", classofStudent);
+    console.log("schoolId:", schoolId);
+    console.log("Date range:", startOfDay, "to", endOfDay);
 
     const result = await StudentAttendance.aggregate([
       {
@@ -48,7 +48,7 @@ export const getPresentStudentCount = async ({ classofStudent, schoolId, date })
 
     const total = result.length > 0 ? result[0].totalPresent : 0;
 
-    //console.log("Total Present Students Found:", total);
+    console.log("Total Present Students Found:", total);
 
     return total;
   } catch (err) {

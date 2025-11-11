@@ -5,7 +5,7 @@ import { Employee } from "../models/emp.model.js"; // Assuming you have the Empl
 
 // Create Leave Application
 export const createPost = async (req, res) => {
-    //console.log("Creating leave application");
+    console.log("Creating leave application");
   
     try {
       // Destructure fields from request body
@@ -55,13 +55,13 @@ export const createPost = async (req, res) => {
     //     }
   
     //     await employee.save();
-    //     //console.log("Employee leave balance updated successfully.");
+    //     console.log("Employee leave balance updated successfully.");
     //   }
   
       // Respond with the created leave application
       res.status(201).json({ status: "Success", data: leaveApplication });
     } catch (error) {
-      //console.log("Leave application creation failed due to error", error.message);
+      console.log("Leave application creation failed due to error", error.message);
       res.status(500).json({ status: "Error", message: error.message });
     }
   };

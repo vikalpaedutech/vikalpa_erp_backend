@@ -19,10 +19,10 @@ import {awardPoints} from "../utils/gamification.utils.js"
 //... both uploaded pdf (which has url and bollean type true) and not uploaded pdf.
 
 export const createAttendancePdfCronJob = async (req, res) => {
-    //console.log("Running Attendance PDF Initialization Cron Job");
+    console.log("Running Attendance PDF Initialization Cron Job");
 
   const {date} = req.body;
-    //console.log(date)
+    console.log(date)
 
 
 
@@ -39,7 +39,7 @@ export const createAttendancePdfCronJob = async (req, res) => {
                       const existingAttendance = await AttendancePdf.findOne({ date: currentDate });
               
                       if (existingAttendance) {
-                          //console.log("Attendance Pdf already created");
+                          console.log("Attendance Pdf already created");
                           return res.status(400).json({ message: "Attendance already created for today" });
                       }
       
@@ -65,7 +65,7 @@ export const createAttendancePdfCronJob = async (req, res) => {
           });
 
          if (alreadyExists) {
-                    //console.log("Attendance pdf already created");
+                    console.log("Attendance pdf already created");
                     return res.status(400).json({ message: "Attendance pdf already created for this date" });
                 }
 
@@ -89,15 +89,15 @@ export const createAttendancePdfCronJob = async (req, res) => {
             });
   
             await newRecord.save();
-            //console.log(`Initialized attendance for ${school.schoolName} - Class ${classofStudent}`);
+            console.log(`Initialized attendance for ${school.schoolName} - Class ${classofStudent}`);
             
           } else {
-            //console.log(`Already exists: ${school.schoolName} - Class ${classofStudent}`);
+            console.log(`Already exists: ${school.schoolName} - Class ${classofStudent}`);
           }
         }
       }
   
-      //console.log("Attendance PDF initialization complete.");
+      console.log("Attendance PDF initialization complete.");
       res.status(200).json({status:"success", message:"Attendance instance created successfully"})
     } catch (error) {
       console.error("Error in Attendance Cron Job:", error);
@@ -110,18 +110,18 @@ export const createAttendancePdfCronJob = async (req, res) => {
 export const GetDataBySchoolId = async (req, res) => {
 
     const  {schoolId, dateOfUpload, classofStudent} = req.body;
-    //console.log(req.body)
-    //console.log(new Date(dateOfUpload))
+    console.log(req.body)
+    console.log(new Date(dateOfUpload))
     const formattedDate = new Date(dateOfUpload)
       try {
               const response = await AttendancePdf.find({schoolId:schoolId, dateOfUpload:formattedDate, classofStudent:{$in:classofStudent} })
   
               res.status(200).json({status: "success", data: response})
 
-              //console.log(response)
+              console.log(response)
   
       } catch (error) {
-          //console.log("Error fetching data", error)
+          console.log("Error fetching data", error)
           
           res.status(500).json({status: "failed", message: error})
   
@@ -138,7 +138,7 @@ export const uploadAttendancePdfFile = multer({ storage }).single('file');
 
 // PATCH API to upload & update attendance PDF
 export const PatchAttendancePdf = async (req, res) => {
-    //console.log(" I am inside patch attendance pdf controller")
+    console.log(" I am inside patch attendance pdf controller")
   try {
     const { schoolId, classofStudent, dateOfUpload} = req.query;
     const file = req.file;
@@ -166,7 +166,7 @@ export const PatchAttendancePdf = async (req, res) => {
     const fileUrl = await uploadToDOStorage(file.buffer, `attendancepdf/${fileName}`, file.mimetype);
 
 
-    //console.log(record)
+    console.log(record)
 
     record.fileName = fileName;
     record.fileUrl = fileUrl;

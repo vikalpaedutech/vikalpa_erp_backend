@@ -28,7 +28,7 @@
 //       await attendanceRecord.save(); // Save the attendance data
 //     });
 
-//     //console.log('Attendance records created for all students');
+//     console.log('Attendance records created for all students');
 //   } catch (error) {
 //     console.error('Error during attendance dump: ', error);
 //   }
@@ -49,17 +49,17 @@ import { StudentAttendance } from "../models/studentAttendance.model.js";
 
 // Function to create attendance records
 export const createAttendanceRecords = async () => {
-    //console.log("I am inside the cron job function");
+    console.log("I am inside the cron job function");
     try {
         const students = await Student.find({}); // Get all students
 
-        //console.log(students);
+        console.log(students);
 
-        //console.log(`Found ${students.length} students`);
+        console.log(`Found ${students.length} students`);
 
         // Loop through students and create attendance records
         for (const student of students) {
-            //console.log(`Processing student with SRN: ${student.studentSrn}`);
+            console.log(`Processing student with SRN: ${student.studentSrn}`);
             
             const attendanceRecord = new StudentAttendance({
                 studentSrn: student.studentSrn,
@@ -79,10 +79,10 @@ export const createAttendanceRecords = async () => {
             });
 
             await attendanceRecord.save(); // Save the attendance data
-            //console.log(`Attendance saved for SRN: ${student.studentSrn}`);
+            console.log(`Attendance saved for SRN: ${student.studentSrn}`);
         }
 
-        //console.log('Attendance records created for all students');
+        console.log('Attendance records created for all students');
     } catch (error) {
         console.error('Error during attendance dump: ', error);
     }
@@ -90,9 +90,9 @@ export const createAttendanceRecords = async () => {
 
 // Cron job runs at midnight every day
 
-// //console.log('Setting up the cron job');
+// console.log('Setting up the cron job');
 // cron.schedule('0 0 * * *', createAttendanceRecords);
 
 // Manually run the function for testing purpose
-// //console.log('Running the cron job immediately for testing');
+// console.log('Running the cron job immediately for testing');
 // createAttendanceRecords();  // Call the function immediately to run it now

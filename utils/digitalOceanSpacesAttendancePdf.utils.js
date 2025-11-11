@@ -37,7 +37,7 @@ export const uploadToDOStorage = async (fileBuffer, fileName, mimeType) => {
   await s3.send(command);
 
 
-  //console.log('i am from attendance pdf utils after s3.send await')
+  console.log('i am from attendance pdf utils after s3.send await')
 
   // Public URL (DigitalOcean Spaces allows public read with ACL)
   const fileUrl = `${process.env.DO_SPACES_CDN || `https://${bucketName}.${process.env.DO_SPACES_ENDPOINT.replace('https://', '')}`}/attendancepdf/${fileName}`;

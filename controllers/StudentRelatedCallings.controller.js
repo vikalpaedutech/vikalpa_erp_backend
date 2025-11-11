@@ -7,19 +7,19 @@ import { Student } from "../models/student.model.js";
 //Creating Calling data in db. POST API
 
 export const CreateCalling = async () => {
-    //console.log("I am inside CreateCalling function");
+    console.log("I am inside CreateCalling function");
     try {
 
 
         const students = await Student.find({}); // Get all students
 
-        //console.log(students);
+        console.log(students);
 
-        //console.log(`Found ${students.length} students`);
+        console.log(`Found ${students.length} students`);
 
         // Loop through students and create attendance records
         for (const student of students) {
-            //console.log(`Processing student with SRN: ${student.studentSrn}`);
+            console.log(`Processing student with SRN: ${student.studentSrn}`);
             
             const response = new StudentRealtedCalling({
                 jobId: null,
@@ -38,10 +38,10 @@ export const CreateCalling = async () => {
             });
 
             await response.save(); // Save the attendance data
-            //console.log(`Callings saved for SRN: ${student.studentSrn}`);
+            console.log(`Callings saved for SRN: ${student.studentSrn}`);
         }
 
-        //console.log('Callings records created for all students');
+        console.log('Callings records created for all students');
     } catch (error) {
         console.error('Error during Callings dump: ', error);
     }
@@ -95,7 +95,7 @@ export const GetStudentRelatedCallingData = async (req, res) => {
 
         res.status(200).json({ status: "Success", data: response });
     } catch (error) {
-        //console.log("Error fetching calling data from db", error.message);
+        console.log("Error fetching calling data from db", error.message);
         res.status(500).json({
             status: "Error",
             message: "Server Error"
@@ -116,7 +116,7 @@ export const PatchStudentRelatedCallings = async (req, res) =>{
 
 
     try {
-        //console.log(req.body)
+        console.log(req.body)
         const response = await StudentRealtedCalling.findOneAndUpdate(req.query,
             {$set:req.body},
             { new: true }
@@ -124,7 +124,7 @@ export const PatchStudentRelatedCallings = async (req, res) =>{
 
         res.status(200).json({status:"Success", data: response})
     } catch (error) {
-        //console.log('Error patching calling data');
+        console.log('Error patching calling data');
         res.status(500).json({status:"Error", msg: error.message})
     }
 };

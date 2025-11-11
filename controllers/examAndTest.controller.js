@@ -4,13 +4,13 @@ import { ExamAndTest } from "../models/examAndTest.model.js";
 
 // Controller for creating a new exam
 export const createPost = async (req, res) => {
-  //console.log("I am inside ExamAndTest controller, createExam API");
+  console.log("I am inside ExamAndTest controller, createExam API");
 
   try {
-    //console.log("i am inside try block")
+    console.log("i am inside try block")
     // Destructure the required fields from the request body
     const { examId, examType, examBoard,  subject, examDate, description, maxMarks, passingMarks, batch, classofStudent, status } = req.body;
-    //console.log(req.body)
+    console.log(req.body)
     // Validate input data (basic example)
     if (!examId || !examType || !examBoard ||  !subject || !examDate || !maxMarks || !batch || !classofStudent) {
       
@@ -28,7 +28,7 @@ export const createPost = async (req, res) => {
     res.status(201).json({ status: "Success", data: exam });
     
   } catch (error) {
-    //console.log("i am inside catch block")
+    console.log("i am inside catch block")
     // Catch any errors and send a failure response
     res.status(500).json({ status: "Failed", message: error.message });
   }
@@ -38,24 +38,24 @@ export const createPost = async (req, res) => {
 
 export const GetTests = async (req, res) => {
 
-//console.log("Hello get tests")
+console.log("Hello get tests")
 const {classofStudent} = req.body;
 
-//console.log(req.body)
+console.log(req.body)
 
 try {
 
-  //console.log('i am inside try block')
+  console.log('i am inside try block')
 
   const response = await ExamAndTest.find({status: "Pending", classofStudent});
 
   res.status(200).json({ status: "Success", data: response });
 
-  //console.log(response)
+  console.log(response)
   
 } catch (error) {
   
-  //console.log("I am inside catch block ")
+  console.log("I am inside catch block ")
 
   res.status(500).json({ status: "Failed", message: error.message });
 }

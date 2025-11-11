@@ -13,7 +13,7 @@ import {awardPoints} from "../utils/gamification.utils.js"
 
 // Post API
 export const createPost = async (req, res) => {
-  //////console.log("I am inside Marks controller, createMarksPost API");
+  ////console.log("I am inside Marks controller, createMarksPost API");
 
   try {
     // Destructure the required fields from the request body
@@ -57,18 +57,18 @@ export const createPost = async (req, res) => {
 
 
 export const createMarksRecordCron = async (req, res) => {
-    //////console.log("I am inside the cron job function");
+    ////console.log("I am inside the cron job function");
 
     const { examId, classofStudent, medium } = req.body;
 
-    //////console.log(examId)
-    //////console.log(req.body)
+    ////console.log(examId)
+    ////console.log(req.body)
     try {
 
         // Check if marks already exist for this examId
         const existingMarks = await Marks.findOne({ examId: examId });
         if (existingMarks) {
-            //////console.log(`Test is already created with this id: ${examId}`);
+            ////console.log(`Test is already created with this id: ${examId}`);
             res.status(400).json({ message: `Test is already created with this examId: ${examId}` });
             return;
         }
@@ -88,15 +88,15 @@ export const createMarksRecordCron = async (req, res) => {
         const examAndText = await ExamAndTest.find({});
 
 
-        //////console.log(students);
-        //////console.log(examAndText);
+        ////console.log(students);
+        ////console.log(examAndText);
 
-        // //////console.log(`Found ${students.length} students`);
-        // //////console.log(`Found ${examAndText.length} students`);
+        // ////console.log(`Found ${students.length} students`);
+        // ////console.log(`Found ${examAndText.length} students`);
 
         // Loop through students and create attendance records
         for (const student of students) {
-            // ////console.log(`Processing student with SRN: ${student.studentSrn}`);
+            // //console.log(`Processing student with SRN: ${student.studentSrn}`);
 
             const marks = new Marks({
                 unqStudentObjectId:student._id,
@@ -118,10 +118,10 @@ export const createMarksRecordCron = async (req, res) => {
             });
 
             await marks.save(); // Save the attendance data
-            //////console.log(`Marks data intialise for SRN: ${student.studentSrn}`);
+            ////console.log(`Marks data intialise for SRN: ${student.studentSrn}`);
         }
 
-        ////console.log('Marks records are created for all students');
+        //console.log('Marks records are created for all students');
     } catch (error) {
         console.error('Error during Marks dump: ', error);
     }
@@ -144,11 +144,11 @@ export const createMarksRecordCron = async (req, res) => {
 
 // Cron job runs at midnight every day
 
-// ////console.log('Setting up the cron job');
+// //console.log('Setting up the cron job');
 // cron.schedule('0 0 * * *', createAttendanceRecords);
 
 // Manually run the function for testing purpose
-// ////console.log('Running the cron job immediately for testing');
+// //console.log('Running the cron job immediately for testing');
 // createAttendanceRecords();  // Call the function immediately to run it now\
 
 //createMarksRecordCron ();
@@ -159,14 +159,14 @@ export const createMarksRecordCron = async (req, res) => {
 
 //Below API get All posts from data base_________________________________________
 export const getPost = async (req, res) => {
-  ////console.log("I am inside getPost of Marks Controller")
+  //console.log("I am inside getPost of Marks Controller")
   try {
     const response = await Marks.find();
 
     res.status(201).json({status: "Success", data: response});
 
   } catch (error) {
-    ////console.log("Error Getting Marks", error.message);
+    //console.log("Error Getting Marks", error.message);
     res.status(500).json({ status: "Error", message: "Server error" });
   }
 
@@ -179,7 +179,7 @@ export const getPost = async (req, res) => {
 // API to get marks data based on query params
 export const getAllMarksUsinQueryParams = async (req, res) => {
     
-  ////console.log("I am inside marks controller, getAllMarksUsinQueryParams API");
+  //console.log("I am inside marks controller, getAllMarksUsinQueryParams API");
 
     const {
       studentSrn,
@@ -223,7 +223,7 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
         if (examId) query.examId = examId;
 
       
-////console.log(query)
+//console.log(query)
         // Query the database for attendance records based on the constructed query
         const marks = await Marks.find(query);
 
@@ -240,7 +240,7 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
             data: marks
         });
     } catch (error) {
-        ////console.log("Error fetching Marks data from db", error.message);
+        //console.log("Error fetching Marks data from db", error.message);
         res.status(500).json({
             status: "Error",
             message: "Server Error"
@@ -254,22 +254,22 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
 
 // Update marks status by studentSrn and examId (PUT). Updates the student's marks status
 export const updateMarksBySrnAndExamId = async (req, res) => {
-    ////console.log("I am inside marks controller, updateMarksBySrnAndExamId API");
+    //console.log("I am inside marks controller, updateMarksBySrnAndExamId API");
 
     try {
         // Extract studentSrn and date from query parameters
         const { studentSrn, examId, schoolId, userId, classofStudent } = req.query;
        const { marksObtained, recordedBy, marksUpdatedOn } = req.body; // The field to update (isAttendanceMarked)
 
-       ////console.log('hello marks')
-        ////console.log(req.query);
-        ////console.log('hello marks')
+       //console.log('hello marks')
+        //console.log(req.query);
+        //console.log('hello marks')
 
-        ////console.log(studentSrn, examId)
-        ////console.log("req.body is:", req.body);
+        //console.log(studentSrn, examId)
+        //console.log("req.body is:", req.body);
 
        // const isAttendanceMarked = true
-        ////console.log("i am coming from frontend", marksObtained, recordedBy, marksUpdatedOn)
+        //console.log("i am coming from frontend", marksObtained, recordedBy, marksUpdatedOn)
 
         // Ensure both studentSrn and date are provided
         if (!studentSrn || !examId) {
@@ -309,7 +309,7 @@ export const updateMarksBySrnAndExamId = async (req, res) => {
         // Return the updated attendance record
         res.status(200).json({ status: "Success", data: marks });
     } catch (error) {
-        ////console.log("Error updating Marks", error.message);
+        //console.log("Error updating Marks", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };

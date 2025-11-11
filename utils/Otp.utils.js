@@ -25,9 +25,9 @@ import axios from "axios";
     try {
         
         const response = await axios.get(url)
-        //console.log(response)
+        console.log(response)
 
     } catch (error) {
-        //console.log('error sending otp')
+        console.log('error sending otp')
     }
  }
