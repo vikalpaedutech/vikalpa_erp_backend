@@ -2,8 +2,9 @@ import cron from "node-cron";
 import { Student } from "../models/student.model.js";
 import { Marks } from "../models/marks.model.js";  // Import the Marks model
 import { ExamAndTest } from "../models/examAndTest.model.js";
-
-
+import { uploadTestFileToDOStorage } from "../utils/digitalOceanSpacesTestFileUpllad.utils.js";
+import path from "path";
+import multer from "multer";
 
 //Gamfication utility
 import {awardPoints} from "../utils/gamification.utils.js"
@@ -114,6 +115,7 @@ export const createMarksRecordCron = async (req, res) => {
                 recordedBy: "",
                 remark: "", // Default status
                 marksUpdatedOn: "", // Not marked yet
+                fileUrl:null
 
             });
 
@@ -252,65 +254,214 @@ export const getAllMarksUsinQueryParams = async (req, res) => {
 
 
 
+// // Update marks status by studentSrn and examId (PUT). Updates the student's marks status
+// export const updateMarksBySrnAndExamId = async (req, res) => {
+//     //console.log("I am inside marks controller, updateMarksBySrnAndExamId API");
+
+//     try {
+//         // Extract studentSrn and date from query parameters
+//         const { studentSrn, examId, schoolId, userId, classofStudent } = req.query;
+//        const { marksObtained, recordedBy, marksUpdatedOn } = req.body; // The field to update (isAttendanceMarked)
+
+//        //console.log('hello marks')
+//         //console.log(req.query);
+//         //console.log('hello marks')
+
+//         //console.log(studentSrn, examId)
+//         //console.log("req.body is:", req.body);
+
+//        // const isAttendanceMarked = true
+//         //console.log("i am coming from frontend", marksObtained, recordedBy, marksUpdatedOn)
+
+//         // Ensure both studentSrn and date are provided
+//         if (!studentSrn || !examId) {
+//             return res.status(400).json({ status: "Error", message: "Missing studentSrn or examId in query parameters" });
+//         }
+
+//         // Convert the date from the query param into a Date object
+//         //const marksUpdatedOnDate = new Date(date);
+
+//         // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
+//         const marks = await Marks.findOneAndUpdate(
+//             { studentSrn, examId },  // Find by studentSrn and date
+//             { marksObtained, recordedBy, marksUpdatedOn }, // Update the field
+//             { new: true, runValidators: true } // Return the updated document and validate it
+//         );
+
+
+
+//         //Handling gamification point.
+                    
+//             // const date = loginTime
+        
+//                   const keyValue = "makrs-upload"
+        
+//                   const AwardPoints = awardPoints({keyValue, userId, examId, schoolId, classofStudent})
+        
+//             //------------------------------------------------------------
+        
+
+
+
+//         // If no record was found
+//         if (!marks) {
+//             return res.status(404).json({ status: "Error", message: "Marks record not found for the given student and date" });
+//         }
+
+//         // Return the updated attendance record
+//         res.status(200).json({ status: "Success", data: marks });
+//     } catch (error) {
+//         //console.log("Error updating Marks", error.message);
+//         res.status(500).json({ status: "Error", message: "Server error" });
+//     }
+// };
+// //___________________________________________________________________
+
+
+
+
+
+
+
+
 // Update marks status by studentSrn and examId (PUT). Updates the student's marks status
 export const updateMarksBySrnAndExamId = async (req, res) => {
-    //console.log("I am inside marks controller, updateMarksBySrnAndExamId API");
 
+    console.log('upload marks cont data')
     try {
-        // Extract studentSrn and date from query parameters
-        const { studentSrn, examId, schoolId, userId, classofStudent } = req.query;
-       const { marksObtained, recordedBy, marksUpdatedOn } = req.body; // The field to update (isAttendanceMarked)
+        // Extract all data from request body
+        const { 
+            studentSrn, 
+            examId, 
+            schoolId, 
+            userId, 
+            classofStudent, 
+            marksObtained, 
+            recordedBy, 
+            marksUpdatedOn,
+            testFileUrl // New field for test file URL
+        } = req.body;
 
-       //console.log('hello marks')
-        //console.log(req.query);
-        //console.log('hello marks')
-
-        //console.log(studentSrn, examId)
-        //console.log("req.body is:", req.body);
-
-       // const isAttendanceMarked = true
-        //console.log("i am coming from frontend", marksObtained, recordedBy, marksUpdatedOn)
-
-        // Ensure both studentSrn and date are provided
+        // Ensure both studentSrn and examId are provided
         if (!studentSrn || !examId) {
-            return res.status(400).json({ status: "Error", message: "Missing studentSrn or examId in query parameters" });
+            return res.status(400).json({ status: "Error", message: "Missing studentSrn or examId in request body" });
         }
 
-        // Convert the date from the query param into a Date object
-        //const marksUpdatedOnDate = new Date(date);
+        // Create update object
+        const updateData = { 
+            marksObtained, 
+            recordedBy, 
+            marksUpdatedOn 
+        };
 
-        // Find the student attendance record where both studentSrn and date match, then update the isAttendanceMarked field
+        // Add testFileUrl to update if provided
+        if (testFileUrl) {
+            updateData.testFileUrl = testFileUrl;
+        }
+
+        // Find the student marks record and update it
         const marks = await Marks.findOneAndUpdate(
-            { studentSrn, examId },  // Find by studentSrn and date
-            { marksObtained, recordedBy, marksUpdatedOn }, // Update the field
+            { studentSrn, examId },  // Find by studentSrn and examId
+            updateData, // Update the fields
             { new: true, runValidators: true } // Return the updated document and validate it
         );
 
-
-
-        //Handling gamification point.
-                    
-            // const date = loginTime
-        
-                  const keyValue = "makrs-upload"
-        
-                  const AwardPoints = awardPoints({keyValue, userId, examId, schoolId, classofStudent})
-        
-            //------------------------------------------------------------
-        
-
-
+        // Handling gamification point
+        const keyValue = "marks-upload";
+        const AwardPoints = awardPoints({keyValue, userId, examId, schoolId, classofStudent});
 
         // If no record was found
         if (!marks) {
-            return res.status(404).json({ status: "Error", message: "Marks record not found for the given student and date" });
+            return res.status(404).json({ status: "Error", message: "Marks record not found for the given student and exam" });
         }
 
-        // Return the updated attendance record
+        // Return the updated marks record
         res.status(200).json({ status: "Success", data: marks });
     } catch (error) {
-        //console.log("Error updating Marks", error.message);
+        console.log("Error updating Marks", error.message);
         res.status(500).json({ status: "Error", message: "Server error" });
     }
 };
-//___________________________________________________________________
+
+// New endpoint to upload test file
+export const uploadTestFile = async (req, res) => {
+
+
+    console.log('test file upload')
+
+    try {
+        const { studentSrn, examId } = req.body;
+
+        console.log(req.body)
+
+        console.log(req.file)
+        
+        if (!studentSrn || !examId) {
+            return res.status(400).json({ 
+                status: "Error", 
+                message: "Missing studentSrn or examId" 
+            });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ 
+                status: "Error", 
+                message: "No file uploaded" 
+            });
+        }
+
+        // Check file size (10MB max)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (req.file.size > maxSize) {
+            return res.status(400).json({ 
+                status: "Error", 
+                message: "File size exceeds 10MB limit" 
+            });
+        }
+
+        // Check file type (allow PDF and images)
+        const allowedMimeTypes = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'image/gif',
+            'image/bmp',
+            'image/webp'
+        ];
+
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+            return res.status(400).json({ 
+                status: "Error", 
+                message: "Invalid file type. Only PDF and image files are allowed." 
+            });
+        }
+
+        // Upload to DigitalOcean Spaces
+        const fileUrl = await uploadTestFileToDOStorage(
+            req.file.buffer,
+            studentSrn,
+            examId,
+            req.file.mimetype
+        );
+
+        // Update marks record with file URL
+        const marks = await Marks.findOneAndUpdate(
+            { studentSrn, examId },
+            { fileUrl: fileUrl },
+            { new: true }
+        );
+
+        res.status(200).json({ 
+            status: "Success", 
+            message: "File uploaded successfully",
+            fileUrl: fileUrl,
+            data: marks 
+        });
+
+    } catch (error) {
+        console.log("Error uploading test file", error.message);
+        res.status(500).json({ status: "Error", message: "Server error" });
+    }
+};
+
+

@@ -14,8 +14,9 @@ const ExamAndTestSchema = new Schema(
     passingMarks: { type: Number,  }, //Passing marks
     batch: { type: String }, // batch of students
     classofStudent: { type: String, required: true }, //Class like 8, 10,
-    status: {type:String, default:"Pending"} //Shows the status as Pending, Complete for marks updation. If user has completely updated amrks then...
+    status: {type:String, default:"Pending"}, //Shows the status as Pending, Complete for marks updation. If user has completely updated amrks then...
     //status is upated to complete so that the test id does not appear in the drop down menu if completed
+    fileUpload: {type: Boolean, default: false} //If students has any file to upload regarding their test, it will be used to flagged as true or false
   },
   { timestamps: true }
 );

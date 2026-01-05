@@ -24,6 +24,8 @@ const MarksSchema = new Schema(
   type: mongoose.Schema.Types.Mixed,
  
 },
+   
+    fileUrl: { type: String, default: null }, // URL link to the file (e.g., location in cloud storage)
     recordedBy: { type: String, ref: "User",}, // Reference to the user who recorded the marks
     remark: { type: String }, // Additional remarks if any
     marksUpdatedOn: { type: Date, default: Date.now }, // Date when marks were updated

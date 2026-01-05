@@ -9,7 +9,7 @@ export const createPost = async (req, res) => {
   try {
     console.log("i am inside try block")
     // Destructure the required fields from the request body
-    const { examId, examType, examBoard,  subject, examDate, description, maxMarks, passingMarks, batch, classofStudent, status } = req.body;
+    const { examId, examType, examBoard,  subject, examDate, description, maxMarks, passingMarks, batch, classofStudent, status, fileUpload } = req.body;
     console.log(req.body)
     // Validate input data (basic example)
     if (!examId || !examType || !examBoard ||  !subject || !examDate || !maxMarks || !batch || !classofStudent) {
@@ -21,7 +21,7 @@ export const createPost = async (req, res) => {
 
     // Create a new exam record
     const exam = await ExamAndTest.create({
-        examId, examType, examBoard,  subject, examDate, description, maxMarks, passingMarks, batch, classofStudent
+        examId, examType, examBoard,  subject, examDate, description, maxMarks, passingMarks, batch, classofStudent, fileUpload
     });
 
     // Respond with success and the created exam data
