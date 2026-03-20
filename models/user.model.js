@@ -63,12 +63,12 @@ const UserAccessSchema = new Schema(
         _id: false,
         name: {
           type: String,
-          enum: ["Academics", "Accounts"],
+          // enum: ["Academics", "Accounts"],
         },
 
         accessLevel: {
           type: String,
-          enum: ["create", "read", "write", "delete", "admin"],
+          // enum: ["create", "read", "write", "delete", "admin"],
           default: "read",
         },
       },

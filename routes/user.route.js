@@ -18,7 +18,11 @@ import {
     userSignIn,
     getAllUsersWithAccess, updateUserWithAccess,
     getUsersByObjectId,
-    getAllUsersWithAccesswithoutPagination
+    getAllUsersWithAccesswithoutPagination,
+
+    updateUser,
+
+    updateUserAccesses
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -70,5 +74,15 @@ router.patch("/patch-user-and-useraccess", updateUserWithAccess)
 
 
 router.post("/get-user-data-by-object-id", getUsersByObjectId)
+
+
+
+router.post("/update-user", updateUser)
+
+
+
+
+router.post("/update-user-access", updateUserAccesses)
+
 
 export default router;
