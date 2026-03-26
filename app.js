@@ -112,6 +112,7 @@ import gamificationRoute from "./routes/Gamification.route.js"
 import ErpTestRoute from "./routes/ErpTest.route.js"
 
 import TaVerficationRoute from "./routes/TaVerification.route.js"
+import CallingRoute from "./routes/calling.route.js"
 
 //using routes for route.g
 
@@ -141,6 +142,9 @@ app.use("/api",gamificationRoute)
 app.use("/api",ErpTestRoute)
 
 app.use("/api", TaVerficationRoute)
+
+app.use("/api", CallingRoute)
+
 
 
 
