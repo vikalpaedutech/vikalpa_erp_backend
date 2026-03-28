@@ -13,6 +13,7 @@ import AWS from "aws-sdk";
 import {Student}  from "../models/student.model.js";
 
 
+import { District_Block_School } from "../models/district_block_buniyaadCenters.model.js";
 
 
 export const createPost = async (req, res) => {
@@ -363,3 +364,29 @@ export const uploadDressSizeConfirmationForm = async (req, res) => {
   }
 };
 
+
+
+
+
+
+
+//Get students by classOfStudent and slc status
+
+export const GetStudentsBySlc = async (req, res) =>{
+
+
+
+ try {
+  const response = await Student.find({slc: true,  classofStudent:'9'})
+
+      res.status(200).json({
+      status: "Success",
+     datalen: response.length,
+      data: response,
+      
+    });
+ } catch (error) {
+   
+    res.status(500).json({ status: "Error", message: "Server error" });
+ }
+}

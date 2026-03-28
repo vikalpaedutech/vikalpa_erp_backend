@@ -5,7 +5,9 @@ import express from "express";
 import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents, 
     updateStudentBySrn, patchStudentBySrn, 
     deleteStudentBySrn,
-     getStudentsByQueryParams, uploadDressSizePdf, uploadDressSizeConfirmationForm} from "../controllers/student.controller.js";
+     getStudentsByQueryParams, uploadDressSizePdf, uploadDressSizeConfirmationForm,
+     GetStudentsBySlc
+    } from "../controllers/student.controller.js";
 
 //creating express router.
 
@@ -27,4 +29,7 @@ router.patch(
   uploadDressSizePdf,
   uploadDressSizeConfirmationForm
 );
+
+
+router.post('/student-data-for-ame', GetStudentsBySlc)
 export default router;

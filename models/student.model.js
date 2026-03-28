@@ -57,6 +57,29 @@ const StudentSchema = new Schema(
     waistToBottomLengthInInches:{type: Number},
     dressAmountSubmitted: {type: Boolean, default: false},
     dressSizeConfirmationForm: {type: String}, //File link of data uploaded.
+
+
+
+
+  //Below fileds are new and added on 28-March-2026, for ame score card purpposes.
+  disciplineGradeAssessment_AME: {type: String},
+  academicPerformanceGradeAssessment_AME: {type: String},
+  classParticipationGradeAssessment_AME:{type: String},
+  responsibilityAssessment_AME: {type: String},
+  attendanceAssessment_AME: {type: String},
+  coCurricularAssessment_AME: {type: String},
+  mayMonthAttendancePercentage: {type: String},
+  julyMonthAttendancePercentage: {type: String},
+  augustMonthAttendancePercentage: {type: String},
+  septemberMonthAttendancePercentage: {type: String},
+  octoberMonthAttendancePercentage: {type: String},
+  novemberMonthAttendancePercentage: {type: String},
+  decemberMonthAttendancePercentage: {type: String},
+  januaryMonthAttendancePercentage: {type: String},
+  februaryMonthAttendancePercentage: {type: String},
+
+  examinationVenue:{type: String}
+    
   },
   { timestamps: true }
 );
