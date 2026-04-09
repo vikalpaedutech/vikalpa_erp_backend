@@ -1,4 +1,12 @@
+
+
+
+import { ObjectId } from "mongodb";
+
+// const  ObjectId = mongoose.Types.ObjectId
 import mongoose from "mongoose";
+
+
 
 import { Calling, ObjectiveOfCalling } from "../models/calling.model.js";
 
@@ -891,6 +899,187 @@ export const callingDashboardByUserId = async (req, res) => {
             success: false,
             message: "Internal server error",
             error: error.message
+        });
+    }
+};
+
+
+
+
+
+
+// //Calling dashboard for all district.
+
+// export const callilngDashboardOfAllUsers = async (req, res) => {
+
+//     const {objectiveOfCallId} = req.body;
+//     console.log(req.body)
+//     try {
+//         const response = await Calling.aggregate([
+
+//             //1: filtering callings.
+//             {
+//                 $match: {objectiveOfCallId: new ObjectId(objectiveOfCallId)}
+//             },
+
+//             //2: joining user details to callings
+
+//             {
+//                 $lookup:{
+//                     from: 'users',
+//                     localField:'assignedTo',
+//                     foreignField:'_id',
+//                     as: 'userDetails'
+                
+//                 }
+//             },
+
+//             //3: joinining users acccess to callings 
+//             {
+//                 $lookup:'useraccesses',
+//                 localField:'assignedTo',
+//                 foreignField:'unqObjectId',
+//                 as: 'userAccessDetails'
+//             },
+
+//             //4 joining ueraccessdetails schoolids to district_block_schools centerId
+//             {
+//                 $lookup:{
+//                     from: 'districtb_block_schools',
+//                     let :{schoolIdsArray: '$userAccessDetails.schoolIds'},
+//                     pipeline:[
+//                         {
+//                             $match:{
+//                                 $expr: {
+//                                     $in: ['$centerId', '$schoolIdsArray']
+//                                 }
+//                             }
+//                         }
+//                     ],
+//                     as: 'schoolDetails',
+
+
+//                 }
+
+//             }
+//         ]).toArray();
+
+//         res.status(200).json({status:'ok', data:response})
+//     } catch (error) {
+//              res.status(500).json({status:'Failed', messsage:'internal server error'})
+//              console.log(error)
+//     }
+// }
+
+
+
+export const callilngDashboardOfAllUsers = async (req, res) => {
+    const { objectiveOfCallId } = req.body;
+    console.log(req.body);
+    
+    try {
+        const response = await Calling.aggregate([
+            //1: filtering callings.
+            {
+                $match: { 
+                    objectiveOfCallId: new ObjectId(objectiveOfCallId) 
+                }
+            },
+
+            //2: joining user details to callings
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'assignedTo',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+
+            //3: joining users access to callings
+            {
+                $lookup: {  
+                    from: 'useraccesses',
+                    localField: 'assignedTo',
+                    foreignField: 'unqObjectId',
+                    as: 'userAccessDetails'
+                }
+            },
+
+            //4: Add a stage to extract schoolIds from the nested structure
+            {
+                $addFields: {
+                    extractedSchoolIds: {
+                        $reduce: {
+                            input: { $ifNull: [{ $arrayElemAt: ['$userAccessDetails.region', 0] }, []] },
+                            initialValue: [],
+                            in: {
+                                $concatArrays: [
+                                    "$$value",
+                                    {
+                                        $reduce: {
+                                            input: { $ifNull: ["$$this.blockIds", []] },
+                                            initialValue: [],
+                                            in: {
+                                                $concatArrays: [
+                                                    "$$value",
+                                                    {
+                                                        $map: {
+                                                            input: { $ifNull: ["$$this.schoolIds", []] },
+                                                            as: "school",
+                                                            in: "$$school.schoolId"
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+
+            //5: joining useraccessdetails schoolids to district_block_schools centerId
+            {
+                $lookup: {
+                    from: 'district_block_schools',
+                    let: { schoolIdsArray: '$extractedSchoolIds' },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $in: ['$centerId', '$$schoolIdsArray']
+                                }
+                            }
+                        }
+                    ],
+                    as: 'schoolDetails'
+                }
+            },
+
+            {
+
+                $lookup:{
+                    from:'objectiveofcallings',
+                    localField:'objectiveOfCallId',
+                    foreignField:'_id',
+                    as: 'objectiveofcallingsDetails'
+                }
+            }
+
+
+        ]); 
+
+        res.status(200).json({ status: 'ok', data: response });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ 
+            status: 'Failed', 
+            message: 'internal server error',
+            error: error.message 
         });
     }
 };

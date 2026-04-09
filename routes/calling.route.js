@@ -3,7 +3,7 @@
 import express from "express";
 
 import { createObjectiveOfCalling, createCallings, getCallingsByAssignedTo
-    ,updateCalling, getObjectiveOfCall, callingDashboardByUserId
+    ,updateCalling, getObjectiveOfCall, callingDashboardByUserId, callilngDashboardOfAllUsers
  } from "../controllers/calling.controller.js";
 
 //creating express router.
@@ -28,6 +28,8 @@ router.post('/get-objective-of-calls', getObjectiveOfCall);
 
 
 router.post('/dashboard-objective-of-callings', callingDashboardByUserId);
+
+router.post('/calling-dashboard-of-all-users', callilngDashboardOfAllUsers);
 
 
 

@@ -9,9 +9,6 @@ import { uploadToDOStorage } from "../utils/digitalOceanSpacesUserAttendance.js"
 import { compareSync } from "bcryptjs";
 
 
-//Gamfication utility
-import {awardPoints} from "../utils/gamification.utils.js"
-
 
 // Multer memory storage
 const storage = multer.memoryStorage();

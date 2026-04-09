@@ -11,9 +11,6 @@ import multer from "multer";
 import mongoose from "mongoose";
 
 
-//Gamfication utility
-import {awardPoints} from "../utils/gamification.utils.js"
-
 
 //Createing a cron job for initializing attendance data in backend. So that i can track, 
 //... both uploaded pdf (which has url and bollean type true) and not uploaded pdf.
@@ -52,7 +49,9 @@ export const createAttendancePdfCronJob = async (req, res) => {
       // const startOfToday = new Date(today.setHours(0, 0, 0, 0));
   
       for (const school of DistrictBlockSchool) {
-        const classes = ["9", "10"]; // Class 9 and 10
+       // const classes = ["9", "10"]; // Class 9 and 10
+
+           const classes = ["10"]; // Class 9 and 10
   
         for (const classofStudent of classes) {
           // Check if record already exists for this school and class today

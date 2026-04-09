@@ -101,18 +101,18 @@ import district_block_buniyaadCentersRoute from "./routes/district_block_buniyaa
 import sendOtp from "./routes/SendOtp.route.js"
 
 
-import disciplinaryGamificationRoute from "./routes/disciplinaryGamification.route.js"
-
 
 import s100AttendanceRoute from "./routes/s100attendance.route.js"
 
-import gamificationRoute from "./routes/Gamification.route.js"
+
 
 //Erp test route
 import ErpTestRoute from "./routes/ErpTest.route.js"
 
 import TaVerficationRoute from "./routes/TaVerification.route.js"
 import CallingRoute from "./routes/calling.route.js"
+
+import GamificationPointLogicRoute from "./routes/Gamification.route.js"
 
 //using routes for route.g
 
@@ -136,14 +136,16 @@ app.use("/api", dashboardRouter)
 app.use("/api", notificationRouter)
 app.use("/api", district_block_buniyaadCentersRoute)
 app.use("/api", sendOtp)
-app.use("/api",disciplinaryGamificationRoute)
+
 app.use("/api",s100AttendanceRoute)
-app.use("/api",gamificationRoute)
+
 app.use("/api",ErpTestRoute)
 
 app.use("/api", TaVerficationRoute)
 
 app.use("/api", CallingRoute)
+
+app.use("/api", GamificationPointLogicRoute)
 
 
 

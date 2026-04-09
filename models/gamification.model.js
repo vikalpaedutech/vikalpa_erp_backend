@@ -1,149 +1,179 @@
-//This holds the gamification model. 
-
-// import mongoose, {mongo, Schema} from "mongoose";
-
-// const GamificationSchema = new Schema(
-    
-    
-//     {
-//       userId: { type: String },
-//       pointType: {type: String},
-//       id: {type: String}, //Holds schoolIdorCode, examId, expenseId, Test ids
-//       examId: {type: String}, //Holds exam ids for test
-//       classofStudent:{type: String},
-//       point: {type: Number},
-      
-
-//       disciplinaryRemark1: {type: String,},
-//       disciplinaryRemark1Count: {type: Number,},
-//       disciplinaryRemark2: {type: String, },
-//       disciplinaryRemark2Count: {type: Number,},
-//       disciplinaryRemark3: {type: String, },
-//       disciplinaryRemark3Count: {type: Number, },
-//       disciplinaryRemark4: {type: String,},
-//       disciplinaryRemark4Count: {type: Number,},
+//This holds the gamification model 
 
 
-//       dateOfPoint: {type: Date},
+import mongoose, {Schema} from "mongoose";
+import { User } from "./user.model.js";
 
-//     },
-//     { timestamps: true }
-//   );
-
-
-// //   // 🔐 Add unique compound index to prevent duplicates
-// // GamificationSchema.index({
-// //   userId: 1,
-// //   pointType: 1,
-// //   id: 1,  // schoolId
-// //   classofStudent: 1,
-// //   examId: 1
-// // }, { unique: true });
-  
-// //   export default mongoose.model("Employee", EmployeeSchema);
-
-//   export const Gamification = mongoose.model("Gamification", GamificationSchema);
-  
-
-
-
-
-
-
-
-
-
-
-  
-import mongoose, {mongo, Schema} from "mongoose";
-
-const GamificationSchema = new Schema(
-    
-    
-    {
-
-        unqUserObjectId: {
-                    type: mongoose.Schema.Types.ObjectId, // reference to User
-                    ref: "User",
-                    required: true,
-                  },   // 
-      userId: { type: String },
-      pointType: {type: String},
-      centerId: {type: String},
-      classOfCenter: {type:String},
-      poorRankCount: {type: Number},
-      averageRankCount: {type: Number},
-      goodRankCount: {type:Number},
-      excellentRankCount: {type: Number},
-      examId:{type: String},
-      finalPoint: {type: Number},
-      pointGivenBy: {type: Number},
-      pointClaimed: {type: Boolean, default:false},
-      date: {type: Date},
-
-
-    },
-    { timestamps: true }
-  );
-
-
-
-  export const Gamification = mongoose.model("Gamification", GamificationSchema);
-  
-
-
-
-  const GamificationRankingSchema = new Schema (
-
-    {
-
-       unqUserObjectId: {
-          type: mongoose.Schema.Types.ObjectId, // reference to User
-          ref: "User",
+const GamificationPointLogicSchema = new Schema(
+  {
+    selfAttendance: [
+      {
+        startTime: { 
+          type: String,
           required: true,
-        },   
-      userId: { type: String },
-       pointType: {type: String},
-      centerId: {type: String},
-      classOfCenter: {type:String},
-      poorRankCount: {type: Number},
-      averageRankCount: {type: Number},
-      goodRankCount: {type:Number},
-      excellentRankCount: {type: Number},  
-      date: {type: Date},           
+          match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+          description: "Time in HH:MM format (24-hour)"
+        },
+        endTime: { 
+          type: String,
+          required: true,
+          match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/,
+          description: "Time in HH:MM format (24-hour)"
+        },
+        point: { 
+          type: Number, 
+          required: true,
+          default: 0
+        },
+        description: {type: String},  // Fixed: 'type' not 'tyype', removed default null
+        timeValidation: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/},
+        descriptionOfTimeValdidation: {type: String, default: '"if attendance gets marked after school time (2:40 PMB), then negative marks is given"'},
+        negativeMarkingOnBreakingTimeValidation: {
+          type: Number,
+          default: -10,
+        }
+      },
+    ],
 
-    },
-    { timestamps: true }
-  )
+    studentAttendance: [
+      {
+        startRange: {type: Number, default: 0},
+        endRange: {type: Number, default: 0},
+        point: {type: Number, default: 0},
+        description: {type: String},  // Fixed here too
+        timeValidation: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, description: "Time in HH:MM format (24-hour)"},
+        descriptionOfTimeValdidation: {type: String, default: "if attendance gets marked after school time (2:40 PMB), then negative marks is given"},
+        negativeMarkingOnBreakingTimeValidation: {
+          type: Number,
+          default: -15,
+        }
+      }
+    ],
+
+    pdfUpload: [
+      {
+        timeValidation: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, description: "Time in HH:MM format (24-hour)"},
+        point: {type: Number, default: 0},
+        description: {type: String},  // Added missing description field
+        descriptionOfTimeValdidation: {type: String, default: "if pdf gets uploaded after (2:40 PM), then negative marks is given"},
+        negativeMarkingOnBreakingTimeValidation: {type: Number, default: -5}
+      }
+    ],
+
+    callingAbsentee: [
+      {
+        startRange: {type: Number, default: 0},
+        endRange: {type: Number, default: 0},
+        point: {type: Number, default: 0},
+        description: {type: String},  // Fixed here too
+        timeValidation: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, description: "Time in HH:MM format (24-hour)"},
+        descriptionOfTimeValdidation: {type: String, default: "if calling done after school time (2:40 PMB), then negative marks is given"},
+        negativeMarkingOnBreakingTimeValidation: {type: Number, default: -15}
+      }
+    ],
+
+    marks: [
+      {
+        startRange: {type: Number, default: 0},
+        endRange: {type: Number, default: 0},
+        point: {type: Number, default: 0},
+        description: {type: String},  // Fixed here too
+        timeValidation: {type: String, match: /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, description: "Time in HH:MM format (24-hour)"},
+        descriptionOfTimeValdidation: {type: String, default: "if marks gets updated after school time (2:40 PMB), then negative marks is given"},
+        negativeMarkingOnBreakingTimeValidation: {type: Number, default: -15},
+        examId:{type: String}
+      }
+    ]
+  },
+  {
+    timestamps: true
+  }
+)
 
 
-  export const GamificationRanking = mongoose.model("GamificationRanking", GamificationRankingSchema);
 
 
-
-  
-  //Gamification user ranking schema.
-
-  //Gamification logs. Logs the ranking of users gamifications avgscore and ranking. each time the 
-  //...the ranking and score are updated
+// //Below model is for updating points of users
+// const GamificationPointOfUserScheam = new Schema(
+//   {
+//     unqObjectId: {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: "User",
+//       required: true,
+//       unique: true
+//     },
     
-  const GamificationRankingLogSchema = new Schema(
-  
-    {
-          unqUserObjectId: {
-              type: mongoose.Schema.Types.ObjectId, // reference to User
-              ref: "User",
-              required: true,
-          },   // 
-          userId: { type: String },
-          avgScore: { type: Number, default: 0 }, //Gets cumulative avg score
-          totalPoints: { type: String, default: 0 }, //sum of total points of each users
-          rank: { type: Number },
+//     class8: {
+//       selfAttendancePoint: { type: Number, default: 0 },
+//       studentAttendancePoint: { type: Number, default: 0 },
+//       pdfUploadPoint: { type: Number, default: 0 },
+//       callingAbsenteePoint: { type: Number, default: 0 },
+//       marksPoint: { type: Number, default: 0 }  // Fixed typo
+//     },
+    
+//     class10: {
+//       selfAttendancePoint: { type: Number, default: 0 },
+//       studentAttendancePoint: { type: Number, default: 0 },
+//       pdfUploadPoint: { type: Number, default: 0 },
+//       callingAbsenteePoint: { type: Number, default: 0 },
+//       marksPoint: { type: Number, default: 0 }  // Fixed typo
+//     }, 
+
+//     gamificationDate: {type: Date}
+//   },
+//   { timestamps: true }
+// )
+
+
+
+
+
+
+
+//Below model is for updating points of users
+const GamificationPointOfUserScheam = new Schema(
+  {
+    unqObjectId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true
     },
-      { timestamps: true }
-  );
-  
-  
-  export const GamificationRankingLog = mongoose.model("GamificationRankingLog", GamificationRankingLogSchema);
-  
-  
+
+    pointType: {type: String}, //selfAttendancePoint, studentAttendancePoint, pdfUploadPoint, callingAbsenteePoint, marksPoint
+    pointValue: {type: Number},
+    classOfCenter: {type: String},
+    unqIdOfPointObject:{type: mongoose.Schema.Types.ObjectId},  //Id like exam id or so...
+
+
+    // class8: {
+    //   selfAttendancePoint: { type: Number, default: 0 },
+    //   studentAttendancePoint: { type: Number, default: 0 },
+    //   pdfUploadPoint: { type: Number, default: 0 },
+    //   callingAbsenteePoint: { type: Number, default: 0 },
+    //   marksPoint: { type: Number, default: 0 }  // Fixed typo
+    // },
+    
+    // class10: {
+    //   selfAttendancePoint: { type: Number, default: 0 },
+    //   studentAttendancePoint: { type: Number, default: 0 },
+    //   pdfUploadPoint: { type: Number, default: 0 },
+    //   callingAbsenteePoint: { type: Number, default: 0 },
+    //   marksPoint: { type: Number, default: 0 }  // Fixed typo
+    // }, 
+
+    gamificationDate: {type: Date}
+  },
+  { timestamps: true }
+)
+
+
+export const GamificationPointLogic =  mongoose.model("GamificationPointLogic", GamificationPointLogicSchema);
+
+
+
+export const GamificationUserPoint =  mongoose.model("GamificationUserPoint", GamificationPointOfUserScheam)
+
+
+
+

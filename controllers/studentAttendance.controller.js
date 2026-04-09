@@ -5,8 +5,7 @@ import {Student} from "../models/student.model.js";
 import { StudentAttendance } from "../models/studentAttendance.model.js";
 
 
-//Gamfication utility
-import {awardPoints} from "../utils/gamification.utils.js"
+
 
 //Student Attendance Cron Job
 
@@ -390,7 +389,7 @@ export const updateAttendanceBySrnAndDate = async (req, res) => {
 
           const keyValue = "student-attendance"
 
-          const AwardPoints = awardPoints({keyValue, userId, studentAttendanceGamificationDate, schoolId, classofStudent})
+      
 
     //------------------------------------------------------------
 

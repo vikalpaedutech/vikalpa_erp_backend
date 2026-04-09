@@ -6,8 +6,6 @@ import { uploadTestFileToDOStorage } from "../utils/digitalOceanSpacesTestFileUp
 import path from "path";
 import multer from "multer";
 
-//Gamfication utility
-import {awardPoints} from "../utils/gamification.utils.js"
 
 
 
