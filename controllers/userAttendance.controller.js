@@ -224,11 +224,98 @@ export const GetAttendanceByUserId = async (req, res) => {
 
 
 // Patch attendance with image upload
-export const PatchUserAttendanceByUserId = async (req, res) => {
 
-  console.log('hello user attendance')
+
+// export const PatchUserAttendanceByUserId = async (req, res) => {
+
+//   console.log('hello user attendance')
+//   const { userId, date } = req.query;
+//   console.log(req.query)
+
+//   let {
+//     attendance,
+//     longitude,
+//     latitude,
+//     coordinateDifference,
+//     loginTime,
+//     logoutTime,
+//     logoutLongitude,
+//     logoutLatitude,
+//     logoutCoordinateDifference,
+//     attendanceType,
+//     visitingLocation
+//   } = req.body;
+
+//   // ✅ Handle coordinateDifference null or 'null' cases
+//   const safeCoordinateDifference =
+//     coordinateDifference === null ||
+//     coordinateDifference === "null" ||
+//     coordinateDifference === undefined
+//       ? 0
+//       : Number(coordinateDifference);
+
+//   console.log("🧾 Request Body:", req.body);
+  
+//   console.log("📁 File:", req.file);
+
+//   try {
+//     let fileUrl = null;
+//     let fileName = null;
+
+//     if (req.file) {
+//       const mimeType = req.file.mimetype;
+//       fileName = `attendance-${userId}-${Date.now()}.jpg`;
+//       fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
+//     }
+
+//     const updatePayload = {
+//       ...(attendance && { attendance }),
+//       ...(longitude && { longitude }),
+//       ...(latitude && { latitude }),
+//       ...(safeCoordinateDifference !== null && { coordinateDifference: safeCoordinateDifference }),
+//       ...(loginTime && { loginTime }),
+//       ...(logoutTime && { logoutTime }),
+//       ...(logoutLongitude && { logoutLongitude }),
+//       ...(logoutLatitude && { logoutLatitude }),
+//       ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
+//       ...(fileUrl && { fileUrl }),
+//       ...(fileName && { fileName }),
+//       attendanceType: attendanceType ? attendanceType : "NA", // ✅ added
+//       visitingLocation: visitingLocation ? visitingLocation : "NA", // ✅ added
+//     };
+
+//     const updated = await UserAttendance.findOneAndUpdate(
+//       { userId, date },
+//       { $set: updatePayload },
+//       { new: true }
+//     );
+
+
+// //Handling gamification point.
+            
+// // const date = loginTime
+
+//           const keyValue = "self-attendance"
+
+//           const AwardPoints = awardPoints({keyValue, userId, loginTime})
+
+// //------------------------------------------------------------
+
+//     res.status(200).json({ status: "Success", data: updated });
+//   } catch (error) {
+//     console.error("❌ Attendance Update Error:", error.message);
+//     res.status(500).json({ status: "Failed", message: error.message });
+//   }
+// };
+
+
+
+
+export const PatchUserAttendanceByUserId = async (req, res) => {
+  console.log('📍 PatchUserAttendanceByUserId called');
+  
   const { userId, date } = req.query;
-  console.log(req.query)
+  console.log("📋 Query params:", { userId, date });
 
   let {
     attendance,
@@ -244,7 +331,15 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
     visitingLocation
   } = req.body;
 
-  // ✅ Handle coordinateDifference null or 'null' cases
+  // Validate required fields
+  if (!userId || !date) {
+    return res.status(400).json({ 
+      status: "Failed", 
+      message: "userId and date are required query parameters" 
+    });
+  }
+
+  // Handle coordinateDifference null cases
   const safeCoordinateDifference =
     coordinateDifference === null ||
     coordinateDifference === "null" ||
@@ -253,19 +348,27 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
       : Number(coordinateDifference);
 
   console.log("🧾 Request Body:", req.body);
-  
-  console.log("📁 File:", req.file);
+  console.log("📁 File received:", req.file ? {
+    originalname: req.file.originalname,
+    size: req.file.size,
+    mimetype: req.file.mimetype
+  } : "No file");
 
   try {
     let fileUrl = null;
     let fileName = null;
 
+    // Upload file if present
     if (req.file) {
       const mimeType = req.file.mimetype;
       fileName = `attendance-${userId}-${Date.now()}.jpg`;
+      console.log(`📤 Uploading to DO Spaces: ${fileName} (${(req.file.size / 1024).toFixed(2)}KB)`);
+      
       fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
+      console.log(`✅ File uploaded: ${fileUrl}`);
     }
 
+    // Build update payload
     const updatePayload = {
       ...(attendance && { attendance }),
       ...(longitude && { longitude }),
@@ -278,31 +381,41 @@ export const PatchUserAttendanceByUserId = async (req, res) => {
       ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
       ...(fileUrl && { fileUrl }),
       ...(fileName && { fileName }),
-      attendanceType: attendanceType ? attendanceType : "NA", // ✅ added
-      visitingLocation: visitingLocation ? visitingLocation : "NA", // ✅ added
+      attendanceType: attendanceType || "NA",
+      visitingLocation: visitingLocation || "NA",
     };
 
+    console.log("📝 Update payload:", updatePayload);
+
+    // Update or create attendance record
     const updated = await UserAttendance.findOneAndUpdate(
       { userId, date },
       { $set: updatePayload },
-      { new: true }
+      { new: true, upsert: true } // upsert creates if doesn't exist
     );
 
+    console.log("✅ Attendance updated successfully:", updated._id);
 
-//Handling gamification point.
-            
-// const date = loginTime
+    // // Award points for self-attendance (only for login)
+    // if (loginTime && attendance === "Present") {
+    //   const keyValue = "self-attendance";
+    //   await awardPoints({ keyValue, userId, loginTime });
+    //   console.log("🎮 Points awarded for self-attendance");
+    // }
 
-          const keyValue = "self-attendance"
-
-          const AwardPoints = awardPoints({keyValue, userId, loginTime})
-
-//------------------------------------------------------------
-
-    res.status(200).json({ status: "Success", data: updated });
+    res.status(200).json({ 
+      status: "Success", 
+      data: updated,
+      message: "Attendance marked successfully"
+    });
+    
   } catch (error) {
-    console.error("❌ Attendance Update Error:", error.message);
-    res.status(500).json({ status: "Failed", message: error.message });
+    console.error("❌ Attendance Update Error:", error);
+    res.status(500).json({ 
+      status: "Failed", 
+      message: error.message,
+      stack: process.env.NODE_ENV === "development" ? error.stack : undefined
+    });
   }
 };
 
