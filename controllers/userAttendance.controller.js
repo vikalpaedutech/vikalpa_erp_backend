@@ -10,7 +10,7 @@ import { compareSync } from "bcryptjs";
 
 
 
-// Multer memory storage
+//Multer memory storage
 const storage = multer.memoryStorage();
 export const uploadFile = multer({ storage }).single('file');
 
@@ -19,22 +19,22 @@ export const uploadFile = multer({ storage }).single('file');
 
 
 
-//Cron job time management
-// --------------------------- Configurable Time (IST) ---------------------------
-const attendanceRunTimeIST = "12:01 AM"; // Change this time for testing
+// //Cron job time management
+// // --------------------------- Configurable Time (IST) ---------------------------
+// const attendanceRunTimeIST = "12:01 AM"; // Change this time for testing
 
-// Convert IST time string into 24h format (hours & minutes)
-function parseISTTime(timeStr) {
-    const [time, modifier] = timeStr.split(" ");
-    let [hours, minutes] = time.split(":").map(Number);
+// // Convert IST time string into 24h format (hours & minutes)
+// function parseISTTime(timeStr) {
+//     const [time, modifier] = timeStr.split(" ");
+//     let [hours, minutes] = time.split(":").map(Number);
 
-    if (modifier === "PM" && hours !== 12) hours += 12;
-    if (modifier === "AM" && hours === 12) hours = 0;
+//     if (modifier === "PM" && hours !== 12) hours += 12;
+//     if (modifier === "AM" && hours === 12) hours = 0;
 
-    return { hours, minutes };
-}
+//     return { hours, minutes };
+// }
 
-//--------------------------------------
+// //--------------------------------------
 
 
 export const cronJobUserAttendance = async (req, res) => {
@@ -105,29 +105,29 @@ export const cronJobUserAttendance = async (req, res) => {
     }
 };
 
-// --------------------------- Auto Scheduler ---------------------------
-// Convert IST -> Cron Expression (system UTC expected)
-const { hours, minutes } = parseISTTime(attendanceRunTimeIST);
+// // --------------------------- Auto Scheduler ---------------------------
+// // Convert IST -> Cron Expression (system UTC expected)
+// const { hours, minutes } = parseISTTime(attendanceRunTimeIST);
 
-// Convert IST to UTC (because server may run in UTC)
-// const utcDate = new Date(Date.UTC(1970, 0, 1, hours - 5, minutes - 30));
-// const utcHours = utcDate.getUTCHours();
-// const utcMinutes = utcDate.getUTCMinutes();
+// // Convert IST to UTC (because server may run in UTC)
+// // const utcDate = new Date(Date.UTC(1970, 0, 1, hours - 5, minutes - 30));
+// // const utcHours = utcDate.getUTCHours();
+// // const utcMinutes = utcDate.getUTCMinutes();
 
-// Final cron expression
-const cronExp = `${minutes} ${hours} * * *`;
+// // Final cron expression
+// const cronExp = `${minutes} ${hours} * * *`;
 
-// console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
+// // console.log(`Cron job scheduled for ${attendanceRunTimeIST} IST -> ${cronExp}`);
 
-cron.schedule(cronExp, async () => {
+// cron.schedule(cronExp, async () => {
 
-    // console.log("Running cron job at IST time:", attendanceRunTimeIST);
+//     // console.log("Running cron job at IST time:", attendanceRunTimeIST);
 
-    await cronJobUserAttendance({ body: {} }, { 
-        status: () => ({ json: () => {} }) // dummy res for cron run
-    });
-});
-//---------------------------------------------------------------
+//     await cronJobUserAttendance({ body: {} }, { 
+//         status: () => ({ json: () => {} }) // dummy res for cron run
+//     });
+// });
+// //---------------------------------------------------------------
 
 
 

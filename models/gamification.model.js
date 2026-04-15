@@ -146,21 +146,6 @@ const GamificationPointOfUserScheam = new Schema(
     unqIdOfPointObject:{type: mongoose.Schema.Types.ObjectId},  //Id like exam id or so...
 
 
-    // class8: {
-    //   selfAttendancePoint: { type: Number, default: 0 },
-    //   studentAttendancePoint: { type: Number, default: 0 },
-    //   pdfUploadPoint: { type: Number, default: 0 },
-    //   callingAbsenteePoint: { type: Number, default: 0 },
-    //   marksPoint: { type: Number, default: 0 }  // Fixed typo
-    // },
-    
-    // class10: {
-    //   selfAttendancePoint: { type: Number, default: 0 },
-    //   studentAttendancePoint: { type: Number, default: 0 },
-    //   pdfUploadPoint: { type: Number, default: 0 },
-    //   callingAbsenteePoint: { type: Number, default: 0 },
-    //   marksPoint: { type: Number, default: 0 }  // Fixed typo
-    // }, 
 
     gamificationDate: {type: Date}
   },
