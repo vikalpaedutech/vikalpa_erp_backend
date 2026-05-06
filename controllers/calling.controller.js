@@ -260,6 +260,8 @@ export const createCallings = async (req, res) => {
 //objectiveOfCallId, callingStatus, callingType, startDate, endDate, calledTO
 
 export const getCallingsByAssignedTo = async (req, res) => {
+
+    console.log('jello eowrld')
     try {
         const { 
             assignedTo, 
@@ -389,6 +391,7 @@ export const getCallingsByAssignedTo = async (req, res) => {
                                 callingDate: 1,
                                 createdAt: 1,
                                 updatedAt: 1,
+                                followUpDate:1,
                                 studentDetails: {
                                     $cond: {
                                         if: { $ifNull: ["$studentDetails", false] },
@@ -399,7 +402,8 @@ export const getCallingsByAssignedTo = async (req, res) => {
                                             fatherName: "$studentDetails.fatherName",
                                             classofStudent: "$studentDetails.classofStudent",
                                             personalContact: "$studentDetails.personalContact",
-                                            ParentContact: "$studentDetails.ParentContact"
+                                            ParentContact: "$studentDetails.ParentContact",
+                                         
                                         },
                                         else: null
                                     }
@@ -535,6 +539,153 @@ export const getCallingsByAssignedTo = async (req, res) => {
 
 
 
+// export const updateCalling = async (req, res) => {
+//     try {
+//         const {
+//             _id,
+//             assignedTo,
+//             callingDate,
+//             objectiveOfCallId,
+//             callingStatus,
+//             remark,
+//             dependentRemark,
+//             manualRemark,
+//             newUpdatedValue
+//         } = req.body;
+
+//         // Validate required field
+//         if (!_id) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "_id is required in request body"
+//             });
+//         }
+
+//         // Check if the calling record exists
+//         const existingCalling = await Calling.findById(_id);
+//         if (!existingCalling) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "Calling record not found"
+//             });
+//         }
+
+//         // Build update object with only provided fields
+//         const updateData = {};
+        
+//         if (assignedTo !== undefined) updateData.assignedTo = assignedTo;
+//         if (callingDate !== undefined) updateData.callingDate = callingDate;
+//         if (objectiveOfCallId !== undefined) updateData.objectiveOfCallId = objectiveOfCallId;
+//         if (callingStatus !== undefined) updateData.callingStatus = callingStatus;
+//         if (remark !== undefined) updateData.remark = remark;
+//         if (dependentRemark !== undefined) updateData.dependentRemark = dependentRemark;
+//         if (manualRemark !== undefined) updateData.manualRemark = manualRemark;
+//         if (newUpdatedValue !== undefined) updateData.newUpdatedValue = newUpdatedValue;
+
+//         // Check if there's anything to update
+//         if (Object.keys(updateData).length === 0) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "No fields provided for update. Allowed fields: assignedTo, callingDate, objectiveOfCallId, callingStatus, remark, dependentRemark, manualRemark, newUpdatedValue"
+//             });
+//         }
+
+//         // Validate ObjectIds if provided
+//         if (assignedTo !== undefined && assignedTo !== null && !mongoose.Types.ObjectId.isValid(assignedTo)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Invalid assignedTo ID format"
+//             });
+//         }
+
+//         if (objectiveOfCallId !== undefined && objectiveOfCallId !== null && !mongoose.Types.ObjectId.isValid(objectiveOfCallId)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Invalid objectiveOfCallId ID format"
+//             });
+//         }
+
+//         // If objectiveOfCallId is being updated and not null, verify it exists
+//         if (objectiveOfCallId !== undefined && objectiveOfCallId !== null) {
+//             const objectiveExists = await ObjectiveOfCalling.findById(objectiveOfCallId);
+//             if (!objectiveExists) {
+//                 return res.status(404).json({
+//                     success: false,
+//                     message: "Objective of calling not found with the provided ID"
+//                 });
+//             }
+//         }
+
+//         // If assignedTo is being updated and not null, verify it exists (optional - adjust based on your User model)
+//         if (assignedTo !== undefined && assignedTo !== null) {
+//             const User = mongoose.model('User');
+//             const userExists = await User.findById(assignedTo);
+//             if (!userExists) {
+//                 return res.status(404).json({
+//                     success: false,
+//                     message: "User not found with the provided assignedTo ID"
+//                 });
+//             }
+//         }
+
+//         // Update the calling record
+//         const updatedCalling = await Calling.findByIdAndUpdate(
+//             _id,
+//             { $set: updateData },
+//             { new: true, runValidators: true }
+//         );
+
+//         // Populate references for response
+//         const populatedCalling = await Calling.findById(updatedCalling._id)
+//             .populate('studentUnqObjectId', 'firstName fatherName studentSrn classofStudent personalContact ParentContact')
+//             .populate('assignedTo', 'name email role department contact1 contact2')
+//             .populate('objectiveOfCallId', 'objectiveOfCalling remarks callingStatus');
+
+//         // Send success response
+//         res.status(200).json({
+//             success: true,
+//             message: "Calling record updated successfully",
+//             updatedFields: Object.keys(updateData),
+//             data: populatedCalling
+//         });
+
+//     } catch (error) {
+//         console.error("Error updating calling:", error);
+        
+//         if (error.name === 'ValidationError') {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Validation error",
+//                 errors: Object.values(error.errors).map(err => err.message)
+//             });
+//         }
+
+//         if (error.name === 'CastError') {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Invalid ID format",
+//                 error: error.message
+//             });
+//         }
+
+//         res.status(500).json({
+//             success: false,
+//             message: "Failed to update calling record",
+//             error: error.message
+//         });
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
 export const updateCalling = async (req, res) => {
     try {
         const {
@@ -546,7 +697,9 @@ export const updateCalling = async (req, res) => {
             remark,
             dependentRemark,
             manualRemark,
-            newUpdatedValue
+            newUpdatedValue,
+            followUpDate,
+            callingDescription
         } = req.body;
 
         // Validate required field
@@ -577,12 +730,14 @@ export const updateCalling = async (req, res) => {
         if (dependentRemark !== undefined) updateData.dependentRemark = dependentRemark;
         if (manualRemark !== undefined) updateData.manualRemark = manualRemark;
         if (newUpdatedValue !== undefined) updateData.newUpdatedValue = newUpdatedValue;
+        if (followUpDate !== undefined) updateData.followUpDate = followUpDate;
+        if (callingDescription !== undefined) updateData.callingDescription = callingDescription;
 
         // Check if there's anything to update
         if (Object.keys(updateData).length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "No fields provided for update. Allowed fields: assignedTo, callingDate, objectiveOfCallId, callingStatus, remark, dependentRemark, manualRemark, newUpdatedValue"
+                message: "No fields provided for update. Allowed fields: assignedTo, callingDate, objectiveOfCallId, callingStatus, remark, dependentRemark, manualRemark, newUpdatedValue, followUpDate, callingDescription"
             });
         }
 
@@ -671,6 +826,17 @@ export const updateCalling = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+
+
+
+
+
+
 
 
 

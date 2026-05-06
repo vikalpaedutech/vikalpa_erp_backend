@@ -61,7 +61,7 @@ const CallingSchema = new Schema (
    newUpdatedValue: {type: String}, //if collection of data like new numbers and any kind of value user is collecting so this field
    objectiveOfCallId: {type: mongoose.Schema.Types.ObjectId, default:null},
    callingDate: {type:Date, default:null},
-
+   followUpDate:{type: Date}
   },
   { timestamps: true }
 );
