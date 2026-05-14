@@ -482,10 +482,10 @@ export const GetMBStudents = async (req, res) => {
       blockId, 
       schoolId, 
       batch, 
-      isSlcTaken,
+     
       startDate  // Single date only
     } = req.body;
-
+ let  isSlcTaken = false;
     console.log(req.body)
     console.log("i am inside 'student.controller.js' and api: 'GetMBStudents'")
     
