@@ -17,24 +17,189 @@ export const uploadFile = multer({ storage }).single('file');
 
 
 
+//New Apis 07-05-2026-------------------------------------
+
+export const markUserAttendance = async (req, res) => {
+  let {
+    unqUserObjectId,
+    userId,
+    date,
+    attendance,
+    loginTime,
+    logoutTime,
+    longitude,
+    latitude,
+    coordinateDifference,
+    logoutLongitude,
+    logoutLatitude,
+    logoutCoordinateDifference,
+    fileName,
+    fileUrl,
+    attendanceType,
+    visitingLocation,
+    attendanceMarkedBy,
+    remarkForManualAttendance
+  } = req.body;
+
+  console.log(req.body)
+
+  console.log(req.file)
+
+  try {
+    // Validate required fields
+    if (!unqUserObjectId) {
+      return res.status(400).json({
+        success: false,
+        message: "unqUserObjectId is required"
+      });
+    }
+
+    // Check if attendance already exists for this user on this date
+    const existingAttendance = await UserAttendance.findOne({
+      unqUserObjectId,
+      date: {
+        $gte: new Date(date).setHours(0, 0, 0, 0),
+        $lt: new Date(date).setHours(23, 59, 59, 999)
+      }
+    });
+
+    let attendanceRecord;
+
+     // Upload file if present
+    if (req.file) {
+      const mimeType = req.file.mimetype;
+      fileName = `attendance-${userId}-${Date.now()}.jpg`;
+      console.log(`📤 Uploading to DO Spaces: ${fileName} (${(req.file.size / 1024).toFixed(2)}KB)`);
+      
+      fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
+      console.log(`✅ File uploaded: ${fileUrl}`);
+    }
+
+    if (existingAttendance) {
+      // Update existing attendance
+      attendanceRecord = await UserAttendance.findByIdAndUpdate(
+        existingAttendance._id,
+        {
+          ...(userId && { userId }),
+          ...(attendance && { attendance }),
+          ...(loginTime && { loginTime }),
+          ...(logoutTime && { logoutTime }),
+          ...(longitude && { longitude }),
+          ...(latitude && { latitude }),
+          ...(coordinateDifference && { coordinateDifference }),
+          ...(logoutLongitude && { logoutLongitude }),
+          ...(logoutLatitude && { logoutLatitude }),
+          ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
+          ...(fileName && { fileName }),
+          ...(fileUrl && { fileUrl }),
+          ...(attendanceType && { attendanceType }),
+          ...(visitingLocation && { visitingLocation }),
+          ...(attendanceMarkedBy && { attendanceMarkedBy }),
+          ...(remarkForManualAttendance && { remarkForManualAttendance })
+        },
+        { new: true, runValidators: true }
+      ).populate('unqUserObjectId', 'name email'); // Populate user details if needed
+
+      return res.status(200).json({
+        success: true,
+        message: "Attendance updated successfully",
+        data: attendanceRecord
+      });
+    } else {
+      // Create new attendance record
+      attendanceRecord = await UserAttendance.create({
+        unqUserObjectId,
+        userId: userId || null,
+        date: date || new Date(),
+        attendance: attendance || "Absent",
+        loginTime: loginTime || new Date(),
+        logoutTime: logoutTime || new Date(),
+        longitude: longitude || 0,
+        latitude: latitude || 0,
+        coordinateDifference: coordinateDifference || null,
+        logoutLongitude: logoutLongitude || 0,
+        logoutLatitude: logoutLatitude || 0,
+        logoutCoordinateDifference: logoutCoordinateDifference || null,
+        fileName: fileName || null,
+        fileUrl: fileUrl || null,
+        attendanceType: attendanceType || null,
+        visitingLocation: visitingLocation || null,
+        attendanceMarkedBy: attendanceMarkedBy || null,
+        remarkForManualAttendance: remarkForManualAttendance || null
+      });
+
+      // Populate the user details
+      await attendanceRecord.populate('unqUserObjectId', 'name email');
+
+      return res.status(201).json({
+        success: true,
+        message: "Attendance marked successfully",
+        data: attendanceRecord
+      });
+    }
+
+  } catch (error) {
+    console.error("Error in markUserAttendance:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
 
 
-// //Cron job time management
-// // --------------------------- Configurable Time (IST) ---------------------------
-// const attendanceRunTimeIST = "12:01 AM"; // Change this time for testing
 
-// // Convert IST time string into 24h format (hours & minutes)
-// function parseISTTime(timeStr) {
-//     const [time, modifier] = timeStr.split(" ");
-//     let [hours, minutes] = time.split(":").map(Number);
 
-//     if (modifier === "PM" && hours !== 12) hours += 12;
-//     if (modifier === "AM" && hours === 12) hours = 0;
+export const getUserAttendanceData = async (req, res) => {
+  const { unqUserObjectId } = req.body;
+  
+console.log("I am inside userAttendanceController.js and api name is getUserAttendanceData")
+  
+  try {
+    // Get today's date range
+    const today = new Date();
+    const startOfDay = new Date(today);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const endOfDay = new Date(today);
+    endOfDay.setHours(23, 59, 59, 999);
+    
+    
+    const existingAttendance = await UserAttendance.findOne({
+      unqUserObjectId,
+      date: {
+        $gte: startOfDay,
+        $lt: endOfDay
+      }
+    });
 
-//     return { hours, minutes };
-// }
+  
+    // Return response with proper structure
+    res.status(200).json({
+      success: true,
+      status: "ok",
+      data: existingAttendance || null, // Will be null if no attendance found
+      hasAttendance: !!existingAttendance,
+      message: existingAttendance ? "Attendance found" : "No attendance for today"
+    });
 
-// //--------------------------------------
+  } catch (error) {
+    console.error("Error in getting attendance:", error);
+    return res.status(500).json({
+      success: false,
+      status: "error",
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
+
+
+
+
+//----------------------------------------------------------
 
 
 export const cronJobUserAttendance = async (req, res) => {
@@ -547,11 +712,14 @@ export const getFilteredUserAttendanceSummary = async (req, res) => {
 
 
 //--------------------------------------------------------
+
 export const getUserAttendanceSummaryData = async (req, res) => {
 
-  // console.log("Hello attendance summary");
+  console.log("Hello attendance summary");
 
   const { roles, departments, districtIds, schoolIds, startDate, endDate } = req.body;
+
+  console.log(req.body)
 
   // console.log(req.body)
 
@@ -655,6 +823,7 @@ export const getUserAttendanceSummaryData = async (req, res) => {
 
     const result = await UserAttendance.aggregate(pipeline);
 
+    console.log(result.data)
 
     // console.log(result)
 

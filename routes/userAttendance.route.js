@@ -7,7 +7,12 @@ const router = express();
 import {uploadFile, cronJobUserAttendance, GetAttendanceByUserId, PatchUserAttendanceByUserId, 
     getFilteredUserAttendanceSummary, 
     patchUserAttendanceWithoutImage, 
-    GetAttendanceDataOfUsersByMonthAndYear, getUserAttendanceSummaryData } from "../controllers/userAttendance.controller.js";
+    GetAttendanceDataOfUsersByMonthAndYear, getUserAttendanceSummaryData,
+
+
+
+    markUserAttendance, getUserAttendanceData
+ } from "../controllers/userAttendance.controller.js";
 import { GetNotificationByUserIdOnQueryParams } from "../utils/notificatino.utils.js";
 
 router.get('/attendanceby-userid', GetAttendanceByUserId);
@@ -25,4 +30,8 @@ router.post('/individual-user-attendance-dash', GetAttendanceDataOfUsersByMonthA
 router.post('/user-attendance-summary-data', getUserAttendanceSummaryData)
 
 
+
+//New Routes 07-05-2026
+router.post ('/mark-user-attendance', uploadFile, markUserAttendance)
+router.post ('/get-user-attendance', getUserAttendanceData)
 export default router;

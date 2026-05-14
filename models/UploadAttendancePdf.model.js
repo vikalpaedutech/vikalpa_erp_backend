@@ -5,7 +5,6 @@
 import mongoose, {mongo, Schema} from "mongoose";
 
 
-//CRON JOB FOR INITALIZING DATA INTO DB. It's entry point is in app.js
 const UploadAttendancePdfSchema = new Schema (
 
     {
@@ -16,14 +15,19 @@ const UploadAttendancePdfSchema = new Schema (
                       ref: "User",
                      
                     },
-        userId: {type: String, ref: "User"},
-        districtId: {type: String, ref: "District"},
-        districtName: {type: String, ref: "District"},
-        blockId:{type: String, ref: "Block"},
-        blockName: {type: String, ref: "Block"},
-        schoolId: {type: String, ref:"School"},
-        schoolName: {type: String, ref: "School"},
-        classofStudent:{type: String, required: true},
+        
+
+        // districtId: {type: String, ref: "District"},
+        // districtName: {type: String, ref: "District"},
+        // blockId:{type: String, ref: "Block"},
+        // blockName: {type: String, ref: "Block"},
+        // schoolId: {type: String, ref:"School"},
+        // schoolName: {type: String, ref: "School"},
+        district_block_schoolsObjectId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "District_Block_School"
+        },
+        batch:{type: String, required: true},
         isPdfUploaded: {type: Boolean, default: false},
         dateOfUpload: {type: Date,   required: true}, //default: Date.now,
         fileName: { type: String }, // Name of the file attached to the expense (e.g., receipt image)

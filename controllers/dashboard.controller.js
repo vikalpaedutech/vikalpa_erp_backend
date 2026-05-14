@@ -3,7 +3,7 @@
 import { StudentAttendance } from "../models/studentAttendance.model.js"
 import { Student } from "../models/student.model.js";
 import mongoose from "mongoose";
-import { District_Block_School } from "../models/district_block_buniyaadCenters.model.js";
+import { District_Block_School } from "../models/district_block_school.model.js";
 
 import {AttendancePdf} from "../models/UploadAttendancePdf.model.js"
 //Attendance count api.

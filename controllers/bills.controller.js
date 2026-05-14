@@ -8,7 +8,7 @@ import mongoose from "mongoose";
 
 import { uploadToDOStorage } from "../utils/digitalOceanSpaces.utils.js";
 
-import { District_Block_School } from "../models/district_block_buniyaadCenters.model.js";
+import { District_Block_School } from "../models/district_block_school.model.js";
 
 
 

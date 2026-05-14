@@ -30,12 +30,17 @@ const userAttendanceSchema = new Schema(
 
   logoutLongitude: {type: Number, default: 0},
   logoutLatitude: {type: Number, default: 0},
-  logoutCoordinateDifference: {type: Number},
-  fileName: {type: String}, //Uploaded file name
-  fileUrl: {type: String}, //User image
-  attendanceType: {type: String}, //center visit, wfh, govt. official visit, event.
-  visitingLocation: {type: String}, //visiting location, center name, 
-  attendanceMarkedBy: {type: String, default: null}, //Who is updating attendance.
+  logoutCoordinateDifference: {type: Number, default:0},
+  fileName: {type: String, default: null}, //Uploaded file name
+  fileUrl: {type: String, default:null}, //User image
+  attendanceType: {type: String, default: null}, //center visit, wfh, govt. official visit, event.
+  visitingLocation: {type: String, default: null}, //visiting location, center name, 
+  attendanceMarkedBy: {
+          type: mongoose.Schema.Types.ObjectId, // reference to User
+          ref: "User",
+          required: true,
+          default: null
+        }, //Who is updating attendance.
   remarkForManualAttendance: {type: String, default:null},// if someone elses marks other user attendane then this field must have remark.
 
   },

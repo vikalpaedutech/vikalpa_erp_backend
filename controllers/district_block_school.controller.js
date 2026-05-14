@@ -1,6 +1,6 @@
 //Writing controllers, Business logic, res APIs for district.model.js.
 
-import { District_Block_School } from "../models/district_block_buniyaadCenters.model.js";
+import { District_Block_School } from "../models/district_block_school.model.js";
 
 
 
@@ -15,8 +15,8 @@ export const createPost = async (req, res) => {
       districtName,
       blockId,
       blockName,
-      centerId,
-      centerName
+      schoolId,
+      schoolName
     } = req.body;
 
     console.log(req.body)
@@ -26,8 +26,8 @@ export const createPost = async (req, res) => {
       districtName,
       blockId,
       blockName,
-      centerId,
-      centerName
+      schoolId,
+      schoolName
     });
 
     res.status(201).json({
@@ -54,16 +54,22 @@ export const GetDistrictBlockSchoolByParams = async (req, res) =>{
 
 
 
-  const {districtId, blockId, centerId, role} = req.body;
+  const {districtId, blockId, schoolId, role} = req.body;
 
-console.log('Hello region')
+
+  console.log(districtId)
+console.log('I am inside district_block_school.controller.js and api: GetDistrictBlockSchoolByParams ')
 
   
 
   try {
     
 
-    const response = await District_Block_School.find({})
+    const response = await District_Block_School.find({schoolId:{
+      $in:schoolId
+    }, isCenterClosed:false})
+
+
 
     res.status(200).json({status:"Success", data:response})
 

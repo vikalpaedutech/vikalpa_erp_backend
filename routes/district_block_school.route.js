@@ -2,7 +2,9 @@
 
 import express from "express"
 
-import { createPost, GetDistrictBlockSchoolByParams } from "../controllers/district_block_buniyaadCenters.controller.js";
+// import { createPost, GetDistrictBlockSchoolByParams } from "../controllers/district_block_school.controller.js";
+
+import {createPost, GetDistrictBlockSchoolByParams} from "../controllers/district_block_school.controller.js"
 
 const router = express();
 

@@ -6,7 +6,7 @@ import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents,
     updateStudentBySrn, patchStudentBySrn, 
     deleteStudentBySrn,
      getStudentsByQueryParams, uploadDressSizePdf, uploadDressSizeConfirmationForm,
-     GetStudentsBySlc
+     GetStudentsBySlc, GetMBStudents, MarkMBStudentAttendance
     } from "../controllers/student.controller.js";
 
 //creating express router.
@@ -32,4 +32,18 @@ router.patch(
 
 
 router.post('/student-data-for-ame', GetStudentsBySlc)
+
+
+
+
+
+//version 2 routes 11-May-2026
+
+router.post("/get-mb-student-data", GetMBStudents);
+router.post("/mark-mb-student-data", MarkMBStudentAttendance);
+
+
+
+
+
 export default router;

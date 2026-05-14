@@ -8,8 +8,8 @@ const DistrictBlockBuniyaadCenterSchema = new Schema(
     districtName: { type: String},
     blockId: {type: String},
     blockName: {type: String},
-    centerId: {type: String},
-    centerName: {type: String}
+    schoolId: {type: String},
+    schoolName: {type: String}
 
 
   },

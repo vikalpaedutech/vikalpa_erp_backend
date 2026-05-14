@@ -9,6 +9,8 @@ import { uploadToDOStorage } from "../utils/digitalOceanSpacesAttendancePdf.util
 import path from "path";
 import multer from "multer";
 import mongoose from "mongoose";
+import { District_Block_School } from "../models/district_block_school.model.js";
+
 
 
 
@@ -193,3 +195,401 @@ export const PatchAttendancePdf = async (req, res) => {
 };
 
 //------------------------------------------------------------------------------------
+
+
+
+
+//version 2 apis
+
+
+// Patch API To update attendance file pdf
+// Multer for memory storage
+// const storage = multer.memoryStorage();
+// export const uploadAttendancePdfFile = multer({ storage }).single('file');
+
+// PATCH API to upload & update attendance PDF (Update Only)
+
+
+
+export const uploadAttendancePdf = async (req, res) => {
+    console.log("I am in UploadAttendancePdf.controller.js, api:uploadAttendancePdf")
+
+    try {
+        const { 
+            unqUserObjectId,
+            district_block_schoolsObjectId,
+            batch,
+            dateOfUpload,
+            isPdfUploaded,
+            fileName: providedFileName,
+            fileUrl: providedFileUrl
+        } = req.body;
+
+        console.log(req.body)
+        const file = req.file;
+
+        // Validate required fields for finding/creating the record
+        if (!district_block_schoolsObjectId || !batch || !dateOfUpload) {
+            return res.status(400).json({ 
+                status: "Error", 
+                message: "Missing required fields. Required: district_block_schoolsObjectId, batch, dateOfUpload" 
+            });
+        }
+
+        // Process file if uploaded via multer (priority over provided fileUrl/fileName)
+        let finalFileUrl = providedFileUrl;
+        let finalFileName = providedFileName;
+
+        if (file) {
+            // Generate file name from uploaded file
+            const fileExt = file.originalname.split('.').pop();
+            const sanitizedDate = new Date(dateOfUpload).toISOString().split('T')[0];
+            finalFileName = `attendance_${district_block_schoolsObjectId}_${sanitizedDate}_${batch}.${fileExt}`;
+            
+            // Upload to cloud storage
+            finalFileUrl = await uploadToDOStorage(file.buffer, `attendancepdf/${finalFileName}`, file.mimetype);
+        }
+
+        // Find or create the attendance record
+        let record = await AttendancePdf.findOne({ 
+            district_block_schoolsObjectId, 
+            batch, 
+            dateOfUpload 
+        });
+
+        if (!record) {
+            // Create new record if not found
+            record = new AttendancePdf({
+              unqUserObjectId:unqUserObjectId,
+                district_block_schoolsObjectId:district_block_schoolsObjectId,
+                batch,
+                dateOfUpload,
+                unqUserObjectId: unqUserObjectId || null,
+                fileName: finalFileName || null,
+                fileUrl: finalFileUrl || null,
+                isPdfUploaded: file ? true : (isPdfUploaded || false)
+            });
+        } else {
+            // Update existing record with provided fields
+            if (unqUserObjectId) record.unqUserObjectId = unqUserObjectId;
+            if (batch) record.batch = batch;
+            if (isPdfUploaded !== undefined) record.isPdfUploaded = isPdfUploaded;
+            if (finalFileName) record.fileName = finalFileName;
+            if (finalFileUrl) record.fileUrl = finalFileUrl;
+            
+            // Always update these if file is uploaded
+            if (file) {
+                record.isPdfUploaded = true;
+            }
+        }
+
+        await record.save();
+
+        // Fetch the updated/created record with populated references
+        const updatedRecord = await AttendancePdf.findById(record._id)
+            .populate('district_block_schoolsObjectId unqUserObjectId');
+
+        res.status(200).json({
+            status: "Success",
+            message: record.isNew ? "Attendance record created and PDF uploaded successfully" : "PDF uploaded and attendance record updated successfully",
+            data: updatedRecord,
+        });
+
+    } catch (error) {
+        console.error("Error uploading PDF:", error.message);
+        res.status(500).json({ 
+            status: "Error", 
+            message: error.message 
+        });
+    }
+};
+
+
+// export const getAttendancePdf = async (req, res) => {
+//   const { schoolId, dateOfUpload, batch } = req.body;
+
+//   try {
+//     // Build match condition for the lookup
+//     let matchCondition = {};
+    
+//     // Add batch filter if provided (always expect batch in req.body)
+//     if (batch) {
+//       matchCondition.batch = batch;
+//     }
+    
+//     // Add date filter if provided, otherwise use current date
+//     let targetDate = dateOfUpload;
+//     if (!targetDate) {
+//       // Use current date if dateOfUpload not provided
+//       targetDate = new Date();
+//       targetDate.setHours(0, 0, 0, 0); // Set to start of day for proper comparison
+//     } else {
+//       targetDate = new Date(dateOfUpload);
+//       targetDate.setHours(0, 0, 0, 0);
+//     }
+    
+//     // Create date range for the entire day
+//     const nextDay = new Date(targetDate);
+//     nextDay.setDate(nextDay.getDate() + 1);
+    
+//     matchCondition.dateOfUpload = {
+//       $gte: targetDate,
+//       $lt: nextDay
+//     };
+
+//     let pipeline = [
+//       {
+//         $lookup: {
+//           from: "attendancepdfs",
+//           let: { schoolId: "$_id" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ["$district_block_schoolsObjectId", "$$schoolId"] },
+//                     { $eq: ["$batch", batch] },
+//                     {
+//                       $gte: ["$dateOfUpload", targetDate]
+//                     },
+//                     {
+//                       $lt: ["$dateOfUpload", nextDay]
+//                     }
+//                   ]
+//                 }
+//               }
+//             }
+//           ],
+//           as: "uploadpdfdetails"
+//         }
+//       }
+//     ];
+
+//     // Add school filter if schoolId is provided
+//     if (schoolId) {
+//       pipeline.unshift({
+//         $match: { schoolId: schoolId }
+//       });
+//     }
+
+//     const response = await District_Block_School.aggregate(pipeline);
+    
+//     res.status(200).json({ 
+//       status: 'Ok', 
+//       data: response,
+//       filterApplied: {
+//         batch: batch || 'not provided',
+//         dateOfUpload: targetDate.toISOString().split('T')[0]
+//       }
+//     });
+    
+//   } catch (error) {
+//     console.log("Error occurred in getAttendancePdf:", error);
+//     res.status(500).json({ 
+//       status: 'Error', 
+//       message: error.message 
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+// export const getAttendancePdf = async (req, res) => {
+//   const { schoolId, dateOfUpload, batch } = req.body;
+
+//   console.log(req.body)
+
+//   try {
+//     // Validate required fields
+//     if (!batch) {
+//       return res.status(400).json({
+//         status: 'Error',
+//         message: 'Batch is required'
+//       });
+//     }
+
+//     // Handle schoolId - can be string, array, or undefined
+//     let schoolIdsArray = [];
+//     if (schoolId) {
+//       // If schoolId is a string, convert to array
+//       if (typeof schoolId === 'string') {
+//         schoolIdsArray = [schoolId];
+//       } 
+//       // If schoolId is an array, use it directly
+//       else if (Array.isArray(schoolId)) {
+//         schoolIdsArray = schoolId;
+//       }
+//       // If it's a number, convert to string and make array
+//       else if (typeof schoolId === 'number') {
+//         schoolIdsArray = [schoolId.toString()];
+//       }
+//     }
+    
+//     // Add date filter if provided, otherwise use current date
+//     let targetDate = dateOfUpload;
+//     if (!targetDate) {
+//       // Use current date if dateOfUpload not provided
+//       targetDate = new Date();
+//       targetDate.setHours(0, 0, 0, 0); // Set to start of day for proper comparison
+//     } else {
+//       targetDate = new Date(dateOfUpload);
+//       targetDate.setHours(0, 0, 0, 0);
+//     }
+    
+//     // Create date range for the entire day
+//     const nextDay = new Date(targetDate);
+//     nextDay.setDate(nextDay.getDate() + 1);
+    
+//     // Build the match condition for schools
+//     let schoolMatchCondition = {};
+//     if (schoolIdsArray.length > 0) {
+//       schoolMatchCondition.schoolId = { $in: schoolIdsArray };
+//     }
+
+//     let pipeline = [
+//       {
+//         $lookup: {
+//           from: "attendancepdfs",
+//           let: { schoolObjectId: "$_id" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ["$district_block_schoolsObjectId", "$$schoolObjectId"] },
+//                     { $eq: ["$batch", batch] },
+//                     {
+//                       $gte: ["$dateOfUpload", targetDate]
+//                     },
+//                     {
+//                       $lt: ["$dateOfUpload", nextDay]
+//                     }
+//                   ]
+//                 }
+//               }
+//             }
+//           ],
+//           as: "uploadpdfdetails"
+//         }
+//       },
+//       // Only include schools that have matching attendance records (optional)
+//       {
+//         $match: {
+//           "uploadpdfdetails": { $ne: [] }
+//         }
+//       }
+//     ];
+
+//     // Add school filter if schoolIdsArray has values
+//     if (schoolIdsArray.length > 0) {
+//       pipeline.unshift({
+//         $match: schoolMatchCondition
+//       });
+//     }
+
+//     const response = await District_Block_School.aggregate(pipeline);
+    
+//     res.status(200).json({ 
+//       status: 'Ok', 
+//       data: response,
+//       filterApplied: {
+//         schoolIds: schoolIdsArray.length > 0 ? schoolIdsArray : 'All schools',
+//         batch: batch,
+//         dateOfUpload: targetDate.toISOString().split('T')[0]
+//       },
+//       summary: {
+//         totalSchoolsFound: response.length,
+//         schoolsWithAttendance: response.filter(school => school.uploadpdfdetails.length > 0).length
+//       }
+//     });
+    
+//   } catch (error) {
+//     console.log("Error occurred in getAttendancePdf:", error);
+//     res.status(500).json({ 
+//       status: 'Error', 
+//       message: error.message 
+//     });
+//   }
+// };
+
+
+
+
+export const getAttendancePdf = async (req, res) => {
+  const { schoolId, dateOfUpload, batch } = req.body;
+
+  try {
+    if (!batch) {
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Batch is required'
+      });
+    }
+
+    // Convert schoolId to array
+    let schoolIdsArray = [];
+    if (schoolId) {
+      schoolIdsArray = Array.isArray(schoolId) ? schoolId : [schoolId.toString()];
+    }
+    
+    // Setup date range
+    let targetDate = dateOfUpload ? new Date(dateOfUpload) : new Date();
+    targetDate.setHours(0, 0, 0, 0);
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(nextDay.getDate() + 1);
+    
+    // First get all schools
+    let schoolQuery = {};
+    if (schoolIdsArray.length > 0) {
+      schoolQuery.schoolId = { $in: schoolIdsArray };
+    }
+    
+    const schools = await District_Block_School.find(schoolQuery);
+    const schoolObjectIds = schools.map(s => s._id);
+    
+    // Then get all attendance records for these schools
+    const attendanceRecords = await AttendancePdf.find({
+      district_block_schoolsObjectId: { $in: schoolObjectIds },
+      batch: batch,
+      dateOfUpload: { $gte: targetDate, $lt: nextDay }
+    });
+    
+    // Create a map of attendance records by school ID
+    const attendanceMap = new Map();
+    attendanceRecords.forEach(record => {
+      const schoolIdStr = record.district_block_schoolsObjectId.toString();
+      if (!attendanceMap.has(schoolIdStr)) {
+        attendanceMap.set(schoolIdStr, []);
+      }
+      attendanceMap.get(schoolIdStr).push(record);
+    });
+    
+    // Combine schools with their attendance records
+    const response = schools.map(school => ({
+      ...school.toObject(),
+      uploadpdfdetails: attendanceMap.get(school._id.toString()) || []
+    }));
+    
+    res.status(200).json({ 
+      status: 'Ok', 
+      data: response,
+      summary: {
+        totalSchoolsFound: response.length,
+        schoolsWithAttendance: response.filter(s => s.uploadpdfdetails.length > 0).length
+      }
+    });
+    
+  } catch (error) {
+    console.log("Error occurred:", error);
+    res.status(500).json({ 
+      status: 'Error', 
+      message: error.message 
+    });
+  }
+};

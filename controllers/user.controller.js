@@ -2,6 +2,8 @@
 
 import mongoose from "mongoose"; 
 import { User, UserAccess } from "../models/user.model.js";
+import { UserAttendance } from "../models/userAttendnace.model.js";
+import { District_Block_School } from "../models/district_block_school.model.js";
 
 // Create a new user (POST)
 // export const createUser = async (req, res) => {
@@ -418,7 +420,7 @@ export const patchUserByContact = async (req, res) => {
 // Create or update UserAccess
 export const setUserAccess = async (req, res) => {
   try {
-    const { unqObjectId, userId, modules, region, classId } = req.body;
+    const { unqObjectId, userId, modules, region, batch } = req.body;
 
     if (!unqObjectId) {
       return res.status(400).json({ message: "unqObjectId (User ID) is required" });
@@ -432,7 +434,7 @@ export const setUserAccess = async (req, res) => {
           userId,
           modules,
           region,
-          classId,
+          batch,
         },
       },
       {
@@ -522,7 +524,7 @@ export const getAllUsersWithAccess = async (req, res) =>{
                     createdAt: 1,
                     "access.modules":1,
                     "access.region": 1,
-                    "access.classId": 1,
+                    "access.batch": 1,
 
                 },
             },
@@ -622,7 +624,7 @@ export const getAllUsersWithAccesswithoutPagination = async (req, res) =>{
                     rank:1,
                     "access.modules":1,
                     "access.region": 1,
-                    "access.classId": 1,
+                    "access.batch": 1,
 
                 },
             },
@@ -997,7 +999,7 @@ export const getUsersByObjectId = async (req, res) => {
           latitude: 1,
           createdAt: 1,
           updatedAt: 1,
-          "accessDetails.classId": 1,
+          "accessDetails.batch": 1,
           "accessDetails.modules": 1,
           "accessDetails.region": 1,
           "accessDetails.createdAt": 1,
@@ -1470,7 +1472,7 @@ export const updateUserAccesses = async (req, res) => {
     const { 
       unqObjectId,
       modules,
-      classId,
+      batch,
       // Region operations
       addDistrict,
       removeDistrict,
@@ -1515,8 +1517,8 @@ export const updateUserAccesses = async (req, res) => {
       updateNeeded = true;
     }
 
-    if (classId !== undefined) {
-      existingUserAccess.classId = classId;
+    if (batch !== undefined) {
+      existingUserAccess.batch = batch;
       updateNeeded = true;
     }
 
@@ -1684,7 +1686,7 @@ export const updateUserAccesses = async (req, res) => {
     }
 
     // Check if there's anything to update
-    if (!updateNeeded && modules === undefined && classId === undefined && region === undefined) {
+    if (!updateNeeded && modules === undefined && batch === undefined && region === undefined) {
       return res.status(400).json({ 
         status: "Error", 
         message: "No valid update operations provided" 
@@ -1727,6 +1729,539 @@ export const updateUserAccesses = async (req, res) => {
     res.status(500).json({ 
       status: "Error", 
       message: "Server error while updating user access" 
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
+//version 2 api
+
+
+// export const UserAttendanceDashboard = async (req, res) => {
+//   try {
+//     const { date, role, schoolIds } = req.body;
+    
+//     console.log(req.body)
+//     // Set current date if no date provided
+//     let filterDate;
+//     if (date) {
+//       filterDate = new Date(date);
+//       filterDate.setHours(0, 0, 0, 0);
+//     } else {
+//       filterDate = new Date();
+//       filterDate.setHours(0, 0, 0, 0);
+//     }
+    
+//     // Next day for date range
+//     const nextDate = new Date(filterDate);
+//     nextDate.setDate(filterDate.getDate() + 1);
+    
+//     // Build user match conditions
+//     const userMatchConditions = {
+//       isActive: true
+//     };
+    
+//     // Add role filter if provided
+//     if (role && role.trim() !== "") {
+//       userMatchConditions.role = role;
+//     }
+    
+//     let pipeline = [
+//       // Filter users based on role and isActive
+//       { $match: userMatchConditions },
+//       {
+//         $lookup: {
+//           from: "useraccesses",
+//           localField: "_id",
+//           foreignField: "unqObjectId",
+//           as: "useraccessdetails"
+//         }
+//       },
+//       { $unwind: "$useraccessdetails" },
+//       {
+//         $lookup: {
+//           from: "userattendances",
+//           let: { 
+//             userId: "$useraccessdetails.unqObjectId",
+//             startDate: filterDate,
+//             endDate: nextDate
+//           },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ["$unqUserObjectId", "$$userId"] },
+//                     { $gte: ["$date", "$$startDate"] },
+//                     { $lt: ["$date", "$$endDate"] }
+//                   ]
+//                 }
+//               }
+//             },
+//             { $sort: { date: -1 } }
+//           ],
+//           as: "userAttendanceDetails"
+//         }
+//       },
+//       { $unwind: "$useraccessdetails.region" },
+//       { $unwind: "$useraccessdetails.region.blockIds" },
+//       { $unwind: "$useraccessdetails.region.blockIds.schoolIds" }
+//     ];
+    
+//     // Filter by schoolIds if provided and array is not empty
+//     if (schoolIds && Array.isArray(schoolIds) && schoolIds.length > 0) {
+//       pipeline.push({
+//         $match: {
+//           "useraccessdetails.region.blockIds.schoolIds.schoolId": {
+//             $in: schoolIds
+//           }
+//         }
+//       });
+//     }
+    
+//     // Continue with remaining pipeline
+//     pipeline.push(
+//       {
+//         $lookup: {
+//           from: "district_block_schools",
+//           let: { schoolId: "$useraccessdetails.region.blockIds.schoolIds.schoolId" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $eq: ["$schoolId", "$$schoolId"]
+//                 }
+//               }
+//             },
+//             {
+//               $project: {
+//                 schoolId: 1,
+//                 schoolName: 1,
+//                 districtId: 1,
+//                 districtName: 1,
+//                 blockId: 1,
+//                 blockName: 1,
+//                 isCenterClosed: 1
+//               }
+//             }
+//           ],
+//           as: "schoolDetails"
+//         }
+//       },
+//       { $unwind: { path: "$schoolDetails", preserveNullAndEmptyArrays: true } },
+//       {
+//         $group: {
+//           _id: "$_id",
+//           userId: { $first: "$userId" },
+//           name: { $first: "$name" },
+//           email: { $first: "$email" },
+//           password: { $first: "$password" },
+//           contact1: { $first: "$contact1" },
+//           contact2: { $first: "$contact2" },
+//           department: { $first: "$department" },
+//           role: { $first: "$role" },
+//           isActive: { $first: "$isActive" },
+//           profileImage: { $first: "$profileImage" },
+//           longitude: { $first: "$longitude" },
+//           latitude: { $first: "$latitude" },
+//           createdAt: { $first: "$createdAt" },
+//           updatedAt: { $first: "$updatedAt" },
+//           __v: { $first: "$__v" },
+//           avgScore: { $first: "$avgScore" },
+//           rank: { $first: "$rank" },
+//           useraccessdetails: { $first: "$useraccessdetails" },
+//           userAttendanceDetails: { $first: "$userAttendanceDetails" },
+//           schoolIds: { $addToSet: "$useraccessdetails.region.blockIds.schoolIds.schoolId" },
+//           schoolsData: { 
+//             $addToSet: {
+//               schoolId: "$useraccessdetails.region.blockIds.schoolIds.schoolId",
+//               schoolName: "$schoolDetails.schoolName",
+//               districtId: "$schoolDetails.districtId",
+//               districtName: "$schoolDetails.districtName",
+//               blockId: "$schoolDetails.blockId",
+//               blockName: "$schoolDetails.blockName",
+//               isCenterClosed: "$schoolDetails.isCenterClosed"
+//             }
+//           }
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           userId: 1,
+//           name: 1,
+//           email: 1,
+//           contact1: 1,
+//           contact2: 1,
+//           department: 1,
+//           role: 1,
+//           isActive: 1,
+//           profileImage: 1,
+//           longitude: 1,
+//           latitude: 1,
+//           createdAt: 1,
+//           updatedAt: 1,
+//           avgScore: 1,
+//           rank: 1,
+//           useraccessdetails: 1,
+//           userAttendanceDetails: 1,
+//           schoolIds: 1,
+//           schoolsData: 1
+//         }
+//       }
+//     );
+
+//     const response = await User.aggregate(pipeline);
+
+//     res.status(200).json({ 
+//       status: "Ok", 
+//       responseCount: response.length, 
+//       data: response,
+//       filters: {
+//         date: filterDate,
+//         role: role || "All",
+//         isActive: true,
+//         schoolIds: schoolIds && schoolIds.length > 0 ? schoolIds : "All"
+//       }
+//     });
+//   } catch (error) {
+//     console.log("Error occurred:", error);
+//     res.status(500).json({ status: "Error", message: error.message });
+//   }
+// };
+
+
+
+
+export const UserAttendanceDashboard = async (req, res) => {
+  try {
+    const { date, role, schoolIds } = req.body;
+    
+    console.log(req.body);
+    
+    // Set current date if no date provided
+    let filterDate;
+    if (date) {
+      filterDate = new Date(date);
+      filterDate.setHours(0, 0, 0, 0);
+    } else {
+      filterDate = new Date();
+      filterDate.setHours(0, 0, 0, 0);
+    }
+    
+    // Next day for date range
+    const nextDate = new Date(filterDate);
+    nextDate.setDate(filterDate.getDate() + 1);
+    
+    // Build user match conditions
+    const userMatchConditions = {
+      isActive: true
+    };
+    
+    // Add role filter - supports both string and array
+    if (role) {
+      if (Array.isArray(role) && role.length > 0) {
+        // If role is an array with values
+        userMatchConditions.role = { $in: role };
+      } else if (typeof role === 'string' && role.trim() !== "") {
+        // If role is a non-empty string
+        userMatchConditions.role = role;
+      }
+    }
+    
+    let pipeline = [
+      // Filter users based on role and isActive
+      { $match: userMatchConditions },
+      {
+        $lookup: {
+          from: "useraccesses",
+          localField: "_id",
+          foreignField: "unqObjectId",
+          as: "useraccessdetails"
+        }
+      },
+      { $unwind: "$useraccessdetails" },
+      {
+        $lookup: {
+          from: "userattendances",
+          let: { 
+            userId: "$useraccessdetails.unqObjectId",
+            startDate: filterDate,
+            endDate: nextDate
+          },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$unqUserObjectId", "$$userId"] },
+                    { $gte: ["$date", "$$startDate"] },
+                    { $lt: ["$date", "$$endDate"] }
+                  ]
+                }
+              }
+            },
+            { $sort: { date: -1 } }
+          ],
+          as: "userAttendanceDetails"
+        }
+      },
+      { $unwind: "$useraccessdetails.region" },
+      { $unwind: "$useraccessdetails.region.blockIds" },
+      { $unwind: "$useraccessdetails.region.blockIds.schoolIds" }
+    ];
+    
+    // Filter by schoolIds if provided and array is not empty
+    if (schoolIds && Array.isArray(schoolIds) && schoolIds.length > 0) {
+      pipeline.push({
+        $match: {
+          "useraccessdetails.region.blockIds.schoolIds.schoolId": {
+            $in: schoolIds
+          }
+        }
+      });
+    }
+    
+    // Continue with remaining pipeline
+    pipeline.push(
+      {
+        $lookup: {
+          from: "district_block_schools",
+          let: { schoolId: "$useraccessdetails.region.blockIds.schoolIds.schoolId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$schoolId", "$$schoolId"]
+                }
+              }
+            },
+            {
+              $project: {
+                schoolId: 1,
+                schoolName: 1,
+                districtId: 1,
+                districtName: 1,
+                blockId: 1,
+                blockName: 1,
+                isCenterClosed: 1
+              }
+            }
+          ],
+          as: "schoolDetails"
+        }
+      },
+      { $unwind: { path: "$schoolDetails", preserveNullAndEmptyArrays: true } },
+      {
+        $group: {
+          _id: "$_id",
+          userId: { $first: "$userId" },
+          name: { $first: "$name" },
+          email: { $first: "$email" },
+          password: { $first: "$password" },
+          contact1: { $first: "$contact1" },
+          contact2: { $first: "$contact2" },
+          department: { $first: "$department" },
+          role: { $first: "$role" },
+          isActive: { $first: "$isActive" },
+          profileImage: { $first: "$profileImage" },
+          longitude: { $first: "$longitude" },
+          latitude: { $first: "$latitude" },
+          createdAt: { $first: "$createdAt" },
+          updatedAt: { $first: "$updatedAt" },
+          __v: { $first: "$__v" },
+          avgScore: { $first: "$avgScore" },
+          rank: { $first: "$rank" },
+          useraccessdetails: { $first: "$useraccessdetails" },
+          userAttendanceDetails: { $first: "$userAttendanceDetails" },
+          schoolIds: { $addToSet: "$useraccessdetails.region.blockIds.schoolIds.schoolId" },
+          schoolsData: { 
+            $addToSet: {
+              schoolId: "$useraccessdetails.region.blockIds.schoolIds.schoolId",
+              schoolName: "$schoolDetails.schoolName",
+              districtId: "$schoolDetails.districtId",
+              districtName: "$schoolDetails.districtName",
+              blockId: "$schoolDetails.blockId",
+              blockName: "$schoolDetails.blockName",
+              isCenterClosed: "$schoolDetails.isCenterClosed"
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          name: 1,
+          email: 1,
+          contact1: 1,
+          contact2: 1,
+          department: 1,
+          role: 1,
+          isActive: 1,
+          profileImage: 1,
+          longitude: 1,
+          latitude: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          avgScore: 1,
+          rank: 1,
+          useraccessdetails: 1,
+          userAttendanceDetails: 1,
+          schoolIds: 1,
+          schoolsData: 1
+        }
+      }
+    );
+
+    const response = await User.aggregate(pipeline);
+
+    // Format role for response display
+    let roleDisplay = "All";
+    if (role) {
+      if (Array.isArray(role)) {
+        roleDisplay = role.join(", ");
+      } else {
+        roleDisplay = role;
+      }
+    }
+
+    res.status(200).json({ 
+      status: "Ok", 
+      responseCount: response.length, 
+      data: response,
+      filters: {
+        date: filterDate,
+        role: roleDisplay,
+        isActive: true,
+        schoolIds: schoolIds && schoolIds.length > 0 ? schoolIds : "All"
+      }
+    });
+  } catch (error) {
+    console.log("Error occurred:", error);
+    res.status(500).json({ status: "Error", message: error.message });
+  }
+};
+
+
+
+
+
+
+
+export const MarkUserAttendance = async (req, res) => {
+  try {
+    const {
+      _id,
+      date,
+      attendance,
+      loginTime,
+      logoutTime,
+      longitude,
+      latitude,
+      coordinateDifference,
+      logoutLongitude,
+      logoutLatitude,
+      logoutCoordinateDifference,
+      fileName,
+      fileUrl,
+      attendanceType,
+      visitingLocation,
+      attendanceMarkedBy,
+      remarkForManualAttendance
+    } = req.body;
+console.log(req.body)
+    // Validate required fields
+    if (!_id) {
+      return res.status(400).json({ 
+        status: "Error", 
+        message: "unqUserObjectId (_id) is required" 
+      });
+    }
+
+    if (!date) {
+      return res.status(400).json({ 
+        status: "Error", 
+        message: "Date is required" 
+      });
+    }
+
+    // FIX: Extract YYYY-MM-DD from the date
+    let dateString;
+    if (typeof date === 'string') {
+      // If date contains 'T', take only the part before 'T'
+      dateString = date.split('T')[0];
+    } else {
+      dateString = date;
+    }
+    
+    // Create date objects for query (start and end of day in UTC)
+    const startDate = new Date(`${dateString}T00:00:00.000Z`);
+    const endDate = new Date(`${dateString}T23:59:59.999Z`);
+    
+    // Date to store in database (exact date without time)
+    const exactDate = new Date(`${dateString}T00:00:00.000Z`);
+
+    // Prepare update object
+    const updateFields = {
+      updatedAt: new Date(),
+      date: exactDate // Always set the exact date
+    };
+    
+    // Only add fields that are provided
+    if (attendance !== undefined) updateFields.attendance = attendance;
+    if (loginTime !== undefined) updateFields.loginTime = new Date(loginTime);
+    if (logoutTime !== undefined) updateFields.logoutTime = new Date(logoutTime);
+    if (longitude !== undefined) updateFields.longitude = longitude;
+    if (latitude !== undefined) updateFields.latitude = latitude;
+    if (coordinateDifference !== undefined) updateFields.coordinateDifference = coordinateDifference;
+    if (logoutLongitude !== undefined) updateFields.logoutLongitude = logoutLongitude;
+    if (logoutLatitude !== undefined) updateFields.logoutLatitude = logoutLatitude;
+    if (logoutCoordinateDifference !== undefined) updateFields.logoutCoordinateDifference = logoutCoordinateDifference;
+    if (fileName !== undefined) updateFields.fileName = fileName;
+    if (fileUrl !== undefined) updateFields.fileUrl = fileUrl;
+    if (attendanceType !== undefined) updateFields.attendanceType = attendanceType;
+    if (visitingLocation !== undefined) updateFields.visitingLocation = visitingLocation;
+    if (attendanceMarkedBy !== undefined) updateFields.attendanceMarkedBy = attendanceMarkedBy;
+    if (remarkForManualAttendance !== undefined) updateFields.remarkForManualAttendance = remarkForManualAttendance;
+
+    // Use findOneAndUpdate with upsert for simplicity
+    const result = await UserAttendance.findOneAndUpdate(
+      {
+        unqUserObjectId: _id,
+        date: {
+          $gte: startDate,
+          $lte: endDate
+        }
+      },
+      { $set: updateFields },
+      { 
+        new: true, 
+        upsert: true, 
+        runValidators: true 
+      }
+    );
+
+    const isNew = result.createdAt?.getTime() === result.updatedAt?.getTime();
+    
+    res.status(200).json({ 
+      status: "Ok", 
+      message: isNew ? "Attendance created successfully" : "Attendance updated successfully",
+      data: result
+    });
+
+  } catch (error) {
+    console.log("Error occurred while marking attendance:", error);
+    res.status(500).json({ 
+      status: "Error", 
+      message: error.message 
     });
   }
 };

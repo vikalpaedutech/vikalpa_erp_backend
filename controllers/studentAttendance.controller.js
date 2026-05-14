@@ -51,19 +51,9 @@ export const createAttendanceRecords = async (req, res) => {
             const attendanceRecord = new StudentAttendance({
                 unqStudentObjectId:student._id,
                 studentSrn: student.studentSrn,
-                //firstName: student.firstName ,
-                //lastName: student.lastName,
-                //fatherName: student.fatherName,
                 date: date || new Date().toISOString().split("T")[0], // => "2025-04-10",
-                //districtId: student.districtId,
-                //blockId: student.blockId,
-                //schoolId: student.schoolId,
-                //classofStudent: student.classofStudent,
-                //batch: student.batch,
-                status: 'Absent', // Default status
-                isAttendanceMarked: false, // Not marked yet
-                //isAttendanceUpdated: false, // Not updated yet
-                TA: 0, //student.singleSideDistance * student.bothSideDistance, // Example calculation for TA
+                status: 'Absent', 
+                isAttendanceMarked: false, 
                 absenteeCallingStatus: "Not-called",
                 callingRemark1: null,
                 callingRemark2: null,

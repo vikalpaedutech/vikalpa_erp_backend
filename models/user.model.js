@@ -95,7 +95,8 @@ const UserAccessSchema = new Schema(
       },
     ],
 
-    classId: [{ type: String }], // Class id will be class 8, 9th, etc.
+    // classId: [{ type: String }], // Class id will be class 8, 9th, etc.,
+    batch:[{type: String,}], //Batch wise assignment
   },
   { timestamps: true }
 );

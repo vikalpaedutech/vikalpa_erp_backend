@@ -10,7 +10,7 @@ const StudentAttendanceSchema = new Schema(
               required: true,
             },
     //student: { type: Schema.Types.ObjectId, ref: "Student", required: true },
-    studentSrn: {type: String, ref: "Student", required: true },
+    // studentSrn: {type: String, ref: "Student", required: true },
     //firstName: { type: String, ref: "Student", required: true },
     // lastName: { type: String, ref: "Student", required: true },
     //fatherName: { type: String, ref: "Student", required: true  },
