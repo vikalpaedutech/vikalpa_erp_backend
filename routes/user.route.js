@@ -25,7 +25,7 @@ import {
     updateUserAccesses,
 
     UserAttendanceDashboard,
-    MarkUserAttendance
+    MarkUserAttendanceManually
 } from "../controllers/user.controller.js";
 
 const router = express.Router();
@@ -93,6 +93,6 @@ router.post("/update-user-access", updateUserAccesses)
 
 router.post("/get-user-attendance-dashboard", UserAttendanceDashboard)
 
-router.post("/mark-user-attendance", MarkUserAttendance)
+router.post("/mark-user-attendance-manually", MarkUserAttendanceManually)
 
 export default router;

@@ -2156,7 +2156,7 @@ export const UserAttendanceDashboard = async (req, res) => {
 
 
 
-export const MarkUserAttendance = async (req, res) => {
+export const MarkUserAttendanceManually = async (req, res) => {
   try {
     const {
       _id,
