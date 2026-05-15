@@ -39,7 +39,8 @@ import {
     getAllMarksUsinQueryParams, 
     updateMarksBySrnAndExamId,
     createMarksRecordCron,
-    uploadTestFile // New import
+    uploadTestFile, // New import
+    getStudentMarksByExam, updateMarksByExamAndStudent
 } from "../controllers/marks.controller.js";
 
 // Multer configuration for file uploads
@@ -60,4 +61,12 @@ router.put('/marks', updateMarksBySrnAndExamId);
 router.post("/initiate-test", createMarksRecordCron);
 router.post('/upload-test-file', upload.single('testFile'), uploadTestFile); // New route for file upload
 
+
+
+
+//version 2 route
+
+router.post("/get-mb-student-marks", getStudentMarksByExam)
+
+router.post("/update-mb-student-marks", updateMarksByExamAndStudent)
 export default router;

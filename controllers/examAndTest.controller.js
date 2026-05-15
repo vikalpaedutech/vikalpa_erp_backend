@@ -47,7 +47,7 @@ try {
 
   console.log('i am inside try block')
 
-  const response = await ExamAndTest.find({status: "Pending", classofStudent});
+  const response = await ExamAndTest.find({ status: "Pending", batch:"2024-26"}); //status: "Pending"
 
   res.status(200).json({ status: "Success", data: response });
 

@@ -1,6 +1,8 @@
 //This model contains marks schema.
 
+import { MongoGCPError } from "mongodb";
 import mongoose, { Schema } from "mongoose";
+import {ExamAndTest} from "./examAndTest.model.js"
 
 // Marks Schema
 const MarksSchema = new Schema(
@@ -24,7 +26,11 @@ const MarksSchema = new Schema(
   type: mongoose.Schema.Types.Mixed,
  
 },
-   
+   examAndTestUnqObjectId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "ExamAndTest",
+    required: true,
+   },
     fileUrl: { type: String, default: null }, // URL link to the file (e.g., location in cloud storage)
     recordedBy: { type: String, ref: "User",}, // Reference to the user who recorded the marks
     remark: { type: String }, // Additional remarks if any

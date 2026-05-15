@@ -463,3 +463,538 @@ export const uploadTestFile = async (req, res) => {
 };
 
 
+//Version 2 api
+
+
+// export const getStudentMarksByExam = async (req, res) => {
+//   try {
+//     const { 
+//       examAndTestId,
+//       batch,
+//       isSlcTaken,
+//       schoolId,      // optional - filter by school
+//       districtId,    // optional - filter by district
+//       blockId        // optional - filter by block
+//     } = req.body;   
+
+//     console.log(req.body)
+//     // Validate required fields
+//     if (!examAndTestId || !batch || isSlcTaken === undefined) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Missing required fields: examAndTestId, batch, isSlcTaken"
+//       });
+//     }
+
+//     // Verify exam exists
+//     const exam = await ExamAndTest.findById(examAndTestId);
+//     if (!exam) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Exam not found"
+//       });
+//     }
+
+//     // Build match condition dynamically
+//     const matchCondition = {
+//       batch: batch,
+//       isSlcTaken: isSlcTaken
+//     };
+
+//     // Add optional filters
+//     if (schoolId) matchCondition.schoolId = schoolId;
+//     if (districtId) matchCondition.districtId = districtId;
+//     if (blockId) matchCondition.blockId = blockId;
+
+//     // console.log("Match condition:", matchCondition);
+
+//     // Aggregation pipeline
+//     const studentsWithMarks = await Student.aggregate([
+//       {
+//         $match: matchCondition
+//       },
+//       {
+//         $lookup: {
+//           from: "marks",
+//           let: { studentId: "$_id" },
+//           pipeline: [
+//             {
+//               $match: {
+//                 $expr: {
+//                   $and: [
+//                     { $eq: ["$unqStudentObjectId", "$$studentId"] },
+//                     { $eq: ["$examAndTestUnqObjectId", { $toObjectId: examAndTestId }] }
+//                   ]
+//                 }
+//               }
+//             }
+//           ],
+//           as: "marksData"
+//         }
+//       },
+//       {
+//         $addFields: {
+//           marksObtained: { $ifNull: [{ $arrayElemAt: ["$marksData.marksObtained", 0] }, null] },
+//           remark: { $ifNull: [{ $arrayElemAt: ["$marksData.remark", 0] }, null] },
+//           fileUrl: { $ifNull: [{ $arrayElemAt: ["$marksData.fileUrl", 0] }, null] },
+//           marksUpdatedOn: { $ifNull: [{ $arrayElemAt: ["$marksData.marksUpdatedOn", 0] }, null] },
+//           marksId: { $ifNull: [{ $arrayElemAt: ["$marksData._id", 0] }, null] },
+//           isMarksRecordExist: { $gt: [{ $size: "$marksData" }, 0] },
+//           // Add marks percentage if maxMarks available
+//           marksPercentage: {
+//             $cond: {
+//               if: { $and: [
+//                 { $ne: [{ $arrayElemAt: ["$marksData.marksObtained", 0] }, null] },
+//                 { $ne: [exam.maxMarks, null] },
+//                 { $ne: [exam.maxMarks, 0] }
+//               ]},
+//               then: {
+//                 $multiply: [
+//                   { $divide: [{ $arrayElemAt: ["$marksData.marksObtained", 0] }, exam.maxMarks] },
+//                   100
+//                 ]
+//               },
+//               else: null
+//             }
+//           }
+//         }
+//       },
+//       {
+//         $project: { marksData: 0 }
+//       },
+//       {
+//         $sort: { rollNumber: 1 }
+//       }
+//     ]);
+
+//     // Also fetch students without marks filter (for debugging)
+//     const totalAvailableStudents = await Student.countDocuments(matchCondition);
+
+//     return res.status(200).json({
+//       success: true,
+     
+//       data: {
+//         exam: {
+//           _id: exam._id,
+//           examId: exam.examId,
+//           examType: exam.examType,
+//           subject: exam.subject,
+//           examDate: exam.examDate,
+//           maxMarks: exam.maxMarks,
+//           passingMarks: exam.passingMarks
+//         },
+//         filters: {
+//           batch,
+//           isSlcTaken,
+//           schoolId: schoolId || null,
+//           districtId: districtId || null,
+//           blockId: blockId || null
+//         },
+//         summary: {
+//           totalStudentsFound: studentsWithMarks.length,
+//           totalStudentsAvailable: totalAvailableStudents,
+//           withMarks: studentsWithMarks.filter(s => s.isMarksRecordExist).length,
+//           withoutMarks: studentsWithMarks.filter(s => !s.isMarksRecordExist).length
+//         },
+//         students: studentsWithMarks.map(student => ({
+//           // Student Info
+//           _id: student._id,
+//           studentSrn: student.studentSrn,
+//           rollNumber: student.rollNumber,
+//           firstName: student.firstName,
+//           fatherName: student.fatherName,
+//           motherName: student.motherName,
+//           gender: student.gender,
+//           category: student.category,
+//           // Location Info
+//           districtId: student.districtId,
+//           blockId: student.blockId,
+//           schoolId: student.schoolId,
+//           // Class Info
+//           classofStudent: student.classofStudent,
+//           batch: student.batch,
+//           isSlcTaken: student.isSlcTaken,
+//           // Marks Info (null if not exist)
+//           marksObtained: student.marksObtained,
+//           marksPercentage: student.marksPercentage,
+//           remark: student.remark,
+//           fileUrl: student.fileUrl,
+//           marksUpdatedOn: student.marksUpdatedOn,
+//           marksId: student.marksId,
+//           isMarksRecordExist: student.isMarksRecordExist
+//         }))
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message
+//     });
+//   }
+// };
+
+
+
+export const getStudentMarksByExam = async (req, res) => {
+  try {
+    const { 
+      examAndTestId,
+      batch,
+      isSlcTaken,
+      schoolId,
+      districtId,
+      blockId
+    } = req.body;
+
+    // Validate required fields
+    if (!examAndTestId || !batch || isSlcTaken === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: examAndTestId, batch, isSlcTaken"
+      });
+    }
+
+    // Verify exam exists
+    const exam = await ExamAndTest.findById(examAndTestId);
+    if (!exam) {
+      return res.status(404).json({
+        success: false,
+        message: "Exam not found"
+      });
+    }
+
+    // Build match condition dynamically
+    const matchCondition = {
+      batch: batch,
+      isSlcTaken: isSlcTaken
+    };
+
+    // Add optional filters
+    if (schoolId) matchCondition.schoolId = schoolId;
+    if (districtId) matchCondition.districtId = districtId;
+    if (blockId) matchCondition.blockId = blockId;
+
+    console.log("Match condition:", matchCondition);
+
+    // Aggregation pipeline
+    const studentsWithMarks = await Student.aggregate([
+      {
+        $match: matchCondition
+      },
+      {
+        $lookup: {
+          from: "marks",
+          let: { studentId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ["$unqStudentObjectId", "$$studentId"] },
+                    { $eq: ["$examAndTestUnqObjectId", { $toObjectId: examAndTestId }] }
+                  ]
+                }
+              }
+            }
+          ],
+          as: "marksData"
+        }
+      },
+      {
+        $addFields: {
+          marksObtained: { 
+            $ifNull: [{ $arrayElemAt: ["$marksData.marksObtained", 0] }, null] 
+          },
+          remark: { 
+            $ifNull: [{ $arrayElemAt: ["$marksData.remark", 0] }, null] 
+          },
+          fileUrl: { 
+            $ifNull: [{ $arrayElemAt: ["$marksData.fileUrl", 0] }, null] 
+          },
+          marksUpdatedOn: { 
+            $ifNull: [{ $arrayElemAt: ["$marksData.marksUpdatedOn", 0] }, null] 
+          },
+          marksId: { 
+            $ifNull: [{ $arrayElemAt: ["$marksData._id", 0] }, null] 
+          },
+          isMarksRecordExist: { 
+            $gt: [{ $size: "$marksData" }, 0] 
+          },
+          // Convert marksObtained to number if it's a string
+          marksObtainedNumber: {
+            $cond: {
+              if: { $eq: [{ $type: { $arrayElemAt: ["$marksData.marksObtained", 0] } }, "string"] },
+              then: { $toDouble: { $arrayElemAt: ["$marksData.marksObtained", 0] } },
+              else: { $arrayElemAt: ["$marksData.marksObtained", 0] }
+            }
+          }
+        }
+      },
+      {
+        $addFields: {
+          // Calculate percentage using the converted number
+          marksPercentage: {
+            $cond: {
+              if: { 
+                $and: [
+                  { $ne: ["$marksObtainedNumber", null] },
+                  { $ne: ["$marksObtainedNumber", ""] },
+                  { $ne: [exam.maxMarks, null] },
+                  { $ne: [exam.maxMarks, 0] }
+                ]
+              },
+              then: {
+                $multiply: [
+                  { $divide: ["$marksObtainedNumber", exam.maxMarks] },
+                  100
+                ]
+              },
+              else: null
+            }
+          }
+        }
+      },
+      {
+        $project: { 
+          marksData: 0,
+          marksObtainedNumber: 0
+        }
+      },
+      {
+        $sort: { rollNumber: 1 }
+      }
+    ]);
+
+    const totalAvailableStudents = await Student.countDocuments(matchCondition);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        exam: {
+          _id: exam._id,
+          examId: exam.examId,
+          examType: exam.examType,
+          subject: exam.subject,
+          examDate: exam.examDate,
+          maxMarks: exam.maxMarks,
+          passingMarks: exam.passingMarks
+        },
+        filters: {
+          batch,
+          isSlcTaken,
+          schoolId: schoolId || null,
+          districtId: districtId || null,
+          blockId: blockId || null
+        },
+        summary: {
+          totalStudentsFound: studentsWithMarks.length,
+          totalStudentsAvailable: totalAvailableStudents,
+          withMarks: studentsWithMarks.filter(s => s.isMarksRecordExist).length,
+          withoutMarks: studentsWithMarks.filter(s => !s.isMarksRecordExist).length
+        },
+        students: studentsWithMarks.map(student => ({
+          _id: student._id,
+          studentSrn: student.studentSrn,
+          rollNumber: student.rollNumber,
+          firstName: student.firstName,
+          fatherName: student.fatherName,
+          motherName: student.motherName,
+          gender: student.gender,
+          category: student.category,
+          districtId: student.districtId,
+          blockId: student.blockId,
+          schoolId: student.schoolId,
+          classofStudent: student.classofStudent,
+          batch: student.batch,
+          isSlcTaken: student.isSlcTaken,
+          marksObtained: student.marksObtained,
+          marksPercentage: student.marksPercentage,
+          remark: student.remark,
+          fileUrl: student.fileUrl,
+          marksUpdatedOn: student.marksUpdatedOn,
+          marksId: student.marksId,
+          isMarksRecordExist: student.isMarksRecordExist
+        }))
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+
+
+
+//UpdateMarks
+
+
+
+
+export const updateMarksByExamAndStudent = async (req, res) => {
+
+console.log('I am inside marks.controller.js, api: updateMarksByExamAndStudent' )
+
+  try {
+    const { 
+      examAndTestUnqObjectId,  // Required: Exam _id
+      unqStudentObjectId,      // Required: Student _id
+      studentSrn,              // Optional: Student SRN (if student not found)
+      firstName,              // Optional: First name (if student not found)
+      fatherName,             // Optional: Father name (if student not found)
+      districtId,             // Optional: District ID (if student not found)
+      blockId,                // Optional: Block ID (if student not found)
+      schoolId,               // Optional: School ID (if student not found)
+      classofStudent,         // Optional: Class (if student not found)
+      marksObtained,          // Optional: Marks obtained
+      remark,                 // Optional: Remark
+      fileUrl,                // Optional: File URL
+      recordedBy              // Optional: User who recorded
+    } = req.body;
+
+
+    console.log(req.body)
+
+    // Validate required fields
+    if (!examAndTestUnqObjectId || !unqStudentObjectId) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: examAndTestUnqObjectId and unqStudentObjectId"
+      });
+    }
+
+    // Verify exam exists
+    const exam = await ExamAndTest.findById(examAndTestUnqObjectId);
+    if (!exam) {
+      return res.status(404).json({
+        success: false,
+        message: "Exam not found"
+      });
+    }
+
+    // Try to find student
+    let student = await Student.findById(unqStudentObjectId);
+    let studentFound = true;
+
+    // Prepare update data
+    const updateData = {
+      unqStudentObjectId: unqStudentObjectId,
+      examAndTestUnqObjectId: examAndTestUnqObjectId,
+      examId: exam.examId,
+      marksUpdatedOn: new Date()
+    };
+
+    if (student) {
+      // Student found - use student data
+      updateData.studentSrn = student.studentSrn;
+      updateData.firstName = student.firstName;
+      updateData.fatherName = student.fatherName;
+      updateData.districtId = student.districtId;
+      updateData.blockId = student.blockId;
+      updateData.schoolId = student.schoolId;
+      updateData.classofStudent = student.classofStudent;
+    } else {
+      // Student not found - use provided data or fallback
+      studentFound = false;
+      updateData.studentSrn = studentSrn || "Unknown";
+      updateData.firstName = firstName || "Unknown";
+      updateData.fatherName = fatherName || "Unknown";
+      updateData.districtId = districtId || "Unknown";
+      updateData.blockId = blockId || "Unknown";
+      updateData.schoolId = schoolId || "Unknown";
+      updateData.classofStudent = classofStudent || "Unknown";
+    }
+
+    // Add optional fields if provided
+    if (marksObtained !== undefined && marksObtained !== "") {
+      updateData.marksObtained = marksObtained;
+    }
+    if (remark !== undefined) {
+      updateData.remark = remark;
+    }
+    if (fileUrl !== undefined) {
+      updateData.fileUrl = fileUrl;
+    }
+    if (recordedBy !== undefined) {
+      updateData.recordedBy = recordedBy;
+    }
+
+    // Check if marks document exists
+    const existingMark = await Marks.findOne({
+      examAndTestUnqObjectId: examAndTestUnqObjectId,
+      unqStudentObjectId: unqStudentObjectId
+    });
+
+    let result;
+    let operation;
+
+    if (existingMark) {
+      // Update existing marks document
+      result = await Marks.findByIdAndUpdate(
+        existingMark._id,
+        { $set: updateData },
+        { new: true }
+      );
+      operation = "updated";
+    } else {
+      // Create new marks document
+      const newMark = new Marks(updateData);
+      result = await newMark.save();
+      operation = "inserted";
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Marks ${operation} successfully`,
+      data: {
+        operation: operation,
+        studentFound: studentFound,
+        exam: {
+          _id: exam._id,
+          examId: exam.examId,
+          subject: exam.subject,
+          examType: exam.examType,
+          maxMarks: exam.maxMarks
+        },
+        student: student ? {
+          _id: student._id,
+          studentSrn: student.studentSrn,
+          firstName: student.firstName,
+          fatherName: student.fatherName,
+          classofStudent: student.classofStudent
+        } : {
+          _id: unqStudentObjectId,
+          studentSrn: studentSrn || "Unknown",
+          firstName: firstName || "Unknown",
+          fatherName: fatherName || "Unknown",
+          classofStudent: classofStudent || "Unknown",
+          note: "Student not found in database, using provided data"
+        },
+        marks: {
+          _id: result._id,
+          unqStudentObjectId: result.unqStudentObjectId,
+          examAndTestUnqObjectId: result.examAndTestUnqObjectId,
+          marksObtained: result.marksObtained,
+          remark: result.remark,
+          fileUrl: result.fileUrl,
+          recordedBy: result.recordedBy,
+          marksUpdatedOn: result.marksUpdatedOn
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Error in updateMarksByExamAndStudent:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
