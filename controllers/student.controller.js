@@ -1276,3 +1276,498 @@ export const StudentAbsenteeCalling = async (req, res) => {
   }
 };
 
+
+
+
+
+
+//Student attendance dashboard
+
+// export const StudentAttendanceDashboard = async (req, res) => {
+
+//   const {batch, isSlcTaken, schoolId, status}
+
+//   try {
+    
+//   } catch (error) {
+    
+//   }
+// }
+
+
+// Student attendance dashboard
+export const StudentAttendanceDashboard = async (req, res) => {
+    try {
+        const { batch, isSlcTaken, schoolId, districtId, blockId, date } = req.body;
+
+        // Use current date if no date provided
+        let attendanceDate;
+        if (date) {
+            attendanceDate = new Date(date);
+            if (isNaN(attendanceDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid date format"
+                });
+            }
+        } else {
+            attendanceDate = new Date();
+        }
+        
+        // Set date range for attendance lookup (start to end of day)
+        const startOfDay = new Date(attendanceDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(attendanceDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        // Build match conditions for students
+        const studentMatchConditions = {};
+        
+        if (batch) {
+            studentMatchConditions.batch = batch;
+        }
+        
+        if (isSlcTaken !== undefined) {
+            studentMatchConditions.isSlcTaken = isSlcTaken;
+        }
+        
+        if (schoolId) {
+            studentMatchConditions.schoolId = schoolId;
+        }
+
+        // First, get all schools that are not closed
+        let schoolQuery = { isCenterClosed: false };
+        if (districtId) schoolQuery.districtId = districtId;
+        if (blockId) schoolQuery.blockId = blockId;
+        if (schoolId) schoolQuery.schoolId = schoolId;
+        
+        const allSchools = await District_Block_School.find(schoolQuery).lean();
+        
+        if (allSchools.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No schools found",
+                filters: { batch, isSlcTaken, schoolId, districtId, blockId, date: attendanceDate.toISOString().split('T')[0] },
+                summary: {
+                    totalSchools: 0,
+                    totalStudents: 0,
+                    totalPresent: 0,
+                    totalAbsent: 0,
+                    overallAttendancePercentage: 0
+                },
+                schoolsData: []
+            });
+        }
+
+        // Get student counts and attendance per school
+        const studentAggregation = await Student.aggregate([
+            // Match students with filters
+            { $match: studentMatchConditions },
+            
+            // Lookup attendance for the specific date
+            {
+                $lookup: {
+                    from: "studentattendances",
+                    let: { studentId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$unqStudentObjectId", "$$studentId"] },
+                                        { $gte: ["$date", startOfDay] },
+                                        { $lte: ["$date", endOfDay] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $limit: 1 }
+                    ],
+                    as: "attendance"
+                }
+            },
+            
+            // Add attendance status field
+            {
+                $addFields: {
+                    attendanceStatus: {
+                        $ifNull: [
+                            { $arrayElemAt: ["$attendance.status", 0] },
+                            "Not Marked"
+                        ]
+                    }
+                }
+            },
+            
+            // Group by schoolId
+            {
+                $group: {
+                    _id: "$schoolId",
+                    totalStudents: { $sum: 1 },
+                    presentCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$attendanceStatus", "Present"] }, 1, 0]
+                        }
+                    },
+                    absentCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$attendanceStatus", "Absent"] }, 1, 0]
+                        }
+                    },
+                    notMarkedCount: {
+                        $sum: {
+                            $cond: [{ $eq: ["$attendanceStatus", "Not Marked"] }, 1, 0]
+                        }
+                    }
+                }
+            }
+        ]);
+        
+        // Create map for quick lookup
+        const studentStatsMap = {};
+        studentAggregation.forEach(item => {
+            studentStatsMap[item._id] = {
+                totalStudents: item.totalStudents,
+                presentCount: item.presentCount,
+                absentCount: item.absentCount,
+                notMarkedCount: item.notMarkedCount,
+                attendancePercentage: item.totalStudents > 0 
+                    ? ((item.presentCount / item.totalStudents) * 100).toFixed(2)
+                    : 0
+            };
+        });
+
+        // Build school-wise data
+        const schoolsData = [];
+        let totalStudentsAll = 0;
+        let totalPresentAll = 0;
+        let totalAbsentAll = 0;
+        let totalNotMarkedAll = 0;
+        
+        for (const school of allSchools) {
+            const schoolIdStr = school.schoolId;
+            const stats = studentStatsMap[schoolIdStr];
+            
+            if (!stats || stats.totalStudents === 0) {
+                // School has no students matching criteria, skip
+                continue;
+            }
+            
+            totalStudentsAll += stats.totalStudents;
+            totalPresentAll += stats.presentCount;
+            totalAbsentAll += stats.absentCount;
+            totalNotMarkedAll += stats.notMarkedCount;
+            
+            schoolsData.push({
+                schoolDetails: {
+                    schoolId: school.schoolId,
+                    schoolName: school.schoolName,
+                    districtId: school.districtId,
+                    districtName: school.districtName,
+                    blockId: school.blockId,
+                    blockName: school.blockName
+                },
+                totalStudents: stats.totalStudents,
+                attendance: {
+                    present: stats.presentCount,
+                    absent: stats.absentCount,
+                    notMarked: stats.notMarkedCount,
+                    percentage: parseFloat(stats.attendancePercentage)
+                }
+            });
+        }
+        
+        // Sort schools by attendance percentage (highest first)
+        schoolsData.sort((a, b) => b.attendance.percentage - a.attendance.percentage);
+        
+        // Calculate overall statistics
+        const totalStats = {
+            totalSchools: schoolsData.length,
+            totalStudents: totalStudentsAll,
+            totalPresent: totalPresentAll,
+            totalAbsent: totalAbsentAll,
+            totalNotMarked: totalNotMarkedAll,
+            overallAttendancePercentage: totalStudentsAll > 0 
+                ? ((totalPresentAll / totalStudentsAll) * 100).toFixed(2)
+                : 0
+        };
+
+        return res.status(200).json({
+            success: true,
+            message: "Student attendance dashboard data fetched successfully",
+            filters: {
+                batch: batch || "All",
+                isSlcTaken: isSlcTaken !== undefined ? isSlcTaken : "All",
+                schoolId: schoolId || "All",
+                districtId: districtId || "All",
+                blockId: blockId || "All",
+                date: attendanceDate.toISOString().split('T')[0]
+            },
+            summary: totalStats,
+            schoolsData: schoolsData
+        });
+
+    } catch (error) {
+        console.error("Error in StudentAttendanceDashboard:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+//Download students attendance data:
+
+export const GetAllMbStudentsData = async (req, res) => {
+  try {
+    const { 
+      districtId, 
+      blockId, 
+      schoolId, 
+      batch, 
+      startDate  // Single date only (YYYY-MM-DD)
+    } = req.body;
+    
+    let isSlcTaken = false;
+    console.log(req.body);
+    console.log("i am inside 'student.controller.js' and api: 'GetMBStudents'");
+    
+    // Build query for District_Block_School to get filtered schools
+    let schoolQuery = {};
+    
+    if (districtId && districtId.length > 0) {
+      schoolQuery.districtId = { $in: districtId };
+    }
+    
+    if (blockId && blockId.length > 0) {
+      schoolQuery.blockId = { $in: blockId };
+    }
+    
+    if (schoolId && schoolId.length > 0) {
+      schoolQuery.schoolId = { $in: schoolId };
+    }
+    
+    // Get all schools that match the filters (or all schools if no filters)
+    const allSchools = await District_Block_School.find(schoolQuery).lean();
+    
+    if (allSchools.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        count: 0,
+        filters: schoolQuery,
+        schoolsCount: 0,
+        selectedDate: null
+      });
+    }
+    
+    // Get school IDs from filtered schools
+    const schoolIds = allSchools.map(school => school.schoolId);
+    
+    // Build dynamic query object for students
+    let studentQuery = {};
+    
+    if (schoolIds.length > 0) {
+      studentQuery.schoolId = { $in: schoolIds };
+    }
+    
+    if (batch && batch.length > 0) {
+      studentQuery.batch = { $in: batch };
+    }
+    
+    if (isSlcTaken !== undefined && isSlcTaken !== null && isSlcTaken !== '') {
+      studentQuery.isSlcTaken = isSlcTaken;
+    }
+
+    console.log("Student Query:", studentQuery);
+    console.log("Filtered Schools Count:", allSchools.length);
+    console.log("School IDs:", schoolIds);
+    
+    // Get students (can be empty array if no students found)
+    const students = await Student.find(studentQuery);
+    
+    // Set date for attendance - SINGLE DATE ONLY with UTC timezone
+    let startOfDayUTC;
+    let endOfDayUTC;
+    let dateString;
+    
+    if (startDate) {
+      // Parse the date string (YYYY-MM-DD)
+      const [year, month, day] = startDate.split('-').map(Number);
+      
+      // Create UTC date for start of day (00:00:00.000 UTC)
+      startOfDayUTC = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      
+      // Create UTC date for end of day (23:59:59.999 UTC)
+      endOfDayUTC = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+      
+      dateString = startDate;
+    } else {
+      // Default to current date in UTC
+      const currentDate = new Date();
+      const year = currentDate.getUTCFullYear();
+      const month = currentDate.getUTCMonth();
+      const day = currentDate.getUTCDate();
+      
+      startOfDayUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+      endOfDayUTC = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
+      
+      dateString = startOfDayUTC.toISOString().split('T')[0];
+    }
+    
+    console.log("Target Date Range (UTC):", {
+      startOfDayUTC: startOfDayUTC.toISOString(),
+      endOfDayUTC: endOfDayUTC.toISOString(),
+      dateString: dateString
+    });
+    
+    // Get student IDs
+    const studentIds = students.map(s => s._id);
+    
+    // Fetch existing attendance records for the single date using UTC range
+    const existingAttendanceRecords = await StudentAttendance.find({
+      unqStudentObjectId: { $in: studentIds },
+      date: { 
+        $gte: startOfDayUTC,
+        $lte: endOfDayUTC
+      }
+    });
+    
+    console.log(`Found ${existingAttendanceRecords.length} attendance records for date: ${dateString}`);
+    
+    // Create a map for quick lookup: studentId -> attendance record
+    const attendanceMap = new Map();
+    existingAttendanceRecords.forEach(record => {
+      const studentId = record.unqStudentObjectId.toString();
+      attendanceMap.set(studentId, record);
+    });
+    
+    // Create a map of students by schoolId
+    const studentsBySchool = new Map();
+    students.forEach(student => {
+      const schoolIdStr = student.schoolId;
+      if (!studentsBySchool.has(schoolIdStr)) {
+        studentsBySchool.set(schoolIdStr, []);
+      }
+      studentsBySchool.get(schoolIdStr).push(student);
+    });
+    
+    // Build result array with all schools (including those with no students)
+    const resultWithSchools = [];
+    
+    for (const school of allSchools) {
+      const schoolIdStr = school.schoolId;
+      const schoolStudents = studentsBySchool.get(schoolIdStr) || [];
+      
+      // Create school object with students (or empty array if no students)
+      const schoolWithStudents = {
+        schoolDetails: {
+          schoolId: school.schoolId,
+          schoolName: school.schoolName,
+          districtId: school.districtId,
+          districtName: school.districtName,
+          blockId: school.blockId,
+          blockName: school.blockName,
+          isCenterClosed: school.isCenterClosed || false
+        },
+        totalStudents: schoolStudents.length,
+        students: schoolStudents.map(student => {
+          const studentId = student._id.toString();
+          const existingRecord = attendanceMap.get(studentId);
+          
+          let attendanceRecord = null;
+          let status = "Absent";
+          let isAttendanceMarked = false;
+          
+          if (existingRecord) {
+            // Record exists in database - use actual status
+            attendanceRecord = existingRecord.toObject();
+            status = existingRecord.status;
+            isAttendanceMarked = existingRecord.isAttendanceMarked || false;
+          } else if (studentId && startOfDayUTC) {
+            // No record in database - create dummy record for display
+            attendanceRecord = {
+              _id: `dummy_${studentId}_${dateString}`,
+              unqStudentObjectId: student._id,
+              date: startOfDayUTC,
+              status: "Absent",
+              isAttendanceMarked: false,
+              TA: 0,
+              absenteeCallingStatus: null,
+              callingRemark1: null,
+              callingRemark2: null,
+              comments: null,
+              isDummy: true,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            };
+            status = "Absent";
+            isAttendanceMarked = false;
+          }
+          
+          // Convert to plain object and add attendance fields
+          const studentObj = student.toObject();
+          studentObj.attendanceRecord = attendanceRecord;
+          studentObj.attendanceStatus = status;
+          studentObj.isAttendanceMarked = isAttendanceMarked;
+          studentObj.attendanceDate = startOfDayUTC;
+          
+          return studentObj;
+        })
+      };
+      
+      resultWithSchools.push(schoolWithStudents);
+    }
+    
+    // Calculate summary statistics
+    const totalSchools = resultWithSchools.length;
+    const totalStudents = resultWithSchools.reduce((sum, school) => sum + school.totalStudents, 0);
+    const totalPresent = resultWithSchools.reduce((sum, school) => {
+      return sum + school.students.filter(s => s.attendanceStatus === "Present").length;
+    }, 0);
+    const totalAbsent = resultWithSchools.reduce((sum, school) => {
+      return sum + school.students.filter(s => s.attendanceStatus === "Absent").length;
+    }, 0);
+    
+    return res.status(200).json({
+      success: true,
+      data: resultWithSchools,
+      count: resultWithSchools.length,
+      totalStudents: totalStudents,
+      totalPresent: totalPresent,
+      totalAbsent: totalAbsent,
+      filters: {
+        districtId: districtId || "All",
+        blockId: blockId || "All",
+        schoolId: schoolId || "All",
+        batch: batch || "All"
+      },
+      selectedDate: {
+        date: startOfDayUTC,
+        dateString: dateString,
+        formattedDate: startOfDayUTC.toLocaleDateString('en-IN', { timeZone: 'UTC' }),
+        startOfDayUTC: startOfDayUTC.toISOString(),
+        endOfDayUTC: endOfDayUTC.toISOString()
+      }
+    });
+    
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching students",
+      error: error.message
+    });
+  }
+};
