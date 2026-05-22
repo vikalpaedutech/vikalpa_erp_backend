@@ -38,7 +38,7 @@ const StudentSchema = new Schema(
     isSlcTaken: { type: Boolean, default: false },
     slcReleasingDate: { type: Date },
     erpEnrollingDate: { type: Date },
-    medium: { type: String, enum: ["CBSE", "HBSE"], required: true },
+    medium: { type: String, default:null },  //enum: ["CBSE", "HBSE"]
     isStudentOf: { type: String, enum: ["MB", "S100", "Others"], required: true },
     isDressGiven: { type: Boolean, default: false },
     isTabGiven: { type: Boolean, default: false },

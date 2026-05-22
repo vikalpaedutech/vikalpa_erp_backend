@@ -58,14 +58,18 @@ const ExpenseSchema = new Schema(
     },
 
     verification: {
-      verifiedBy: { type: String, ref: "User" }, // User who verified the expense
+      verifiedBy: { type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "User",
+              }, // User who verified the expense
       verifiedAt: { type: Date }, // Date of verification
       comments: { type: String }, // Comments during verification
     },
 
 
     approval: {
-      approvedBy: { type: String, ref: "User" }, // User who approved the expense
+      approvedBy: { type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "User",
+              }, // User who approved the expense
       approvedAt: { type: Date }, // Date of approval
       comments: { type: String }, // Comments during approval
     },

@@ -2,8 +2,9 @@ import express from "express";
 import { createPost, uploadFile, getAllBills, getPendingAndVerifiedBillsByAci, getVerifiedBills, getApprovedBills, getRejectedBills,
     getBillsDataByQueryParams, patchBillsDataVerification, patchBillsDataApproval, deleteBill, getAllBillsWithUserDetails,
     getAllTypesOfBillsStatusForApprovalAndRejection,
-    updateBillVerificationAndApprovalStatus
-
+    updateBillVerificationAndApprovalStatus, ViewBillSByLoggedInUserIdandDateRange,
+    BillsVerification,
+    BillsApproval, GetBillsForVerification
  } from "../controllers/bills.controller.js";
 
 const router = express.Router();
@@ -34,4 +35,22 @@ router.post ("/get-all-bills-with-user-details", getAllBillsWithUserDetails)
 router.post('/get-all-types-of-bills', getAllTypesOfBillsStatusForApprovalAndRejection)
 
 router.post('/update-verification-and-approval-status', updateBillVerificationAndApprovalStatus)
+
+
+//version 2 route
+
+router.post('/view-bills-by-userid-date-range', ViewBillSByLoggedInUserIdandDateRange)
+
+router.post('/bills-verification', BillsVerification)
+
+
+
+router.post('/bills-approval', BillsApproval)
+
+
+
+router.post('/get-data-for-bills-verification', GetBillsForVerification)
+
 export default router;
+
+

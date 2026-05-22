@@ -37,7 +37,7 @@ app.use(cors({
 //Configuration for accepting json format from frontend
 
 app.use(json({
-    limit: "16kb"
+    limit: "50mb"
 }));
 
 //___________________________________________________________
@@ -48,7 +48,7 @@ app.use(express.json());
 
 app.use(urlencoded({
     extended:true,
-    limit:"16kb"
+    limit:"50mb"
 }));
 
 //Somtimes we would want to store public assests like images, doc, or any type of media...

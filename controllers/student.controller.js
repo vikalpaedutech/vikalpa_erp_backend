@@ -15,6 +15,7 @@ import {Student}  from "../models/student.model.js";
 
 import { District_Block_School } from "../models/district_block_school.model.js";
 import { StudentAttendance } from "../models/studentAttendance.model.js";
+import { constants } from "buffer";
 
 
 export const createPost = async (req, res) => {
@@ -1768,6 +1769,1701 @@ export const GetAllMbStudentsData = async (req, res) => {
       success: false,
       message: "Error fetching students",
       error: error.message
+    });
+  }
+};
+
+
+
+
+
+
+
+// //Create Student
+// export const CreateStudent = async (req, res) => {
+
+//   console.log("I am inside student.controller.js, api: CreateStudent")
+//   const { students, isBulk } = req.body;
+
+//   try {
+//     // Helper function to parse date fields
+//     const parseDate = (dateValue) => {
+//       if (!dateValue) return null;
+//       if (dateValue instanceof Date) return dateValue;
+//       const parsed = new Date(dateValue);
+//       return isNaN(parsed.getTime()) ? null : parsed;
+//     };
+
+//     // Helper function to validate required fields
+//     const validateStudentData = (data) => {
+//       const required = ['studentSrn', 'rollNumber', 'firstName', 'gender', 'districtId', 'blockId', 'schoolId', 'classofStudent', 'medium', 'isStudentOf'];
+//       const missing = required.filter(field => !data[field]);
+//       if (missing.length > 0) {
+//         return { valid: false, error: `Missing required fields: ${missing.join(', ')}` };
+//       }
+//       return { valid: true };
+//     };
+
+//     // Helper function to transform raw data to student model format
+//     const transformStudentData = (rawData) => {
+//       return {
+//         studentSrn: rawData.studentSrn?.toString().trim(),
+//         rollNumber: rawData.rollNumber?.toString().trim(),
+//         firstName: rawData.firstName?.toString().trim(),
+//         lastName: rawData.lastName?.toString().trim(),
+//         fatherName: rawData.fatherName?.toString().trim(),
+//         motherName: rawData.motherName?.toString().trim(),
+//         email: rawData.email?.toString().trim(),
+//         personalContact: rawData.personalContact?.toString().trim(),
+//         ParentContact: rawData.ParentContact?.toString().trim(),
+//         otherContact: rawData.otherContact?.toString().trim(),
+//         dob: parseDate(rawData.dob),
+//         gender: rawData.gender?.toString().trim(),
+//         category: rawData.category?.toString().trim(),
+//         address: rawData.address?.toString().trim(),
+//         districtId: rawData.districtId?.toString().trim(),
+//         blockId: rawData.blockId?.toString().trim(),
+//         schoolId: rawData.schoolId?.toString().trim(),
+//         classofStudent: rawData.classofStudent?.toString().trim(),
+//         parent: rawData.parent?.toString().trim(),
+//         enrollmentDate: parseDate(rawData.enrollmentDate) || new Date(),
+//         batch: rawData.batch?.toString().trim(),
+//         session: {
+//           session1: rawData.session1 || null,
+//           session2: rawData.session2 || null,
+//         },
+//         singleSideDistance: rawData.singleSideDistance ? Number(rawData.singleSideDistance) : undefined,
+//         bothSideDistance: rawData.bothSideDistance ? Number(rawData.bothSideDistance) : undefined,
+//         slc: rawData.slc === 'true' || rawData.slc === true,
+//         isSlcTaken: rawData.isSlcTaken === 'true' || rawData.isSlcTaken === true,
+//         slcReleasingDate: parseDate(rawData.slcReleasingDate),
+//         erpEnrollingDate: parseDate(rawData.erpEnrollingDate),
+//         medium: rawData.medium?.toString().trim(),
+//         isStudentOf: rawData.isStudentOf?.toString().trim(),
+//         isDressGiven: rawData.isDressGiven === 'true' || rawData.isDressGiven === true,
+//         isTabGiven: rawData.isTabGiven === 'true' || rawData.isTabGiven === true,
+//         tabIMEI: rawData.tabIMEI?.toString().trim(),
+//         isSimGiven: rawData.isSimGiven === 'true' || rawData.isSimGiven === true,
+//         simNumber: rawData.simNumber?.toString().trim(),
+//         simIMSI: rawData.simIMSI?.toString().trim(),
+//         bankName: rawData.bankName?.toString().trim(),
+//         bankIFSC: rawData.bankIFSC?.toString().trim(),
+//         bankAccNumber: rawData.bankAccNumber?.toString().trim(),
+//         bankHolderName: rawData.bankHolderName?.toString().trim(),
+//         batchCompleted: rawData.batchCompleted === 'true' || rawData.batchCompleted === true,
+//         shirtSizeInInches: rawData.shirtSizeInInches ? Number(rawData.shirtSizeInInches) : undefined,
+//         waistSizeInInches: rawData.waistSizeInInches ? Number(rawData.waistSizeInInches) : undefined,
+//         waistToBottomLengthInInches: rawData.waistToBottomLengthInInches ? Number(rawData.waistToBottomLengthInInches) : undefined,
+//         dressAmountSubmitted: rawData.dressAmountSubmitted === 'true' || rawData.dressAmountSubmitted === true,
+//         dressSizeConfirmationForm: rawData.dressSizeConfirmationForm?.toString().trim(),
+//         examinationVenue: rawData.examinationVenue?.toString().trim(),
+//       };
+//     };
+
+//     // Handle single student creation
+//     if (!isBulk || !students || students.length === 0) {
+//       const studentData = req.body;
+      
+//       // Check if it's a single student (not bulk)
+//       if (!studentData.studentSrn) {
+//         return res.status(400).json({
+//           success: false,
+//           message: 'Invalid request. Provide student data or use isBulk=true with students array'
+//         });
+//       }
+
+//       const validation = validateStudentData(studentData);
+//       if (!validation.valid) {
+//         return res.status(400).json({
+//           success: false,
+//           message: validation.error,
+//         });
+//       }
+
+//       const transformedData = transformStudentData(studentData);
+
+//       // Check for existing student
+//       const existingStudent = await Student.findOne({
+//         $or: [
+//           { studentSrn: transformedData.studentSrn },
+//           { rollNumber: transformedData.rollNumber }
+//         ]
+//       });
+
+//       if (existingStudent) {
+//         return res.status(409).json({
+//           success: false,
+//           message: `Student with SRN ${transformedData.studentSrn} or Roll Number ${transformedData.rollNumber} already exists`,
+//         });
+//       }
+
+//       const student = new Student(transformedData);
+//       await student.save();
+
+//       return res.status(201).json({
+//         success: true,
+//         message: 'Student created successfully',
+//         data: student,
+//       });
+//     }
+
+//     // Handle bulk student creation
+//     const results = {
+//       successful: [],
+//       failed: [],
+//       total: students.length,
+//     };
+
+//     for (let i = 0; i < students.length; i++) {
+//       const rawData = students[i];
+//       const rowNumber = i + 2;
+
+//       try {
+//         // Validate required fields
+//         const validation = validateStudentData(rawData);
+//         if (!validation.valid) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: rawData,
+//             error: validation.error,
+//           });
+//           continue;
+//         }
+
+//         // Transform data
+//         const studentData = transformStudentData(rawData);
+
+//         // Check for existing student in database
+//         const existingStudent = await Student.findOne({
+//           $or: [
+//             { studentSrn: studentData.studentSrn },
+//             { rollNumber: studentData.rollNumber }
+//           ]
+//         });
+
+//         if (existingStudent) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: rawData,
+//             error: `Duplicate: Student with SRN ${studentData.studentSrn} or Roll Number ${studentData.rollNumber} already exists`,
+//           });
+//           continue;
+//         }
+
+//         // Check for duplicates within the same batch
+//         const duplicateInBatch = results.successful.some(
+//           s => s.studentSrn === studentData.studentSrn || s.rollNumber === studentData.rollNumber
+//         );
+
+//         if (duplicateInBatch) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: rawData,
+//             error: `Duplicate in batch: Student with SRN ${studentData.studentSrn} or Roll Number ${studentData.rollNumber} already exists in this upload`,
+//           });
+//           continue;
+//         }
+
+//         // Create student
+//         const student = new Student(studentData);
+//         await student.save();
+        
+//         results.successful.push({
+//           row: rowNumber,
+//           index: i,
+//           studentSrn: student.studentSrn,
+//           rollNumber: student.rollNumber,
+//           id: student._id,
+//         });
+//       } catch (error) {
+//         console.error(`Error creating student at row ${rowNumber}:`, error);
+//         results.failed.push({
+//           row: rowNumber,
+//           index: i,
+//           data: rawData,
+//           error: error.message,
+//         });
+//       }
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: `Bulk upload completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
+//       results,
+//     });
+
+//   } catch (error) {
+//     console.error('Error in CreateStudent:', error);
+//     return res.status(500).json({
+//       success: false,
+//       message: 'Internal server error',
+//       error: error.message,
+//     });
+//   }
+// };
+
+
+
+//Create Student
+export const CreateStudent = async (req, res) => {
+
+  console.log("I am inside student.controller.js, api: CreateStudent")
+  const { students, isBulk } = req.body;
+
+  try {
+    // Helper function to safely convert to string (handles null/undefined)
+    const safeToString = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      return value.toString().trim();
+    };
+
+    // Helper function to parse date fields
+    const parseDate = (dateValue) => {
+      if (!dateValue || dateValue === null || dateValue === undefined || dateValue === '') return null;
+      if (dateValue instanceof Date) return dateValue;
+      const parsed = new Date(dateValue);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    };
+
+    // Helper function to parse boolean fields
+    const parseBoolean = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      if (typeof value === 'boolean') return value;
+      if (typeof value === 'string') {
+        const lower = value.toLowerCase().trim();
+        if (lower === 'true' || lower === 'yes' || lower === '1') return true;
+        if (lower === 'false' || lower === 'no' || lower === '0') return false;
+      }
+      if (typeof value === 'number') return value === 1;
+      return null;
+    };
+
+    // Helper function to parse number fields
+    const parseNumber = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      const num = Number(value);
+      return isNaN(num) ? null : num;
+    };
+
+    // Helper function to validate required fields
+    const validateStudentData = (data) => {
+      const required = ['studentSrn', 'rollNumber', 'firstName', 'gender', 'districtId', 'blockId', 'schoolId', 'classofStudent', 'medium', 'isStudentOf'];
+      const missing = required.filter(field => !data[field]);
+      if (missing.length > 0) {
+        return { valid: false, error: `Missing required fields: ${missing.join(', ')}` };
+      }
+      return { valid: true };
+    };
+
+    // Helper function to transform raw data to student model format
+    const transformStudentData = (rawData) => {
+      return {
+        studentSrn: safeToString(rawData.studentSrn),
+        rollNumber: safeToString(rawData.rollNumber),
+        firstName: safeToString(rawData.firstName),
+        lastName: safeToString(rawData.lastName),
+        fatherName: safeToString(rawData.fatherName),
+        motherName: safeToString(rawData.motherName),
+        email: safeToString(rawData.email),
+        personalContact: safeToString(rawData.personalContact),
+        ParentContact: safeToString(rawData.ParentContact),
+        otherContact: safeToString(rawData.otherContact),
+        dob: parseDate(rawData.dob),
+        gender: safeToString(rawData.gender),
+        category: safeToString(rawData.category),
+        address: safeToString(rawData.address),
+        districtId: safeToString(rawData.districtId),
+        blockId: safeToString(rawData.blockId),
+        schoolId: safeToString(rawData.schoolId),
+        classofStudent: safeToString(rawData.classofStudent),
+        parent: safeToString(rawData.parent),
+        enrollmentDate: parseDate(rawData.enrollmentDate) || new Date(),
+        batch: safeToString(rawData.batch),
+        session: {
+          session1: safeToString(rawData.session1),
+          session2: safeToString(rawData.session2),
+        },
+        singleSideDistance: parseNumber(rawData.singleSideDistance),
+        bothSideDistance: parseNumber(rawData.bothSideDistance),
+        slc: parseBoolean(rawData.slc),
+        isSlcTaken: parseBoolean(rawData.isSlcTaken),
+        slcReleasingDate: parseDate(rawData.slcReleasingDate),
+        erpEnrollingDate: parseDate(rawData.erpEnrollingDate),
+        medium: safeToString(rawData.medium),
+        isStudentOf: safeToString(rawData.isStudentOf),
+        isDressGiven: parseBoolean(rawData.isDressGiven),
+        isTabGiven: parseBoolean(rawData.isTabGiven),
+        tabIMEI: safeToString(rawData.tabIMEI),
+        isSimGiven: parseBoolean(rawData.isSimGiven),
+        simNumber: safeToString(rawData.simNumber),
+        simIMSI: safeToString(rawData.simIMSI),
+        bankName: safeToString(rawData.bankName),
+        bankIFSC: safeToString(rawData.bankIFSC),
+        bankAccNumber: safeToString(rawData.bankAccNumber),
+        bankHolderName: safeToString(rawData.bankHolderName),
+        batchCompleted: parseBoolean(rawData.batchCompleted),
+        shirtSizeInInches: parseNumber(rawData.shirtSizeInInches),
+        waistSizeInInches: parseNumber(rawData.waistSizeInInches),
+        waistToBottomLengthInInches: parseNumber(rawData.waistToBottomLengthInInches),
+        dressAmountSubmitted: parseBoolean(rawData.dressAmountSubmitted),
+        dressSizeConfirmationForm: safeToString(rawData.dressSizeConfirmationForm),
+        examinationVenue: safeToString(rawData.examinationVenue),
+      };
+    };
+
+    // Handle single student creation
+    if (!isBulk || !students || students.length === 0) {
+      const studentData = req.body;
+      
+      // Check if it's a single student (not bulk)
+      if (!studentData.studentSrn) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid request. Provide student data or use isBulk=true with students array'
+        });
+      }
+
+      const validation = validateStudentData(studentData);
+      if (!validation.valid) {
+        return res.status(400).json({
+          success: false,
+          message: validation.error,
+        });
+      }
+
+      const transformedData = transformStudentData(studentData);
+
+      // Check for existing student
+      const existingStudent = await Student.findOne({
+        $or: [
+          { studentSrn: transformedData.studentSrn },
+          { rollNumber: transformedData.rollNumber }
+        ]
+      });
+
+      if (existingStudent) {
+        return res.status(409).json({
+          success: false,
+          message: `Student with SRN ${transformedData.studentSrn} or Roll Number ${transformedData.rollNumber} already exists`,
+        });
+      }
+
+      const student = new Student(transformedData);
+      await student.save();
+
+      return res.status(201).json({
+        success: true,
+        message: 'Student created successfully',
+        data: student,
+      });
+    }
+
+    // Handle bulk student creation
+    const results = {
+      successful: [],
+      failed: [],
+      total: students.length,
+    };
+
+    for (let i = 0; i < students.length; i++) {
+      const rawData = students[i];
+      const rowNumber = i + 2;
+
+      try {
+        // Validate required fields
+        const validation = validateStudentData(rawData);
+        if (!validation.valid) {
+          results.failed.push({
+            row: rowNumber,
+            index: i,
+            data: rawData,
+            error: validation.error,
+          });
+          continue;
+        }
+
+        // Transform data
+        const studentData = transformStudentData(rawData);
+
+        // Check for existing student in database
+        const existingStudent = await Student.findOne({
+          $or: [
+            { studentSrn: studentData.studentSrn },
+            { rollNumber: studentData.rollNumber }
+          ]
+        });
+
+        if (existingStudent) {
+          results.failed.push({
+            row: rowNumber,
+            index: i,
+            data: rawData,
+            error: `Duplicate: Student with SRN ${studentData.studentSrn} or Roll Number ${studentData.rollNumber} already exists`,
+          });
+          continue;
+        }
+
+        // Check for duplicates within the same batch
+        const duplicateInBatch = results.successful.some(
+          s => s.studentSrn === studentData.studentSrn || s.rollNumber === studentData.rollNumber
+        );
+
+        if (duplicateInBatch) {
+          results.failed.push({
+            row: rowNumber,
+            index: i,
+            data: rawData,
+            error: `Duplicate in batch: Student with SRN ${studentData.studentSrn} or Roll Number ${studentData.rollNumber} already exists in this upload`,
+          });
+          continue;
+        }
+
+        // Create student
+        const student = new Student(studentData);
+        await student.save();
+        
+        results.successful.push({
+          row: rowNumber,
+          index: i,
+          studentSrn: student.studentSrn,
+          rollNumber: student.rollNumber,
+          id: student._id,
+        });
+      } catch (error) {
+        console.error(`Error creating student at row ${rowNumber}:`, error);
+        results.failed.push({
+          row: rowNumber,
+          index: i,
+          data: rawData,
+          error: error.message,
+        });
+      }
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: `Bulk upload completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
+      results,
+    });
+
+  } catch (error) {
+    console.error('Error in CreateStudent:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
+
+
+
+
+
+
+
+// // Update Student by SRN with selective fields
+// export const UpdateStudentBySrn = async (req, res) => {
+//   console.log("I am inside student.controller.js, api: UpdateStudentBySrn");
+  
+//   const { studentSrn, updates, isBulk } = req.body;
+
+//   try {
+//     // Helper functions (reuse the same helpers from CreateStudent)
+//     const safeToString = (value) => {
+//       if (value === null || value === undefined || value === '') return null;
+//       return value.toString().trim();
+//     };
+
+//     const parseDate = (dateValue) => {
+//       if (!dateValue || dateValue === null || dateValue === undefined || dateValue === '') return null;
+//       if (dateValue instanceof Date) return dateValue;
+//       const parsed = new Date(dateValue);
+//       return isNaN(parsed.getTime()) ? null : parsed;
+//     };
+
+//     const parseBoolean = (value) => {
+//       if (value === null || value === undefined || value === '') return null;
+//       if (typeof value === 'boolean') return value;
+//       if (typeof value === 'string') {
+//         const lower = value.toLowerCase().trim();
+//         if (lower === 'true' || lower === 'yes' || lower === '1') return true;
+//         if (lower === 'false' || lower === 'no' || lower === '0') return false;
+//       }
+//       if (typeof value === 'number') return value === 1;
+//       return null;
+//     };
+
+//     const parseNumber = (value) => {
+//       if (value === null || value === undefined || value === '') return null;
+//       const num = Number(value);
+//       return isNaN(num) ? null : num;
+//     };
+
+//     // Field-specific transformation
+//     const transformUpdateValue = (field, value) => {
+//       // String fields
+//       const stringFields = ['studentSrn', 'rollNumber', 'firstName', 'lastName', 'fatherName', 'motherName', 
+//         'email', 'personalContact', 'ParentContact', 'otherContact', 'gender', 'category', 'address', 
+//         'districtId', 'blockId', 'schoolId', 'classofStudent', 'parent', 'batch', 'medium', 'isStudentOf',
+//         'tabIMEI', 'simNumber', 'simIMSI', 'bankName', 'bankIFSC', 'bankAccNumber', 'bankHolderName',
+//         'dressSizeConfirmationForm', 'examinationVenue'];
+      
+//       // Date fields
+//       const dateFields = ['dob', 'enrollmentDate', 'slcReleasingDate', 'erpEnrollingDate'];
+      
+//       // Boolean fields
+//       const booleanFields = ['slc', 'isSlcTaken', 'isDressGiven', 'isTabGiven', 'isSimGiven', 'batchCompleted', 'dressAmountSubmitted'];
+      
+//       // Number fields
+//       const numberFields = ['singleSideDistance', 'bothSideDistance', 'shirtSizeInInches', 'waistSizeInInches', 'waistToBottomLengthInInches'];
+      
+//       // Session object fields
+//       const sessionFields = ['session1', 'session2'];
+
+//       if (stringFields.includes(field)) {
+//         return safeToString(value);
+//       }
+      
+//       if (dateFields.includes(field)) {
+//         return parseDate(value);
+//       }
+      
+//       if (booleanFields.includes(field)) {
+//         return parseBoolean(value);
+//       }
+      
+//       if (numberFields.includes(field)) {
+//         return parseNumber(value);
+//       }
+      
+//       if (sessionFields.includes(field)) {
+//         return safeToString(value);
+//       }
+      
+//       return value;
+//     };
+
+//     // Validate that updates object is not empty
+//     if (!updates || Object.keys(updates).length === 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: 'No update fields provided'
+//       });
+//     }
+
+//     // Handle single student update
+//     if (!isBulk || !updates || !Array.isArray(updates)) {
+//       // Single student update
+//       if (!studentSrn) {
+//         return res.status(400).json({
+//           success: false,
+//           message: 'studentSrn is required for single student update'
+//         });
+//       }
+
+//       // Check if student exists
+//       const existingStudent = await Student.findOne({ studentSrn });
+//       if (!existingStudent) {
+//         return res.status(404).json({
+//           success: false,
+//           message: `Student with SRN ${studentSrn} not found`
+//         });
+//       }
+
+//       // Transform update values
+//       const transformedUpdates = {};
+//       for (const [key, value] of Object.entries(updates)) {
+//         if (key === 'session') {
+//           // Handle session object
+//           if (value.session1 !== undefined) {
+//             transformedUpdates['session.session1'] = safeToString(value.session1);
+//           }
+//           if (value.session2 !== undefined) {
+//             transformedUpdates['session.session2'] = safeToString(value.session2);
+//           }
+//         } else {
+//           transformedUpdates[key] = transformUpdateValue(key, value);
+//         }
+//       }
+
+//       // Update student
+//       const updatedStudent = await Student.findOneAndUpdate(
+//         { studentSrn },
+//         { $set: transformedUpdates },
+//         { new: true, runValidators: true }
+//       );
+
+//       return res.status(200).json({
+//         success: true,
+//         message: 'Student updated successfully',
+//         data: updatedStudent
+//       });
+//     }
+
+//     // Handle bulk student updates
+//     const results = {
+//       successful: [],
+//       failed: [],
+//       total: updates.length
+//     };
+
+//     for (let i = 0; i < updates.length; i++) {
+//       const updateItem = updates[i];
+//       const rowNumber = i + 2;
+
+//       try {
+//         const { studentSrn: srn, ...updateFields } = updateItem;
+
+//         if (!srn) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: updateItem,
+//             error: 'studentSrn is required'
+//           });
+//           continue;
+//         }
+
+//         // Check if student exists
+//         const existingStudent = await Student.findOne({ studentSrn: srn });
+//         if (!existingStudent) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: updateItem,
+//             error: `Student with SRN ${srn} not found`
+//           });
+//           continue;
+//         }
+
+//         // Transform update values
+//         const transformedUpdates = {};
+//         for (const [key, value] of Object.entries(updateFields)) {
+//           if (key === 'session') {
+//             if (value.session1 !== undefined) {
+//               transformedUpdates['session.session1'] = safeToString(value.session1);
+//             }
+//             if (value.session2 !== undefined) {
+//               transformedUpdates['session.session2'] = safeToString(value.session2);
+//             }
+//           } else {
+//             transformedUpdates[key] = transformUpdateValue(key, value);
+//           }
+//         }
+
+//         // Update student
+//         const updatedStudent = await Student.findOneAndUpdate(
+//           { studentSrn: srn },
+//           { $set: transformedUpdates },
+//           { new: true, runValidators: true }
+//         );
+
+//         results.successful.push({
+//           row: rowNumber,
+//           index: i,
+//           studentSrn: srn,
+//           updatedFields: Object.keys(updateFields),
+//           id: updatedStudent._id
+//         });
+
+//       } catch (error) {
+//         console.error(`Error updating student at row ${rowNumber}:`, error);
+//         results.failed.push({
+//           row: rowNumber,
+//           index: i,
+//           data: updateItem,
+//           error: error.message
+//         });
+//       }
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       message: `Bulk update completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
+//       results
+//     });
+
+//   } catch (error) {
+//     console.error('Error in UpdateStudentBySrn:', error);
+//     return res.status(500).json({
+//       success: false,
+//       message: 'Internal server error',
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+// // Update Student by SRN with selective fields
+
+// export const UpdateStudentBySrn = async (req, res) => {
+//   console.log(
+//     "I am inside student.controller.js, api: UpdateStudentBySrn"
+//   );
+
+//   const { studentSrn, updates, isBulk } = req.body;
+
+//   try {
+//     /* -------------------------------------------------------------------------- */
+//     /*                                  HELPERS                                   */
+//     /* -------------------------------------------------------------------------- */
+
+//     const safeToString = (value) => {
+//       if (
+//         value === null ||
+//         value === undefined ||
+//         value === ""
+//       ) {
+//         return null;
+//       }
+
+//       return value.toString().trim();
+//     };
+
+//     const parseDate = (dateValue) => {
+//       if (
+//         !dateValue ||
+//         dateValue === null ||
+//         dateValue === undefined ||
+//         dateValue === ""
+//       ) {
+//         return null;
+//       }
+
+//       if (dateValue instanceof Date) {
+//         return dateValue;
+//       }
+
+//       const parsed = new Date(dateValue);
+
+//       return isNaN(parsed.getTime()) ? null : parsed;
+//     };
+
+//     const parseBoolean = (value) => {
+//       if (
+//         value === null ||
+//         value === undefined ||
+//         value === ""
+//       ) {
+//         return null;
+//       }
+
+//       if (typeof value === "boolean") {
+//         return value;
+//       }
+
+//       if (typeof value === "string") {
+//         const lower = value.toLowerCase().trim();
+
+//         if (
+//           lower === "true" ||
+//           lower === "yes" ||
+//           lower === "1"
+//         ) {
+//           return true;
+//         }
+
+//         if (
+//           lower === "false" ||
+//           lower === "no" ||
+//           lower === "0"
+//         ) {
+//           return false;
+//         }
+//       }
+
+//       if (typeof value === "number") {
+//         return value === 1;
+//       }
+
+//       return null;
+//     };
+
+//     const parseNumber = (value) => {
+//       if (
+//         value === null ||
+//         value === undefined ||
+//         value === ""
+//       ) {
+//         return null;
+//       }
+
+//       const num = Number(value);
+
+//       return isNaN(num) ? null : num;
+//     };
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                                FIELD TYPES                                 */
+//     /* -------------------------------------------------------------------------- */
+
+//     const stringFields = [
+//       "studentSrn",
+//       "rollNumber",
+//       "firstName",
+//       "lastName",
+//       "fatherName",
+//       "motherName",
+//       "email",
+//       "personalContact",
+//       "ParentContact",
+//       "otherContact",
+//       "gender",
+//       "category",
+//       "address",
+//       "districtId",
+//       "blockId",
+//       "schoolId",
+//       "classofStudent",
+//       "parent",
+//       "batch",
+//       "medium",
+//       "isStudentOf",
+//       "tabIMEI",
+//       "simNumber",
+//       "simIMSI",
+//       "bankName",
+//       "bankIFSC",
+//       "bankAccNumber",
+//       "bankHolderName",
+//       "dressSizeConfirmationForm",
+//       "examinationVenue",
+//     ];
+
+//     const dateFields = [
+//       "dob",
+//       "enrollmentDate",
+//       "slcReleasingDate",
+//       "erpEnrollingDate",
+//     ];
+
+//     const booleanFields = [
+//       "slc",
+//       "isSlcTaken",
+//       "isDressGiven",
+//       "isTabGiven",
+//       "isSimGiven",
+//       "batchCompleted",
+//       "dressAmountSubmitted",
+//     ];
+
+//     const numberFields = [
+//       "singleSideDistance",
+//       "bothSideDistance",
+//       "shirtSizeInInches",
+//       "waistSizeInInches",
+//       "waistToBottomLengthInInches",
+//     ];
+
+//     const sessionFields = ["session1", "session2"];
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                         TRANSFORM UPDATE VALUES                            */
+//     /* -------------------------------------------------------------------------- */
+
+//     const transformUpdateValue = (field, value) => {
+//       if (stringFields.includes(field)) {
+//         return safeToString(value);
+//       }
+
+//       if (dateFields.includes(field)) {
+//         return parseDate(value);
+//       }
+
+//       if (booleanFields.includes(field)) {
+//         return parseBoolean(value);
+//       }
+
+//       if (numberFields.includes(field)) {
+//         return parseNumber(value);
+//       }
+
+//       if (sessionFields.includes(field)) {
+//         return safeToString(value);
+//       }
+
+//       return value;
+//     };
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                              VALIDATIONS                                   */
+//     /* -------------------------------------------------------------------------- */
+
+//     if (!updates) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "updates field is required",
+//       });
+//     }
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                             SINGLE UPDATE                                  */
+//     /* -------------------------------------------------------------------------- */
+
+//     if (!isBulk) {
+//       if (!studentSrn) {
+//         return res.status(400).json({
+//           success: false,
+//           message:
+//             "studentSrn is required for single student update",
+//         });
+//       }
+
+//       if (
+//         typeof updates !== "object" ||
+//         Array.isArray(updates)
+//       ) {
+//         return res.status(400).json({
+//           success: false,
+//           message:
+//             "updates must be an object for single update",
+//         });
+//       }
+
+//       if (Object.keys(updates).length === 0) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "No update fields provided",
+//         });
+//       }
+
+//       /* -------------------------- CHECK STUDENT EXISTS ------------------------- */
+
+//       const existingStudent = await Student.findOne({
+//         studentSrn,
+//       });
+
+//       if (!existingStudent) {
+//         return res.status(404).json({
+//           success: false,
+//           message: `Student with SRN ${studentSrn} not found`,
+//         });
+//       }
+
+//       /* --------------------------- TRANSFORM VALUES ---------------------------- */
+
+//       const transformedUpdates = {};
+
+//       for (const [key, value] of Object.entries(updates)) {
+//         if (key === "session") {
+//           if (value?.session1 !== undefined) {
+//             transformedUpdates["session.session1"] =
+//               safeToString(value.session1);
+//           }
+
+//           if (value?.session2 !== undefined) {
+//             transformedUpdates["session.session2"] =
+//               safeToString(value.session2);
+//           }
+//         } else {
+//           transformedUpdates[key] =
+//             transformUpdateValue(key, value);
+//         }
+//       }
+
+//       /* ----------------------------- UPDATE DATA ------------------------------ */
+
+//       const updatedStudent =
+//         await Student.findOneAndUpdate(
+//           { studentSrn },
+//           {
+//             $set: transformedUpdates,
+//           },
+//           {
+//             new: true,
+//             runValidators: true,
+//           }
+//         );
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Student updated successfully",
+//         data: updatedStudent,
+//       });
+//     }
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                              BULK UPDATE                                   */
+//     /* -------------------------------------------------------------------------- */
+
+//     if (!Array.isArray(updates)) {
+//       return res.status(400).json({
+//         success: false,
+//         message:
+//           "updates must be an array for bulk update",
+//       });
+//     }
+
+//     if (updates.length === 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No bulk update data provided",
+//       });
+//     }
+
+//     const results = {
+//       successful: [],
+//       failed: [],
+//       total: updates.length,
+//     };
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                              PROCESS LOOP                                  */
+//     /* -------------------------------------------------------------------------- */
+
+//     for (let i = 0; i < updates.length; i++) {
+//       const updateItem = updates[i];
+
+//       const rowNumber = i + 2;
+
+//       try {
+//         const {
+//           studentSrn: srn,
+//           ...updateFields
+//         } = updateItem;
+
+//         /* ------------------------------ VALIDATION ----------------------------- */
+
+//         if (!srn) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: updateItem,
+//             error: "studentSrn is required",
+//           });
+
+//           continue;
+//         }
+
+//         if (
+//           !updateFields ||
+//           Object.keys(updateFields).length === 0
+//         ) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: updateItem,
+//             error: "No fields provided to update",
+//           });
+
+//           continue;
+//         }
+
+//         /* -------------------------- CHECK STUDENT EXISTS ------------------------- */
+
+//         const existingStudent = await Student.findOne({
+//           studentSrn: srn,
+//         });
+
+//         if (!existingStudent) {
+//           results.failed.push({
+//             row: rowNumber,
+//             index: i,
+//             data: updateItem,
+//             error: `Student with SRN ${srn} not found`,
+//           });
+
+//           continue;
+//         }
+
+//         /* --------------------------- TRANSFORM VALUES ---------------------------- */
+
+//         const transformedUpdates = {};
+
+//         for (const [key, value] of Object.entries(
+//           updateFields
+//         )) {
+//           if (key === "session") {
+//             if (value?.session1 !== undefined) {
+//               transformedUpdates["session.session1"] =
+//                 safeToString(value.session1);
+//             }
+
+//             if (value?.session2 !== undefined) {
+//               transformedUpdates["session.session2"] =
+//                 safeToString(value.session2);
+//             }
+//           } else {
+//             transformedUpdates[key] =
+//               transformUpdateValue(key, value);
+//           }
+//         }
+
+//         /* ------------------------------ UPDATE DB ------------------------------ */
+
+//         const updatedStudent =
+//           await Student.findOneAndUpdate(
+//             {
+//               studentSrn: srn,
+//             },
+//             {
+//               $set: transformedUpdates,
+//             },
+//             {
+//               new: true,
+//               runValidators: true,
+//             }
+//           );
+
+//         /* ------------------------------ SUCCESS -------------------------------- */
+
+//         results.successful.push({
+//           row: rowNumber,
+//           index: i,
+//           studentSrn: srn,
+//           updatedFields: Object.keys(updateFields),
+//           id: updatedStudent._id,
+//         });
+//       } catch (error) {
+//         console.error(
+//           `Error updating student at row ${rowNumber}:`,
+//           error
+//         );
+
+//         results.failed.push({
+//           row: rowNumber,
+//           index: i,
+//           data: updateItem,
+//           error: error.message,
+//         });
+//       }
+//     }
+
+//     /* -------------------------------------------------------------------------- */
+//     /*                               FINAL RESPONSE                               */
+//     /* -------------------------------------------------------------------------- */
+
+//     return res.status(200).json({
+//       success: true,
+//       message: `Bulk update completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
+//       results,
+//     });
+//   } catch (error) {
+//     console.error(
+//       "Error in UpdateStudentBySrn:",
+//       error
+//     );
+
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message,
+//     });
+//   }
+// };
+
+
+
+
+// Update Student by SRN with selective fields
+
+export const UpdateStudentBySrn = async (req, res) => {
+  console.log(
+    "I am inside student.controller.js, api: UpdateStudentBySrn"
+  );
+
+  const { studentSrn, updates, isBulk } = req.body;
+
+  try {
+    /* -------------------------------------------------------------------------- */
+    /*                                  HELPERS                                   */
+    /* -------------------------------------------------------------------------- */
+
+    const safeToString = (value) => {
+      if (
+        value === null ||
+        value === undefined ||
+        value === ""
+      ) {
+        return null;
+      }
+
+      return value.toString().trim();
+    };
+
+    // FIXED: Parse date without timezone conversion
+    const parseDate = (dateValue) => {
+      if (
+        !dateValue ||
+        dateValue === null ||
+        dateValue === undefined ||
+        dateValue === ""
+      ) {
+        return null;
+      }
+
+      // If it's already a Date object
+      if (dateValue instanceof Date) {
+        // Create new date at UTC midnight to preserve the date
+        return new Date(Date.UTC(
+          dateValue.getFullYear(),
+          dateValue.getMonth(),
+          dateValue.getDate()
+        ));
+      }
+
+      // If it's a string in YYYY-MM-DD format
+      if (typeof dateValue === 'string' && dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const parts = dateValue.split('-');
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1;
+        const day = parseInt(parts[2]);
+        // Create date at UTC midnight
+        return new Date(Date.UTC(year, month, day));
+      }
+
+      // If it's a string in DD-MM-YYYY format
+      if (typeof dateValue === 'string' && dateValue.match(/^\d{2}-\d{2}-\d{4}$/)) {
+        const parts = dateValue.split('-');
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1;
+        const year = parseInt(parts[2]);
+        // Create date at UTC midnight
+        return new Date(Date.UTC(year, month, day));
+      }
+
+      // If it's a string in DD/MM/YYYY format
+      if (typeof dateValue === 'string' && dateValue.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+        const parts = dateValue.split('/');
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]) - 1;
+        const year = parseInt(parts[2]);
+        // Create date at UTC midnight
+        return new Date(Date.UTC(year, month, day));
+      }
+
+      // Try to parse as date string
+      const parsed = new Date(dateValue);
+      
+      if (isNaN(parsed.getTime())) {
+        return null;
+      }
+
+      // Return UTC midnight date
+      return new Date(Date.UTC(
+        parsed.getFullYear(),
+        parsed.getMonth(),
+        parsed.getDate()
+      ));
+    };
+
+    const parseBoolean = (value) => {
+      if (
+        value === null ||
+        value === undefined ||
+        value === ""
+      ) {
+        return null;
+      }
+
+      if (typeof value === "boolean") {
+        return value;
+      }
+
+      if (typeof value === "string") {
+        const lower = value.toLowerCase().trim();
+
+        if (
+          lower === "true" ||
+          lower === "yes" ||
+          lower === "1"
+        ) {
+          return true;
+        }
+
+        if (
+          lower === "false" ||
+          lower === "no" ||
+          lower === "0"
+        ) {
+          return false;
+        }
+      }
+
+      if (typeof value === "number") {
+        return value === 1;
+      }
+
+      return null;
+    };
+
+    const parseNumber = (value) => {
+      if (
+        value === null ||
+        value === undefined ||
+        value === ""
+      ) {
+        return null;
+      }
+
+      const num = Number(value);
+
+      return isNaN(num) ? null : num;
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /*                                FIELD TYPES                                 */
+    /* -------------------------------------------------------------------------- */
+
+    const stringFields = [
+      "studentSrn",
+      "rollNumber",
+      "firstName",
+      "lastName",
+      "fatherName",
+      "motherName",
+      "email",
+      "personalContact",
+      "ParentContact",
+      "otherContact",
+      "gender",
+      "category",
+      "address",
+      "districtId",
+      "blockId",
+      "schoolId",
+      "classofStudent",
+      "parent",
+      "batch",
+      "medium",
+      "isStudentOf",
+      "tabIMEI",
+      "simNumber",
+      "simIMSI",
+      "bankName",
+      "bankIFSC",
+      "bankAccNumber",
+      "bankHolderName",
+      "dressSizeConfirmationForm",
+      "examinationVenue",
+    ];
+
+    const dateFields = [
+      "dob",
+      "enrollmentDate",
+      "slcReleasingDate",
+      "erpEnrollingDate",
+    ];
+
+    const booleanFields = [
+      "slc",
+      "isSlcTaken",
+      "isDressGiven",
+      "isTabGiven",
+      "isSimGiven",
+      "batchCompleted",
+      "dressAmountSubmitted",
+    ];
+
+    const numberFields = [
+      "singleSideDistance",
+      "bothSideDistance",
+      "shirtSizeInInches",
+      "waistSizeInInches",
+      "waistToBottomLengthInInches",
+    ];
+
+    const sessionFields = ["session1", "session2"];
+
+    /* -------------------------------------------------------------------------- */
+    /*                         TRANSFORM UPDATE VALUES                            */
+    /* -------------------------------------------------------------------------- */
+
+    const transformUpdateValue = (field, value) => {
+      if (stringFields.includes(field)) {
+        return safeToString(value);
+      }
+
+      if (dateFields.includes(field)) {
+        return parseDate(value);
+      }
+
+      if (booleanFields.includes(field)) {
+        return parseBoolean(value);
+      }
+
+      if (numberFields.includes(field)) {
+        return parseNumber(value);
+      }
+
+      if (sessionFields.includes(field)) {
+        return safeToString(value);
+      }
+
+      return value;
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /*                              VALIDATIONS                                   */
+    /* -------------------------------------------------------------------------- */
+
+    if (!updates) {
+      return res.status(400).json({
+        success: false,
+        message: "updates field is required",
+      });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                             SINGLE UPDATE                                  */
+    /* -------------------------------------------------------------------------- */
+
+    if (!isBulk) {
+      if (!studentSrn) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "studentSrn is required for single student update",
+        });
+      }
+
+      if (
+        typeof updates !== "object" ||
+        Array.isArray(updates)
+      ) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "updates must be an object for single update",
+        });
+      }
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "No update fields provided",
+        });
+      }
+
+      /* -------------------------- CHECK STUDENT EXISTS ------------------------- */
+
+      const existingStudent = await Student.findOne({
+        studentSrn,
+      });
+
+      if (!existingStudent) {
+        return res.status(404).json({
+          success: false,
+          message: `Student with SRN ${studentSrn} not found`,
+        });
+      }
+
+      /* --------------------------- TRANSFORM VALUES ---------------------------- */
+
+      const transformedUpdates = {};
+
+      for (const [key, value] of Object.entries(updates)) {
+        if (key === "session") {
+          if (value?.session1 !== undefined) {
+            transformedUpdates["session.session1"] =
+              safeToString(value.session1);
+          }
+
+          if (value?.session2 !== undefined) {
+            transformedUpdates["session.session2"] =
+              safeToString(value.session2);
+          }
+        } else {
+          transformedUpdates[key] =
+            transformUpdateValue(key, value);
+        }
+      }
+
+      /* ----------------------------- UPDATE DATA ------------------------------ */
+
+      const updatedStudent =
+        await Student.findOneAndUpdate(
+          { studentSrn },
+          {
+            $set: transformedUpdates,
+          },
+          {
+            new: true,
+            runValidators: true,
+          }
+        );
+
+      return res.status(200).json({
+        success: true,
+        message: "Student updated successfully",
+        data: updatedStudent,
+      });
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                              BULK UPDATE                                   */
+    /* -------------------------------------------------------------------------- */
+
+    if (!Array.isArray(updates)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "updates must be an array for bulk update",
+      });
+    }
+
+    if (updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No bulk update data provided",
+      });
+    }
+
+    const results = {
+      successful: [],
+      failed: [],
+      total: updates.length,
+    };
+
+    /* -------------------------------------------------------------------------- */
+    /*                              PROCESS LOOP                                  */
+    /* -------------------------------------------------------------------------- */
+
+    for (let i = 0; i < updates.length; i++) {
+      const updateItem = updates[i];
+
+      const rowNumber = i + 2;
+
+      try {
+        const {
+          studentSrn: srn,
+          ...updateFields
+        } = updateItem;
+
+        /* ------------------------------ VALIDATION ----------------------------- */
+
+        if (!srn) {
+          results.failed.push({
+            row: rowNumber,
+            index: i,
+            data: updateItem,
+            error: "studentSrn is required",
+          });
+
+          continue;
+        }
+
+        if (
+          !updateFields ||
+          Object.keys(updateFields).length === 0
+        ) {
+          results.failed.push({
+            row: rowNumber,
+            index: i,
+            data: updateItem,
+            error: "No fields provided to update",
+          });
+
+          continue;
+        }
+
+        /* -------------------------- CHECK STUDENT EXISTS ------------------------- */
+
+        const existingStudent = await Student.findOne({
+          studentSrn: srn,
+        });
+
+        if (!existingStudent) {
+          results.failed.push({
+            row: rowNumber,
+            index: i,
+            data: updateItem,
+            error: `Student with SRN ${srn} not found`,
+          });
+
+          continue;
+        }
+
+        /* --------------------------- TRANSFORM VALUES ---------------------------- */
+
+        const transformedUpdates = {};
+
+        for (const [key, value] of Object.entries(
+          updateFields
+        )) {
+          if (key === "session") {
+            if (value?.session1 !== undefined) {
+              transformedUpdates["session.session1"] =
+                safeToString(value.session1);
+            }
+
+            if (value?.session2 !== undefined) {
+              transformedUpdates["session.session2"] =
+                safeToString(value.session2);
+            }
+          } else {
+            transformedUpdates[key] =
+              transformUpdateValue(key, value);
+          }
+        }
+
+        /* ------------------------------ UPDATE DB ------------------------------ */
+
+        const updatedStudent =
+          await Student.findOneAndUpdate(
+            {
+              studentSrn: srn,
+            },
+            {
+              $set: transformedUpdates,
+            },
+            {
+              new: true,
+              runValidators: true,
+            }
+          );
+
+        /* ------------------------------ SUCCESS -------------------------------- */
+
+        results.successful.push({
+          row: rowNumber,
+          index: i,
+          studentSrn: srn,
+          updatedFields: Object.keys(updateFields),
+          id: updatedStudent._id,
+        });
+      } catch (error) {
+        console.error(
+          `Error updating student at row ${rowNumber}:`,
+          error
+        );
+
+        results.failed.push({
+          row: rowNumber,
+          index: i,
+          data: updateItem,
+          error: error.message,
+        });
+      }
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                               FINAL RESPONSE                               */
+    /* -------------------------------------------------------------------------- */
+
+    return res.status(200).json({
+      success: true,
+      message: `Bulk update completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
+      results,
+    });
+  } catch (error) {
+    console.error(
+      "Error in UpdateStudentBySrn:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
     });
   }
 };
