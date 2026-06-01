@@ -83,48 +83,44 @@ const GamificationPointLogicSchema = new Schema(
         negativeMarkingOnBreakingTimeValidation: {type: Number, default: -15},
         examId:{type: String}
       }
+    ],
+     disciplinary: [
+      {
+        startRange: {
+          type: Number,
+          default: 0
+        },
+        endRange: {
+          type: Number,
+          default: 0
+        },
+        point: {
+          type: Number,
+          default: 0
+        },
+        description: {
+          type: String
+        },
+        timeValidation: {
+          type: String,
+          default: null
+        },
+        descriptionOfTimeValdidation: {
+          type: String,
+          default: null
+        },
+        negativeMarkingOnBreakingTimeValidation: {
+          type: Number,
+          default: 0,
+          description: "Half the negative points of poor ranking"
+        }
+      }
     ]
   },
   {
     timestamps: true
   }
 )
-
-
-
-
-// //Below model is for updating points of users
-// const GamificationPointOfUserScheam = new Schema(
-//   {
-//     unqObjectId: {
-//       type: mongoose.Schema.Types.ObjectId,
-//       ref: "User",
-//       required: true,
-//       unique: true
-//     },
-    
-//     class8: {
-//       selfAttendancePoint: { type: Number, default: 0 },
-//       studentAttendancePoint: { type: Number, default: 0 },
-//       pdfUploadPoint: { type: Number, default: 0 },
-//       callingAbsenteePoint: { type: Number, default: 0 },
-//       marksPoint: { type: Number, default: 0 }  // Fixed typo
-//     },
-    
-//     class10: {
-//       selfAttendancePoint: { type: Number, default: 0 },
-//       studentAttendancePoint: { type: Number, default: 0 },
-//       pdfUploadPoint: { type: Number, default: 0 },
-//       callingAbsenteePoint: { type: Number, default: 0 },
-//       marksPoint: { type: Number, default: 0 }  // Fixed typo
-//     }, 
-
-//     gamificationDate: {type: Date}
-//   },
-//   { timestamps: true }
-// )
-
-
 
 
 
@@ -137,14 +133,15 @@ const GamificationPointOfUserScheam = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true
+     
     },
 
     pointType: {type: String}, //selfAttendancePoint, studentAttendancePoint, pdfUploadPoint, callingAbsenteePoint, marksPoint
     pointValue: {type: Number},
-    classOfCenter: {type: String},
+    // classOfCenter: {type: String},
+    batch: {type: String},
     unqIdOfPointObject:{type: mongoose.Schema.Types.ObjectId},  //Id like exam id or so...
-
+    isPointClaimed: {type:Boolean, default: false},
 
 
     gamificationDate: {type: Date}

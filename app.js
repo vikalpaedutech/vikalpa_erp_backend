@@ -116,6 +116,8 @@ import GamificationPointLogicRoute from "./routes/Gamification.route.js"
 
 import copyCheckingRoute from "./routes/studentCopyChecking.route.js"
 
+import schoolDisciplinaryRoute from "./routes/schoolDisciplinary.route.js"
+
 //using routes for route.g
 
 app.use('/api', districtRouter);
@@ -150,6 +152,8 @@ app.use("/api", CallingRoute)
 app.use("/api", GamificationPointLogicRoute)
 
 app.use("/api", copyCheckingRoute)
+
+app.use("/api", schoolDisciplinaryRoute)
 
 
 

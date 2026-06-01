@@ -877,311 +877,13 @@ export const getAllBillsWithUserDetails = async (req, res) => {
 //version 2 api
 
 
-// // Version 2 API - View Bills by Logged In User ID and Date Range
-// export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
-
-//   console.log("I am inside bills.controller.js, api: ViewBillSByLoggedInUserIdandDateRange")
-//   const { _id, startDate, endDate } = req.body;
-
-//   console.log(req.body)
-
-//   // Validation
-//   if (!_id) {
-//     return res.status(400).json({
-//       status: "Error",
-//       message: "User ID (_id) is required"
-//     });
-//   }
-
-//   try {
-//     // Convert string to ObjectId if needed
-//     const userObjectId = typeof _id === 'string' ? new mongoose.Types.ObjectId(_id) : _id;
-    
-//     // Date range filter
-//     let dateFilter = {};
-//     if (startDate && endDate) {
-//       dateFilter = {
-//         expenseDate: {
-//           $gte: new Date(startDate),
-//           $lte: new Date(endDate)
-//         }
-//       };
-//     } else if (startDate) {
-//       dateFilter = {
-//         expenseDate: {
-//           $gte: new Date(startDate)
-//         }
-//       };
-//     } else if (endDate) {
-//       dateFilter = {
-//         expenseDate: {
-//           $lte: new Date(endDate)
-//         }
-//       };
-//     }
-
-//     // Aggregation pipeline
-//     const result = await Expense.aggregate([
-//       // Match expenses for the given user
-//       {
-//         $match: {
-//           unqUserObjectId: userObjectId,
-//           ...dateFilter
-//         }
-//       },
-      
-//       // Sort by expense date (newest first)
-//       {
-//         $sort: { expenseDate: -1, createdAt: -1 }
-//       },
-      
-//       // Lookup user details
-//       {
-//         $lookup: {
-//           from: "users",
-//           localField: "unqUserObjectId",
-//           foreignField: "_id",
-//           as: "userDetails"
-//         }
-//       },
-      
-//       // Unwind user details
-//       {
-//         $unwind: {
-//           path: "$userDetails",
-//           preserveNullAndEmptyArrays: true
-//         }
-//       },
-      
-//       // Lookup user access details
-//       {
-//         $lookup: {
-//           from: "useraccesses",
-//           localField: "unqUserObjectId",
-//           foreignField: "unqObjectId",
-//           as: "userAccessDetails"
-//         }
-//       },
-      
-//       // Unwind user access details
-//       {
-//         $unwind: {
-//           path: "$userAccessDetails",
-//           preserveNullAndEmptyArrays: true
-//         }
-//       },
-      
-//       // Unwind region array to get individual regions
-//       {
-//         $unwind: {
-//           path: "$userAccessDetails.region",
-//           preserveNullAndEmptyArrays: true
-//         }
-//       },
-      
-//       // Unwind blockIds array
-//       {
-//         $unwind: {
-//           path: "$userAccessDetails.region.blockIds",
-//           preserveNullAndEmptyArrays: true
-//         }
-//       },
-      
-//       // Unwind schoolIds array
-//       {
-//         $unwind: {
-//           path: "$userAccessDetails.region.blockIds.schoolIds",
-//           preserveNullAndEmptyArrays: true
-//         }
-//       },
-      
-//       // Lookup district, block, school details from District_Block_School
-//       {
-//         $lookup: {
-//           from: "district_block_schools",
-//           let: { 
-//             schoolId: "$userAccessDetails.region.blockIds.schoolIds.schoolId",
-//             blockId: "$userAccessDetails.region.blockIds.blockId",
-//             districtId: "$userAccessDetails.region.districtId"
-//           },
-//           pipeline: [
-//             {
-//               $match: {
-//                 $expr: {
-//                   $and: [
-//                     { $eq: ["$schoolId", "$$schoolId"] },
-//                     { $eq: ["$blockId", "$$blockId"] },
-//                     { $eq: ["$districtId", "$$districtId"] }
-//                   ]
-//                 }
-//               }
-//             }
-//           ],
-//           as: "schoolDetails"
-//         }
-//       },
-      
-//       // Unwind school details
-//       {
-//         $unwind: {
-//           path: "$schoolDetails",
-//           preserveNullAndEmptyArrays: true
-//         }
-//       },
-      
-//       // Group back to collect all schools for each expense
-//       {
-//         $group: {
-//           _id: "$_id",
-//           expense: { $first: "$$ROOT" },
-//           schools: {
-//             $push: {
-//               districtId: "$userAccessDetails.region.districtId",
-//               districtName: "$schoolDetails.districtName",
-//               blockId: "$userAccessDetails.region.blockIds.blockId",
-//               blockName: "$schoolDetails.blockName",
-//               schoolId: "$userAccessDetails.region.blockIds.schoolIds.schoolId",
-//               schoolName: "$schoolDetails.schoolName"
-//             }
-//           }
-//         }
-//       },
-      
-//       // Remove duplicate schools
-//       {
-//         $addFields: {
-//           schools: {
-//             $reduce: {
-//               input: "$schools",
-//               initialValue: [],
-//               in: {
-//                 $cond: {
-//                   if: { $in: ["$$this.schoolId", "$$value.schoolId"] },
-//                   then: "$$value",
-//                   else: { $concatArrays: ["$$value", ["$$this"]] }
-//                 }
-//               }
-//             }
-//           }
-//         }
-//       },
-      
-//       // Project the final structure
-//       {
-//         $project: {
-//           _id: "$expense._id",
-//           unqUserObjectId: "$expense.unqUserObjectId",
-//           userId: "$expense.userId",
-//           role: "$expense.role",
-//           purposeOfExpense: "$expense.purposeOfExpense",
-//           descriptionExpense: "$expense.descriptionExpense",
-//           expenseDate: "$expense.expenseDate",
-//           expenseType: "$expense.expenseType",
-//           travelFrom: "$expense.travelFrom",
-//           travelTo: "$expense.travelTo",
-//           travelledDistance: "$expense.travelledDistance",
-//           foodType: "$expense.foodType",
-//           accomodationDate: "$expense.accomodationDate",
-//           stayedForDays: "$expense.stayedForDays",
-//           otherItemName: "$expense.otherItemName",
-//           otherItemPurchasingPurpose: "$expense.otherItemPurchasingPurpose",
-//           otherItemDescription: "$expense.otherItemDescription",
-//           expenseAmount: "$expense.expenseAmount",
-//           fileName: "$expense.fileName",
-//           fileUrl: "$expense.fileUrl",
-//           fileMetadata: "$expense.fileMetadata",
-//           status: "$expense.status",
-//           verification: "$expense.verification",
-//           approval: "$expense.approval",
-//           createdAt: "$expense.createdAt",
-//           updatedAt: "$expense.updatedAt",
-//           userDetails: {
-//             _id: "$expense.userDetails._id",
-//             userId: "$expense.userDetails.userId",
-//             name: "$expense.userDetails.name",
-//             email: "$expense.userDetails.email",
-//             role: "$expense.userDetails.role",
-//             department: "$expense.userDetails.department",
-//             contact1: "$expense.userDetails.contact1",
-//             contact2: "$expense.userDetails.contact2"
-//           },
-//           userAccess: {
-//             batches: "$expense.userAccessDetails.batch",
-//             modules: "$expense.userAccessDetails.modules"
-//           },
-//           schools: {
-//             $filter: {
-//               input: "$schools",
-//               as: "school",
-//               cond: { $ne: ["$$school.schoolId", null] }
-//             }
-//           }
-//         }
-//       }
-//     ]);
-
-//     // If no expenses found
-//     if (!result || result.length === 0) {
-//       return res.status(200).json({
-//         status: "Success",
-//         message: "No bills found for the given user",
-//         data: [],
-//         total: 0
-//       });
-//     }
-
-//     // Calculate total amount
-//     const totalAmount = result.reduce((sum, bill) => sum + (bill.expenseAmount || 0), 0);
-
-//     // Return success response
-//     return res.status(200).json({
-//       status: "Success",
-//       message: "Bills fetched successfully",
-//       data: result,
-//       total: result.length,
-//       totalAmount: totalAmount,
-//       summary: {
-//         totalBills: result.length,
-//         totalExpense: totalAmount,
-//         statusBreakdown: {
-//           Submitted: result.filter(b => b.status === "Submitted").length,
-//           Pending: result.filter(b => b.status === "Pending").length,
-//           Verified: result.filter(b => b.status === "Verified").length,
-//           Approved: result.filter(b => b.status === "Approved").length,
-//           Rejected: result.filter(b => b.status === "Rejected").length,
-//           Paid: result.filter(b => b.status === "Paid").length
-//         }
-//       }
-//     });
-
-//   } catch (error) {
-//     console.error("Error in ViewBillSByLoggedInUserIdandDateRange:", error);
-//     return res.status(500).json({
-//       status: "Error",
-//       message: "Internal server error",
-//       error: error.message
-//     });
-//   }
-// };
-
-
-
-
-
-
-
-
-
-
-// Version 2 API - View Bills by Logged In User ID and Date Range (Filtered by createdAt)
+// Version 2 API - View Bills by Logged In User ID and Date Range
 export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
 
   console.log("I am inside bills.controller.js, api: ViewBillSByLoggedInUserIdandDateRange")
   const { _id, startDate, endDate } = req.body;
 
   console.log(req.body)
-  console.log("Start Date:", startDate);
-  console.log("End Date:", endDate);
 
   // Validation
   if (!_id) {
@@ -1195,48 +897,32 @@ export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
     // Convert string to ObjectId if needed
     const userObjectId = typeof _id === 'string' ? new mongoose.Types.ObjectId(_id) : _id;
     
-    // Date range filter based on createdAt field
+    // Date range filter
     let dateFilter = {};
     if (startDate && endDate) {
-      // Create start date (beginning of day)
-      const startDateTime = new Date(startDate);
-      startDateTime.setHours(0, 0, 0, 0);
-      
-      // Create end date (end of day)
-      const endDateTime = new Date(endDate);
-      endDateTime.setHours(23, 59, 59, 999);
-      
       dateFilter = {
-        createdAt: {
-          $gte: startDateTime,
-          $lte: endDateTime
+        expenseDate: {
+          $gte: new Date(startDate),
+          $lte: new Date(endDate)
         }
       };
-      console.log("Date filter (createdAt based):", {
-        startDate: startDateTime,
-        endDate: endDateTime
-      });
     } else if (startDate) {
-      const startDateTime = new Date(startDate);
-      startDateTime.setHours(0, 0, 0, 0);
       dateFilter = {
-        createdAt: {
-          $gte: startDateTime
+        expenseDate: {
+          $gte: new Date(startDate)
         }
       };
     } else if (endDate) {
-      const endDateTime = new Date(endDate);
-      endDateTime.setHours(23, 59, 59, 999);
       dateFilter = {
-        createdAt: {
-          $lte: endDateTime
+        expenseDate: {
+          $lte: new Date(endDate)
         }
       };
     }
 
     // Aggregation pipeline
     const result = await Expense.aggregate([
-      // Match expenses for the given user with createdAt filter
+      // Match expenses for the given user
       {
         $match: {
           unqUserObjectId: userObjectId,
@@ -1244,9 +930,9 @@ export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
         }
       },
       
-      // Sort by createdAt (newest first) instead of expenseDate
+      // Sort by expense date (newest first)
       {
-        $sort: { createdAt: -1 }
+        $sort: { expenseDate: -1, createdAt: -1 }
       },
       
       // Lookup user details
@@ -1409,12 +1095,6 @@ export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
           approval: "$expense.approval",
           createdAt: "$expense.createdAt",
           updatedAt: "$expense.updatedAt",
-          formattedCreatedAt: {
-            $dateToString: {
-              format: "%d/%m/%Y %H:%M:%S",
-              date: "$expense.createdAt"
-            }
-          },
           userDetails: {
             _id: "$expense.userDetails._id",
             userId: "$expense.userDetails.userId",
@@ -1446,45 +1126,12 @@ export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
         status: "Success",
         message: "No bills found for the given user",
         data: [],
-        total: 0,
-        totalAmount: 0,
-        summary: {
-          totalBills: 0,
-          totalExpense: 0,
-          statusBreakdown: {
-            Submitted: 0,
-            Pending: 0,
-            Verified: 0,
-            Approved: 0,
-            Rejected: 0,
-            Paid: 0
-          },
-          dateRange: {
-            startDate: startDate || null,
-            endDate: endDate || null
-          }
-        }
+        total: 0
       });
     }
 
     // Calculate total amount
     const totalAmount = result.reduce((sum, bill) => sum + (bill.expenseAmount || 0), 0);
-
-    // Calculate date-wise breakdown (based on createdAt)
-    const dateWiseBreakdown = {};
-    result.forEach(bill => {
-      if (bill.createdAt) {
-        const dateKey = new Date(bill.createdAt).toISOString().split('T')[0];
-        if (!dateWiseBreakdown[dateKey]) {
-          dateWiseBreakdown[dateKey] = {
-            count: 0,
-            amount: 0
-          };
-        }
-        dateWiseBreakdown[dateKey].count++;
-        dateWiseBreakdown[dateKey].amount += (bill.expenseAmount || 0);
-      }
-    });
 
     // Return success response
     return res.status(200).json({
@@ -1503,11 +1150,6 @@ export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
           Approved: result.filter(b => b.status === "Approved").length,
           Rejected: result.filter(b => b.status === "Rejected").length,
           Paid: result.filter(b => b.status === "Paid").length
-        },
-        dateWiseBreakdown: dateWiseBreakdown,
-        dateRange: {
-          startDate: startDate || null,
-          endDate: endDate || null
         }
       }
     });
@@ -1521,6 +1163,7 @@ export const ViewBillSByLoggedInUserIdandDateRange = async (req, res) => {
     });
   }
 };
+
 
 
 //Bills Verification
