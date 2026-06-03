@@ -88,3 +88,66 @@ const StudentSchema = new Schema(
 
 
 export const Student = mongoose.models.Student || mongoose.model("Student", StudentSchema);
+
+
+
+
+
+
+
+
+//WorksheetUpload
+
+const StudentUploadSchema = new Schema(
+  {
+
+     unqStudentObjectId: {
+              type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "Student",
+              required: true,
+            },
+    
+    fileName: { type: String },
+    fileUrl: { type: String },
+    batch:{type: String},
+    uploadType: {type: String}, //Like class work, home work and all
+    subject: {type: String}, //maths, hindi, sst, etc
+    dateOfSubmission:{type: String}, //On which the file was uploaded.
+    topic: {type: String}, //topic of homework or class work
+    fileType: {type:String}, //pdf, image
+    unqObjectIdOfStudentUploads: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref:"StudentUploads",
+    }
+  },
+  { timestamps: true }
+);
+
+
+
+export const StudentUpload = mongoose.models.StudentUpload || mongoose.model("StudentUpload", StudentUploadSchema);
+
+
+
+
+
+//StudentUploadObjectives
+
+const StudentUploadObjectiveSchema = new Schema (
+  {
+    objective:{type:String},
+    dateOfObjective: {type:Date}, //on which data assignment was given
+    subject:{type: String}, //maths, hinidi, english etc...
+    batch: {type: String},
+    submissionDate: {type: Date}, //by when file should be submitted,
+    descriptionOfObject: {type: String}, //little explaination about object,
+    
+
+  },
+  { timestamps: true }
+);
+
+
+export const StudentUploadObjective = mongoose.models.StudentUploadObjective || mongoose.model("StudentUploadObjective", StudentUploadObjectiveSchema);
+
+
