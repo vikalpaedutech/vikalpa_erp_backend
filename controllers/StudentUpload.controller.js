@@ -1144,35 +1144,524 @@ export const StudentUploadObjectivesDashboard = async (req, res) => {
 
 
 
+// // StudentUploadDashboard controller
+// export const StudentUploadDashboard = async (req, res) => {
+//   console.log("I am in StudentUpload.controller.js, api: StudentUploadDashboard");
+  
+//   const { _id, batch } = req.body;
+
+//   try {
+//     // Validate required fields
+//     if (!_id) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Objective ID is required"
+//       });
+//     }
+
+//     // Step 1: Get the objective details
+//     const objective = await StudentUploadObjective.findById(_id);
+    
+//     if (!objective) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Objective not found"
+//       });
+//     }
+
+//     // Use batch from request or from objective
+//     const targetBatch = batch || objective.batch;
+
+//     // Step 2: Get ALL schools that are not closed
+//     const allSchools = await District_Block_School.find({
+//       isCenterClosed: false
+//     }).lean();
+
+//     if (!allSchools.length) {
+//       return res.status(200).json({
+//         success: true,
+//         data: [],
+//         message: "No active schools found",
+//         objectiveDetails: objective
+//       });
+//     }
+
+//     // Step 3: Get all students for the batch with isSlcTaken: false
+//     const students = await Student.find({
+//       batch: targetBatch,
+//       isSlcTaken: false
+//     }).lean();
+
+//     // Step 4: Group students by school
+//     const studentsBySchool = {};
+//     students.forEach(student => {
+//       const schoolId = student.schoolId;
+//       if (!studentsBySchool[schoolId]) {
+//         studentsBySchool[schoolId] = [];
+//       }
+//       studentsBySchool[schoolId].push(student);
+//     });
+
+//     // Step 5: Get all uploads for this objective
+//     const uploads = await StudentUpload.find({
+//       unqObjectIdOfStudentUploads: _id,
+//       batch: targetBatch,
+//       subject: objective.subject
+//     }).lean();
+
+//     // Step 6: Group uploads by school and student
+//     const uploadsBySchool = {};
+//     uploads.forEach(upload => {
+//       // Find which school this student belongs to
+//       const student = students.find(s => s._id.toString() === upload.unqStudentObjectId.toString());
+//       if (student) {
+//         const schoolId = student.schoolId;
+//         if (!uploadsBySchool[schoolId]) {
+//           uploadsBySchool[schoolId] = new Set();
+//         }
+//         uploadsBySchool[schoolId].add(upload.unqStudentObjectId.toString());
+//       }
+//     });
+
+//     // Step 7: Prepare school-wise dashboard data for ALL schools
+//     const schoolWiseData = [];
+//     let totalStudentsOverall = 0;
+//     let totalUploadsOverall = 0;
+//     let totalPendingOverall = 0;
+//     let totalSchoolsWithStudents = 0;
+
+//     for (const school of allSchools) {
+//       const schoolId = school.schoolId;
+//       const schoolStudents = studentsBySchool[schoolId] || [];
+//       const totalStudents = schoolStudents.length;
+      
+//       // Only count schools that have students for the summary
+//       if (totalStudents > 0) {
+//         totalSchoolsWithStudents++;
+//       }
+      
+//       const uploadedCount = uploadsBySchool[schoolId] ? uploadsBySchool[schoolId].size : 0;
+//       const pendingUploads = totalStudents - uploadedCount;
+//       const completionPercentage = totalStudents > 0 
+//         ? ((uploadedCount / totalStudents) * 100).toFixed(2)
+//         : "0.00";
+
+//       totalStudentsOverall += totalStudents;
+//       totalUploadsOverall += uploadedCount;
+//       totalPendingOverall += pendingUploads;
+
+//       schoolWiseData.push({
+//         schoolId: school.schoolId,
+//         schoolName: school.schoolName,
+//         districtId: school.districtId,
+//         districtName: school.districtName,
+//         blockId: school.blockId,
+//         blockName: school.blockName,
+//         totalStudents: totalStudents,
+//         uploadedCount: uploadedCount,
+//         pendingUploads: pendingUploads,
+//         completionPercentage: completionPercentage,
+//         hasStudents: totalStudents > 0,
+//         // Student details for drill-down (only if there are students)
+//         students: totalStudents > 0 ? schoolStudents.map(student => ({
+//           studentId: student._id,
+//           studentName: `${student.firstName} ${student.fatherName}`,
+//           rollNumber: student.rollNumber,
+//           studentSrn: student.studentSrn,
+//           hasUploaded: uploadsBySchool[schoolId]?.has(student._id.toString()) || false
+//         })) : []
+//       });
+//     }
+
+//     // Sort by school name
+//     schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+
+//     // Step 8: Prepare summary statistics
+//     const summary = {
+//       totalSchools: allSchools.length,
+//       totalSchoolsWithStudents: totalSchoolsWithStudents,
+//       totalSchoolsWithoutStudents: allSchools.length - totalSchoolsWithStudents,
+//       totalStudents: totalStudentsOverall,
+//       totalUploads: totalUploadsOverall,
+//       totalPending: totalPendingOverall,
+//       overallCompletionPercentage: totalStudentsOverall > 0 
+//         ? ((totalUploadsOverall / totalStudentsOverall) * 100).toFixed(2)
+//         : "0.00",
+//       objectiveDetails: {
+//         id: objective._id,
+//         objective: objective.objective,
+//         subject: objective.subject,
+//         descriptionOfObject: objective.descriptionOfObject,
+//         dateOfObjective: objective.dateOfObjective,
+//         submissionDate: objective.submissionDate,
+//         batch: targetBatch
+//       }
+//     };
+
+//     // Step 9: Get top performing and bottom performing schools (only schools with students)
+//     const schoolsWithStudents = schoolWiseData.filter(school => school.hasStudents);
+//     const sortedByCompletion = [...schoolsWithStudents].sort((a, b) => 
+//       parseFloat(b.completionPercentage) - parseFloat(a.completionPercentage)
+//     );
+    
+//     const topSchools = sortedByCompletion.slice(0, 5);
+//     const bottomSchools = [...sortedByCompletion].reverse().slice(0, 5);
+
+//     // Step 10: Group by district for additional insights
+//     const districtWiseData = {};
+//     schoolWiseData.forEach(school => {
+//       if (school.totalStudents > 0) {
+//         if (!districtWiseData[school.districtName]) {
+//           districtWiseData[school.districtName] = {
+//             districtName: school.districtName,
+//             totalSchools: 0,
+//             totalStudents: 0,
+//             totalUploads: 0,
+//             totalPending: 0,
+//             schools: []
+//           };
+//         }
+//         districtWiseData[school.districtName].totalSchools++;
+//         districtWiseData[school.districtName].totalStudents += school.totalStudents;
+//         districtWiseData[school.districtName].totalUploads += school.uploadedCount;
+//         districtWiseData[school.districtName].totalPending += school.pendingUploads;
+//         districtWiseData[school.districtName].schools.push(school.schoolName);
+//       }
+//     });
+
+//     // Calculate district completion percentages
+//     Object.values(districtWiseData).forEach(district => {
+//       district.completionPercentage = district.totalStudents > 0 
+//         ? ((district.totalUploads / district.totalStudents) * 100).toFixed(2)
+//         : "0.00";
+//     });
+
+//     return res.status(200).json({
+//       success: true,
+//       data: schoolWiseData,
+//       summary: summary,
+//       insights: {
+//         topPerformingSchools: topSchools,
+//         bottomPerformingSchools: bottomSchools,
+//         averageCompletionRate: summary.overallCompletionPercentage,
+//         districtWiseSummary: Object.values(districtWiseData)
+//       },
+//       filters: {
+//         objectiveId: _id,
+//         batch: targetBatch,
+//         isCenterClosed: false
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error("Error in StudentUploadDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+// // StudentUploadDashboard controller
+// export const StudentUploadDashboard = async (req, res) => {
+//   console.log("I am in StudentUpload.controller.js, api: StudentUploadDashboard");
+  
+//   let { _id, batch } = req.body;
+// console.log(req.body)
+//   try {
+//     // Validate required fields
+//     if (!_id) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Objective ID(s) is required"
+//       });
+//     }
+
+//     // Convert _id to array if it's a string with commas or single id
+//     let objectiveIds = [];
+//     if (Array.isArray(_id)) {
+//       objectiveIds = _id;
+//     } else if (typeof _id === 'string') {
+//       if (_id.includes(',')) {
+//         // Split comma-separated string and trim whitespace
+//         objectiveIds = _id.split(',').map(id => id.trim());
+//       } else {
+//         objectiveIds = [_id];
+//       }
+//     }
+
+//     // Validate all IDs are valid MongoDB ObjectIds
+//     const isValidObjectId = (id) => {
+//       return mongoose.Types.ObjectId.isValid(id);
+//     };
+
+//     const invalidIds = objectiveIds.filter(id => !isValidObjectId(id));
+//     if (invalidIds.length > 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: `Invalid ObjectId(s): ${invalidIds.join(', ')}`
+//       });
+//     }
+
+//     // Step 1: Get all objectives details
+//     const objectives = await StudentUploadObjective.find({
+//       _id: { $in: objectiveIds }
+//     }).lean();
+
+//     if (!objectives.length) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "No objectives found for the provided IDs"
+//       });
+//     }
+
+//     // Get unique batches and subjects from objectives
+//     const uniqueBatches = [...new Set(objectives.map(obj => batch || obj.batch))];
+//     const targetBatch = batch || uniqueBatches[0];
+//     const uniqueSubjects = [...new Set(objectives.map(obj => obj.subject))];
+
+//     // Step 2: Get ALL schools that are not closed
+//     const allSchools = await District_Block_School.find({
+//       isCenterClosed: false
+//     }).lean();
+
+//     if (!allSchools.length) {
+//       return res.status(200).json({
+//         success: true,
+//         data: [],
+//         message: "No active schools found",
+//         objectiveDetails: objectives
+//       });
+//     }
+
+//     // Step 3: Get all students for the batch with isSlcTaken: false
+//     const students = await Student.find({
+//       batch: targetBatch,
+//       isSlcTaken: false
+//     }).lean();
+
+//     // Step 4: Group students by school
+//     const studentsBySchool = {};
+//     students.forEach(student => {
+//       const schoolId = student.schoolId;
+//       if (!studentsBySchool[schoolId]) {
+//         studentsBySchool[schoolId] = [];
+//       }
+//       studentsBySchool[schoolId].push(student);
+//     });
+
+//     // Step 5: Get all uploads for these objectives
+//     const uploads = await StudentUpload.find({
+//       unqObjectIdOfStudentUploads: { $in: objectiveIds },
+//       batch: targetBatch,
+//       subject: { $in: uniqueSubjects }
+//     }).lean();
+
+//     // Step 6: Group uploads by school and student
+//     const uploadsBySchool = {};
+//     uploads.forEach(upload => {
+//       const student = students.find(s => s._id.toString() === upload.unqStudentObjectId.toString());
+//       if (student) {
+//         const schoolId = student.schoolId;
+//         if (!uploadsBySchool[schoolId]) {
+//           uploadsBySchool[schoolId] = new Set();
+//         }
+//         uploadsBySchool[schoolId].add(upload.unqStudentObjectId.toString());
+//       }
+//     });
+
+//     // Step 7: Prepare school-wise dashboard data for ALL schools
+//     const schoolWiseData = [];
+//     let totalStudentsOverall = 0;
+//     let totalUploadsOverall = 0;
+//     let totalPendingOverall = 0;
+//     let totalSchoolsWithStudents = 0;
+
+//     for (const school of allSchools) {
+//       const schoolId = school.schoolId;
+//       const schoolStudents = studentsBySchool[schoolId] || [];
+//       const totalStudents = schoolStudents.length;
+      
+//       if (totalStudents > 0) {
+//         totalSchoolsWithStudents++;
+//       }
+      
+//       const uploadedCount = uploadsBySchool[schoolId] ? uploadsBySchool[schoolId].size : 0;
+//       const pendingUploads = totalStudents - uploadedCount;
+//       const completionPercentage = totalStudents > 0 
+//         ? ((uploadedCount / totalStudents) * 100).toFixed(2)
+//         : "0.00";
+
+//       totalStudentsOverall += totalStudents;
+//       totalUploadsOverall += uploadedCount;
+//       totalPendingOverall += pendingUploads;
+
+//       schoolWiseData.push({
+//         schoolId: school.schoolId,
+//         schoolName: school.schoolName,
+//         districtId: school.districtId,
+//         districtName: school.districtName,
+//         blockId: school.blockId,
+//         blockName: school.blockName,
+//         totalStudents: totalStudents,
+//         uploadedCount: uploadedCount,
+//         pendingUploads: pendingUploads,
+//         completionPercentage: completionPercentage,
+//         hasStudents: totalStudents > 0
+//         // Removed students array as requested
+//       });
+//     }
+
+//     // Sort by school name
+//     schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+
+//     // Step 8: Prepare summary statistics
+//     const summary = {
+//       totalObjectives: objectives.length,
+//       totalSchools: allSchools.length,
+//       totalSchoolsWithStudents: totalSchoolsWithStudents,
+//       totalSchoolsWithoutStudents: allSchools.length - totalSchoolsWithStudents,
+//       totalStudents: totalStudentsOverall,
+//       totalUploads: totalUploadsOverall,
+//       totalPending: totalPendingOverall,
+//       overallCompletionPercentage: totalStudentsOverall > 0 
+//         ? ((totalUploadsOverall / totalStudentsOverall) * 100).toFixed(2)
+//         : "0.00",
+//       objectiveDetails: objectives.map(obj => ({
+//         id: obj._id,
+//         objective: obj.objective,
+//         subject: obj.subject,
+//         descriptionOfObject: obj.descriptionOfObject,
+//         dateOfObjective: obj.dateOfObjective,
+//         submissionDate: obj.submissionDate,
+//         batch: targetBatch
+//       }))
+//     };
+
+//     // Step 9: Get top performing and bottom performing schools (only schools with students)
+//     const schoolsWithStudents = schoolWiseData.filter(school => school.hasStudents);
+//     const sortedByCompletion = [...schoolsWithStudents].sort((a, b) => 
+//       parseFloat(b.completionPercentage) - parseFloat(a.completionPercentage)
+//     );
+    
+//     const topSchools = sortedByCompletion.slice(0, 5);
+//     const bottomSchools = [...sortedByCompletion].reverse().slice(0, 5);
+
+//     // Step 10: Group by district for additional insights
+//     const districtWiseData = {};
+//     schoolWiseData.forEach(school => {
+//       if (school.totalStudents > 0) {
+//         if (!districtWiseData[school.districtName]) {
+//           districtWiseData[school.districtName] = {
+//             districtName: school.districtName,
+//             totalSchools: 0,
+//             totalStudents: 0,
+//             totalUploads: 0,
+//             totalPending: 0,
+//             schools: []
+//           };
+//         }
+//         districtWiseData[school.districtName].totalSchools++;
+//         districtWiseData[school.districtName].totalStudents += school.totalStudents;
+//         districtWiseData[school.districtName].totalUploads += school.uploadedCount;
+//         districtWiseData[school.districtName].totalPending += school.pendingUploads;
+//         districtWiseData[school.districtName].schools.push(school.schoolName);
+//       }
+//     });
+
+//     // Calculate district completion percentages
+//     Object.values(districtWiseData).forEach(district => {
+//       district.completionPercentage = district.totalStudents > 0 
+//         ? ((district.totalUploads / district.totalStudents) * 100).toFixed(2)
+//         : "0.00";
+//     });
+
+//     return res.status(200).json({
+//       success: true,
+//       data: schoolWiseData,
+//       summary: summary,
+//       insights: {
+//         topPerformingSchools: topSchools,
+//         bottomPerformingSchools: bottomSchools,
+//         averageCompletionRate: summary.overallCompletionPercentage,
+//         districtWiseSummary: Object.values(districtWiseData)
+//       },
+//       filters: {
+//         objectiveIds: objectiveIds,
+//         batch: targetBatch,
+//         isCenterClosed: false
+//       }
+//     });
+
+//   } catch (error) {
+//     console.error("Error in StudentUploadDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+
 // StudentUploadDashboard controller
 export const StudentUploadDashboard = async (req, res) => {
   console.log("I am in StudentUpload.controller.js, api: StudentUploadDashboard");
   
-  const { _id, batch } = req.body;
+  let { _id, batch } = req.body;
 
   try {
     // Validate required fields
     if (!_id) {
       return res.status(400).json({
         success: false,
-        message: "Objective ID is required"
+        message: "Objective ID(s) is required"
       });
     }
 
-    // Step 1: Get the objective details
-    const objective = await StudentUploadObjective.findById(_id);
-    
-    if (!objective) {
+    // Convert _id to array
+    let objectiveIds = [];
+    if (Array.isArray(_id)) {
+      objectiveIds = _id;
+    } else if (typeof _id === 'string') {
+      if (_id.includes(',')) {
+        objectiveIds = _id.split(',').map(id => id.trim());
+      } else {
+        objectiveIds = [_id];
+      }
+    }
+
+    // Get all objectives details
+    const objectives = await StudentUploadObjective.find({
+      _id: { $in: objectiveIds }
+    }).lean();
+
+    if (!objectives.length) {
       return res.status(404).json({
         success: false,
-        message: "Objective not found"
+        message: "No objectives found for the provided IDs"
       });
     }
 
-    // Use batch from request or from objective
-    const targetBatch = batch || objective.batch;
+    // Get unique batches and subjects
+    const uniqueBatches = [...new Set(objectives.map(obj => batch || obj.batch))];
+    const targetBatch = batch || uniqueBatches[0];
+    const uniqueSubjects = [...new Set(objectives.map(obj => obj.subject))];
 
-    // Step 2: Get ALL schools that are not closed
+    // Get ALL schools that are not closed
     const allSchools = await District_Block_School.find({
       isCenterClosed: false
     }).lean();
@@ -1181,18 +1670,17 @@ export const StudentUploadDashboard = async (req, res) => {
       return res.status(200).json({
         success: true,
         data: [],
-        message: "No active schools found",
-        objectiveDetails: objective
+        message: "No active schools found"
       });
     }
 
-    // Step 3: Get all students for the batch with isSlcTaken: false
+    // Get all students for the batch with isSlcTaken: false
     const students = await Student.find({
       batch: targetBatch,
       isSlcTaken: false
     }).lean();
 
-    // Step 4: Group students by school
+    // Group students by school
     const studentsBySchool = {};
     students.forEach(student => {
       const schoolId = student.schoolId;
@@ -1202,155 +1690,95 @@ export const StudentUploadDashboard = async (req, res) => {
       studentsBySchool[schoolId].push(student);
     });
 
-    // Step 5: Get all uploads for this objective
+    // Get all uploads for these objectives
     const uploads = await StudentUpload.find({
-      unqObjectIdOfStudentUploads: _id,
+      unqObjectIdOfStudentUploads: { $in: objectiveIds },
       batch: targetBatch,
-      subject: objective.subject
+      subject: { $in: uniqueSubjects }
     }).lean();
 
-    // Step 6: Group uploads by school and student
-    const uploadsBySchool = {};
+    // Group uploads by objective and school
+    const uploadsByObjectiveAndSchool = {};
     uploads.forEach(upload => {
-      // Find which school this student belongs to
+      const objectiveId = upload.unqObjectIdOfStudentUploads.toString();
       const student = students.find(s => s._id.toString() === upload.unqStudentObjectId.toString());
       if (student) {
         const schoolId = student.schoolId;
-        if (!uploadsBySchool[schoolId]) {
-          uploadsBySchool[schoolId] = new Set();
+        const key = `${objectiveId}_${schoolId}`;
+        if (!uploadsByObjectiveAndSchool[key]) {
+          uploadsByObjectiveAndSchool[key] = new Set();
         }
-        uploadsBySchool[schoolId].add(upload.unqStudentObjectId.toString());
+        uploadsByObjectiveAndSchool[key].add(upload.unqStudentObjectId.toString());
       }
     });
 
-    // Step 7: Prepare school-wise dashboard data for ALL schools
-    const schoolWiseData = [];
-    let totalStudentsOverall = 0;
-    let totalUploadsOverall = 0;
-    let totalPendingOverall = 0;
-    let totalSchoolsWithStudents = 0;
+    // Prepare objective-wise school data
+    const objectiveWiseData = [];
 
-    for (const school of allSchools) {
-      const schoolId = school.schoolId;
-      const schoolStudents = studentsBySchool[schoolId] || [];
-      const totalStudents = schoolStudents.length;
-      
-      // Only count schools that have students for the summary
-      if (totalStudents > 0) {
-        totalSchoolsWithStudents++;
+    for (const objective of objectives) {
+      const schoolWiseData = [];
+      let totalStudentsForObjective = 0;
+      let totalUploadsForObjective = 0;
+
+      for (const school of allSchools) {
+        const schoolId = school.schoolId;
+        const schoolStudents = studentsBySchool[schoolId] || [];
+        const totalStudents = schoolStudents.length;
+        
+        const key = `${objective._id}_${schoolId}`;
+        const uploadedCount = uploadsByObjectiveAndSchool[key] ? uploadsByObjectiveAndSchool[key].size : 0;
+        const pendingUploads = totalStudents - uploadedCount;
+        const completionPercentage = totalStudents > 0 
+          ? ((uploadedCount / totalStudents) * 100).toFixed(2)
+          : "0.00";
+
+        if (totalStudents > 0) {
+          totalStudentsForObjective += totalStudents;
+          totalUploadsForObjective += uploadedCount;
+        }
+
+        schoolWiseData.push({
+          schoolId: school.schoolId,
+          schoolName: school.schoolName,
+          districtId: school.districtId,
+          districtName: school.districtName,
+          blockId: school.blockId,
+          blockName: school.blockName,
+          totalStudents: totalStudents,
+          uploadedCount: uploadedCount,
+          pendingUploads: pendingUploads,
+          completionPercentage: completionPercentage,
+          hasStudents: totalStudents > 0
+        });
       }
-      
-      const uploadedCount = uploadsBySchool[schoolId] ? uploadsBySchool[schoolId].size : 0;
-      const pendingUploads = totalStudents - uploadedCount;
-      const completionPercentage = totalStudents > 0 
-        ? ((uploadedCount / totalStudents) * 100).toFixed(2)
-        : "0.00";
 
-      totalStudentsOverall += totalStudents;
-      totalUploadsOverall += uploadedCount;
-      totalPendingOverall += pendingUploads;
+      // Sort by school name
+      schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
 
-      schoolWiseData.push({
-        schoolId: school.schoolId,
-        schoolName: school.schoolName,
-        districtId: school.districtId,
-        districtName: school.districtName,
-        blockId: school.blockId,
-        blockName: school.blockName,
-        totalStudents: totalStudents,
-        uploadedCount: uploadedCount,
-        pendingUploads: pendingUploads,
-        completionPercentage: completionPercentage,
-        hasStudents: totalStudents > 0,
-        // Student details for drill-down (only if there are students)
-        students: totalStudents > 0 ? schoolStudents.map(student => ({
-          studentId: student._id,
-          studentName: `${student.firstName} ${student.fatherName}`,
-          rollNumber: student.rollNumber,
-          studentSrn: student.studentSrn,
-          hasUploaded: uploadsBySchool[schoolId]?.has(student._id.toString()) || false
-        })) : []
-      });
-    }
-
-    // Sort by school name
-    schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
-
-    // Step 8: Prepare summary statistics
-    const summary = {
-      totalSchools: allSchools.length,
-      totalSchoolsWithStudents: totalSchoolsWithStudents,
-      totalSchoolsWithoutStudents: allSchools.length - totalSchoolsWithStudents,
-      totalStudents: totalStudentsOverall,
-      totalUploads: totalUploadsOverall,
-      totalPending: totalPendingOverall,
-      overallCompletionPercentage: totalStudentsOverall > 0 
-        ? ((totalUploadsOverall / totalStudentsOverall) * 100).toFixed(2)
-        : "0.00",
-      objectiveDetails: {
-        id: objective._id,
-        objective: objective.objective,
+      objectiveWiseData.push({
+        objectiveId: objective._id,
+        objectiveName: objective.objective,
         subject: objective.subject,
         descriptionOfObject: objective.descriptionOfObject,
         dateOfObjective: objective.dateOfObjective,
         submissionDate: objective.submissionDate,
-        batch: targetBatch
-      }
-    };
-
-    // Step 9: Get top performing and bottom performing schools (only schools with students)
-    const schoolsWithStudents = schoolWiseData.filter(school => school.hasStudents);
-    const sortedByCompletion = [...schoolsWithStudents].sort((a, b) => 
-      parseFloat(b.completionPercentage) - parseFloat(a.completionPercentage)
-    );
-    
-    const topSchools = sortedByCompletion.slice(0, 5);
-    const bottomSchools = [...sortedByCompletion].reverse().slice(0, 5);
-
-    // Step 10: Group by district for additional insights
-    const districtWiseData = {};
-    schoolWiseData.forEach(school => {
-      if (school.totalStudents > 0) {
-        if (!districtWiseData[school.districtName]) {
-          districtWiseData[school.districtName] = {
-            districtName: school.districtName,
-            totalSchools: 0,
-            totalStudents: 0,
-            totalUploads: 0,
-            totalPending: 0,
-            schools: []
-          };
-        }
-        districtWiseData[school.districtName].totalSchools++;
-        districtWiseData[school.districtName].totalStudents += school.totalStudents;
-        districtWiseData[school.districtName].totalUploads += school.uploadedCount;
-        districtWiseData[school.districtName].totalPending += school.pendingUploads;
-        districtWiseData[school.districtName].schools.push(school.schoolName);
-      }
-    });
-
-    // Calculate district completion percentages
-    Object.values(districtWiseData).forEach(district => {
-      district.completionPercentage = district.totalStudents > 0 
-        ? ((district.totalUploads / district.totalStudents) * 100).toFixed(2)
-        : "0.00";
-    });
+        batch: targetBatch,
+        totalStudents: totalStudentsForObjective,
+        totalUploads: totalUploadsForObjective,
+        totalPending: totalStudentsForObjective - totalUploadsForObjective,
+        completionPercentage: totalStudentsForObjective > 0 
+          ? ((totalUploadsForObjective / totalStudentsForObjective) * 100).toFixed(2)
+          : "0.00",
+        schools: schoolWiseData
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      data: schoolWiseData,
-      summary: summary,
-      insights: {
-        topPerformingSchools: topSchools,
-        bottomPerformingSchools: bottomSchools,
-        averageCompletionRate: summary.overallCompletionPercentage,
-        districtWiseSummary: Object.values(districtWiseData)
-      },
-      filters: {
-        objectiveId: _id,
-        batch: targetBatch,
-        isCenterClosed: false
-      }
+      data: objectiveWiseData,
+      totalObjectives: objectives.length,
+      totalSchools: allSchools.length,
+      message: `Data fetched for ${objectives.length} objective(s)`
     });
 
   } catch (error) {
