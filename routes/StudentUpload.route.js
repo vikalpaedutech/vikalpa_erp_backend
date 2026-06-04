@@ -3,7 +3,7 @@
 import express from "express";
 import multer from "multer";
 
-import { createStudentUploadObjective, DeletUploads, GetStudentsForUploads, getStudentUploadsObjectives, StudentUploadDashboard, UplaoadStudentFiles } from "../controllers/StudentUpload.controller.js";
+import { createStudentUploadObjective, DeletUploads, GetStudentsForUploads, getStudentUploadsObjectives, StudentUploadDashboard, StudentUploadObjectivesDashboard, UplaoadStudentFiles } from "../controllers/StudentUpload.controller.js";
 
 //creating express router.
 
@@ -29,5 +29,6 @@ router.post('/delete-student-uploads',  DeletUploads);
 
 router.post('/student-upload-dashboard',  StudentUploadDashboard);
 
+router.post('/student-upload-objectives-dashboard',  StudentUploadObjectivesDashboard);
 
 export default router;
