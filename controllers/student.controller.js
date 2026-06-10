@@ -1779,231 +1779,327 @@ export const GetAllMbStudentsData = async (req, res) => {
 
 
 
-// //Create Student
-// export const CreateStudent = async (req, res) => {
 
-//   console.log("I am inside student.controller.js, api: CreateStudent")
-//   const { students, isBulk } = req.body;
 
-//   try {
-//     // Helper function to parse date fields
-//     const parseDate = (dateValue) => {
-//       if (!dateValue) return null;
-//       if (dateValue instanceof Date) return dateValue;
-//       const parsed = new Date(dateValue);
-//       return isNaN(parsed.getTime()) ? null : parsed;
-//     };
 
-//     // Helper function to validate required fields
-//     const validateStudentData = (data) => {
-//       const required = ['studentSrn', 'rollNumber', 'firstName', 'gender', 'districtId', 'blockId', 'schoolId', 'classofStudent', 'medium', 'isStudentOf'];
-//       const missing = required.filter(field => !data[field]);
-//       if (missing.length > 0) {
-//         return { valid: false, error: `Missing required fields: ${missing.join(', ')}` };
-//       }
-//       return { valid: true };
-//     };
 
-//     // Helper function to transform raw data to student model format
-//     const transformStudentData = (rawData) => {
-//       return {
-//         studentSrn: rawData.studentSrn?.toString().trim(),
-//         rollNumber: rawData.rollNumber?.toString().trim(),
-//         firstName: rawData.firstName?.toString().trim(),
-//         lastName: rawData.lastName?.toString().trim(),
-//         fatherName: rawData.fatherName?.toString().trim(),
-//         motherName: rawData.motherName?.toString().trim(),
-//         email: rawData.email?.toString().trim(),
-//         personalContact: rawData.personalContact?.toString().trim(),
-//         ParentContact: rawData.ParentContact?.toString().trim(),
-//         otherContact: rawData.otherContact?.toString().trim(),
-//         dob: parseDate(rawData.dob),
-//         gender: rawData.gender?.toString().trim(),
-//         category: rawData.category?.toString().trim(),
-//         address: rawData.address?.toString().trim(),
-//         districtId: rawData.districtId?.toString().trim(),
-//         blockId: rawData.blockId?.toString().trim(),
-//         schoolId: rawData.schoolId?.toString().trim(),
-//         classofStudent: rawData.classofStudent?.toString().trim(),
-//         parent: rawData.parent?.toString().trim(),
-//         enrollmentDate: parseDate(rawData.enrollmentDate) || new Date(),
-//         batch: rawData.batch?.toString().trim(),
-//         session: {
-//           session1: rawData.session1 || null,
-//           session2: rawData.session2 || null,
-//         },
-//         singleSideDistance: rawData.singleSideDistance ? Number(rawData.singleSideDistance) : undefined,
-//         bothSideDistance: rawData.bothSideDistance ? Number(rawData.bothSideDistance) : undefined,
-//         slc: rawData.slc === 'true' || rawData.slc === true,
-//         isSlcTaken: rawData.isSlcTaken === 'true' || rawData.isSlcTaken === true,
-//         slcReleasingDate: parseDate(rawData.slcReleasingDate),
-//         erpEnrollingDate: parseDate(rawData.erpEnrollingDate),
-//         medium: rawData.medium?.toString().trim(),
-//         isStudentOf: rawData.isStudentOf?.toString().trim(),
-//         isDressGiven: rawData.isDressGiven === 'true' || rawData.isDressGiven === true,
-//         isTabGiven: rawData.isTabGiven === 'true' || rawData.isTabGiven === true,
-//         tabIMEI: rawData.tabIMEI?.toString().trim(),
-//         isSimGiven: rawData.isSimGiven === 'true' || rawData.isSimGiven === true,
-//         simNumber: rawData.simNumber?.toString().trim(),
-//         simIMSI: rawData.simIMSI?.toString().trim(),
-//         bankName: rawData.bankName?.toString().trim(),
-//         bankIFSC: rawData.bankIFSC?.toString().trim(),
-//         bankAccNumber: rawData.bankAccNumber?.toString().trim(),
-//         bankHolderName: rawData.bankHolderName?.toString().trim(),
-//         batchCompleted: rawData.batchCompleted === 'true' || rawData.batchCompleted === true,
-//         shirtSizeInInches: rawData.shirtSizeInInches ? Number(rawData.shirtSizeInInches) : undefined,
-//         waistSizeInInches: rawData.waistSizeInInches ? Number(rawData.waistSizeInInches) : undefined,
-//         waistToBottomLengthInInches: rawData.waistToBottomLengthInInches ? Number(rawData.waistToBottomLengthInInches) : undefined,
-//         dressAmountSubmitted: rawData.dressAmountSubmitted === 'true' || rawData.dressAmountSubmitted === true,
-//         dressSizeConfirmationForm: rawData.dressSizeConfirmationForm?.toString().trim(),
-//         examinationVenue: rawData.examinationVenue?.toString().trim(),
-//       };
-//     };
+export const StudentAbsenteeCallingDashboard = async (req, res) => {
+    try {
+        const { batch, schoolId, districtId, blockId, date } = req.body;
 
-//     // Handle single student creation
-//     if (!isBulk || !students || students.length === 0) {
-//       const studentData = req.body;
-      
-//       // Check if it's a single student (not bulk)
-//       if (!studentData.studentSrn) {
-//         return res.status(400).json({
-//           success: false,
-//           message: 'Invalid request. Provide student data or use isBulk=true with students array'
-//         });
-//       }
-
-//       const validation = validateStudentData(studentData);
-//       if (!validation.valid) {
-//         return res.status(400).json({
-//           success: false,
-//           message: validation.error,
-//         });
-//       }
-
-//       const transformedData = transformStudentData(studentData);
-
-//       // Check for existing student
-//       const existingStudent = await Student.findOne({
-//         $or: [
-//           { studentSrn: transformedData.studentSrn },
-//           { rollNumber: transformedData.rollNumber }
-//         ]
-//       });
-
-//       if (existingStudent) {
-//         return res.status(409).json({
-//           success: false,
-//           message: `Student with SRN ${transformedData.studentSrn} or Roll Number ${transformedData.rollNumber} already exists`,
-//         });
-//       }
-
-//       const student = new Student(transformedData);
-//       await student.save();
-
-//       return res.status(201).json({
-//         success: true,
-//         message: 'Student created successfully',
-//         data: student,
-//       });
-//     }
-
-//     // Handle bulk student creation
-//     const results = {
-//       successful: [],
-//       failed: [],
-//       total: students.length,
-//     };
-
-//     for (let i = 0; i < students.length; i++) {
-//       const rawData = students[i];
-//       const rowNumber = i + 2;
-
-//       try {
-//         // Validate required fields
-//         const validation = validateStudentData(rawData);
-//         if (!validation.valid) {
-//           results.failed.push({
-//             row: rowNumber,
-//             index: i,
-//             data: rawData,
-//             error: validation.error,
-//           });
-//           continue;
-//         }
-
-//         // Transform data
-//         const studentData = transformStudentData(rawData);
-
-//         // Check for existing student in database
-//         const existingStudent = await Student.findOne({
-//           $or: [
-//             { studentSrn: studentData.studentSrn },
-//             { rollNumber: studentData.rollNumber }
-//           ]
-//         });
-
-//         if (existingStudent) {
-//           results.failed.push({
-//             row: rowNumber,
-//             index: i,
-//             data: rawData,
-//             error: `Duplicate: Student with SRN ${studentData.studentSrn} or Roll Number ${studentData.rollNumber} already exists`,
-//           });
-//           continue;
-//         }
-
-//         // Check for duplicates within the same batch
-//         const duplicateInBatch = results.successful.some(
-//           s => s.studentSrn === studentData.studentSrn || s.rollNumber === studentData.rollNumber
-//         );
-
-//         if (duplicateInBatch) {
-//           results.failed.push({
-//             row: rowNumber,
-//             index: i,
-//             data: rawData,
-//             error: `Duplicate in batch: Student with SRN ${studentData.studentSrn} or Roll Number ${studentData.rollNumber} already exists in this upload`,
-//           });
-//           continue;
-//         }
-
-//         // Create student
-//         const student = new Student(studentData);
-//         await student.save();
+        // Use current date if no date provided
+        let attendanceDate;
+        if (date) {
+            attendanceDate = new Date(date);
+            if (isNaN(attendanceDate.getTime())) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid date format"
+                });
+            }
+        } else {
+            attendanceDate = new Date();
+        }
         
-//         results.successful.push({
-//           row: rowNumber,
-//           index: i,
-//           studentSrn: student.studentSrn,
-//           rollNumber: student.rollNumber,
-//           id: student._id,
-//         });
-//       } catch (error) {
-//         console.error(`Error creating student at row ${rowNumber}:`, error);
-//         results.failed.push({
-//           row: rowNumber,
-//           index: i,
-//           data: rawData,
-//           error: error.message,
-//         });
-//       }
-//     }
+        // Set date range for attendance lookup (start to end of day)
+        const startOfDay = new Date(attendanceDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(attendanceDate);
+        endOfDay.setHours(23, 59, 59, 999);
 
-//     return res.status(200).json({
-//       success: true,
-//       message: `Bulk upload completed. ${results.successful.length} successful, ${results.failed.length} failed.`,
-//       results,
-//     });
+        // Build match conditions for students
+        const studentMatchConditions = {};
+        
+        if (batch) {
+            studentMatchConditions.batch = batch;
+        }
+        
+        // Always get students where isSlcTaken is false
+        studentMatchConditions.isSlcTaken = false;
 
-//   } catch (error) {
-//     console.error('Error in CreateStudent:', error);
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Internal server error',
-//       error: error.message,
-//     });
-//   }
-// };
+        // Build school query
+        let schoolQuery = { isCenterClosed: false };
+        if (districtId) schoolQuery.districtId = districtId;
+        if (blockId) schoolQuery.blockId = blockId;
+        if (schoolId) schoolQuery.schoolId = schoolId;
+        
+        const allSchools = await District_Block_School.find(schoolQuery).lean();
+        
+        if (allSchools.length === 0) {
+            return res.status(200).json({
+                success: true,
+                message: "No schools found",
+                filters: { batch, schoolId, districtId, blockId, date: attendanceDate.toISOString().split('T')[0] },
+                summary: {
+                    totalSchools: 0,
+                    totalAbsentStudents: 0,
+                    connectedCount: 0,
+                    notConnectedCount: 0,
+                    notCalledCount: 0
+                },
+                schoolsData: []
+            });
+        }
+
+        // Get school IDs
+        const schoolIds = allSchools.map(school => school.schoolId);
+        
+        // Add schoolId filter to student conditions
+        if (schoolIds.length > 0) {
+            studentMatchConditions.schoolId = { $in: schoolIds };
+        }
+
+        // Get students and their attendance with absentee calling status
+        const studentAggregation = await Student.aggregate([
+            { $match: studentMatchConditions },
+            {
+                $lookup: {
+                    from: "studentattendances",
+                    let: { studentId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$unqStudentObjectId", "$$studentId"] },
+                                        { $gte: ["$date", startOfDay] },
+                                        { $lte: ["$date", endOfDay] }
+                                    ]
+                                }
+                            }
+                        },
+                        { $limit: 1 }
+                    ],
+                    as: "attendance"
+                }
+            },
+            {
+                $addFields: {
+                    attendanceRecord: {
+                        $arrayElemAt: ["$attendance", 0]
+                    },
+                    attendanceStatus: {
+                        $ifNull: [
+                            { $arrayElemAt: ["$attendance.status", 0] },
+                            "Not Marked"
+                        ]
+                    }
+                }
+            },
+            {
+                $match: {
+                    $or: [
+                        { attendanceStatus: "Absent" },
+                        { 
+                            $and: [
+                                { attendanceStatus: "Not Marked" },
+                                { attendanceRecord: { $exists: false } }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                $addFields: {
+                    callingCategory: {
+                        $switch: {
+                            branches: [
+                                {
+                                    case: { $eq: ["$attendanceRecord.absenteeCallingStatus", "Connected"] },
+                                    then: "Connected"
+                                },
+                                {
+                                    case: { $eq: ["$attendanceRecord.absenteeCallingStatus", "Not Connected"] },
+                                    then: "Not Connected"
+                                }
+                            ],
+                            default: "Not Called"
+                        }
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: "district_block_schools",
+                    let: { schoolId: "$schoolId" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$schoolId", "$$schoolId"]
+                                }
+                            }
+                        },
+                        { $limit: 1 }
+                    ],
+                    as: "schoolDetails"
+                }
+            },
+            {
+                $addFields: {
+                    schoolDetails: {
+                        $arrayElemAt: ["$schoolDetails", 0]
+                    }
+                }
+            }
+        ]);
+        
+        // Group by school
+        const schoolsMap = new Map();
+        
+        studentAggregation.forEach(student => {
+            const schoolIdStr = student.schoolId;
+            const callingCategory = student.callingCategory;
+            
+            if (!schoolsMap.has(schoolIdStr)) {
+                schoolsMap.set(schoolIdStr, {
+                    schoolDetails: {
+                        schoolId: student.schoolDetails?.schoolId || schoolIdStr,
+                        schoolName: student.schoolDetails?.schoolName || "Unknown School",
+                        districtId: student.schoolDetails?.districtId || "",
+                        districtName: student.schoolDetails?.districtName || "",
+                        blockId: student.schoolDetails?.blockId || "",
+                        blockName: student.schoolDetails?.blockName || ""
+                    },
+                    totalAbsentStudents: 0,
+                    connectedCount: 0,
+                    notConnectedCount: 0,
+                    notCalledCount: 0,
+                    students: []
+                });
+            }
+            
+            const schoolData = schoolsMap.get(schoolIdStr);
+            schoolData.totalAbsentStudents++;
+            
+            if (callingCategory === "Connected") {
+                schoolData.connectedCount++;
+            } else if (callingCategory === "Not Connected") {
+                schoolData.notConnectedCount++;
+            } else {
+                schoolData.notCalledCount++;
+            }
+            
+            schoolData.students.push({
+                studentId: student._id,
+                studentName: student.name,
+                studentUserId: student.userId,
+                className: student.className,
+                section: student.section,
+                fatherName: student.fatherName,
+                motherName: student.motherName,
+                contact1: student.contact1,
+                contact2: student.contact2,
+                attendanceStatus: student.attendanceStatus,
+                absenteeCallingStatus: student.attendanceRecord?.absenteeCallingStatus || null,
+                callingRemark1: student.attendanceRecord?.callingRemark1 || null,
+                callingRemark2: student.attendanceRecord?.callingRemark2 || null,
+                comments: student.attendanceRecord?.comments || null,
+                TA: student.attendanceRecord?.TA || 0,
+                isAttendanceMarked: student.attendanceRecord?.isAttendanceMarked || false,
+                callingCategory: callingCategory
+            });
+        });
+        
+        // FIXED: Build final schoolsData including schools with no absent students
+        const schoolsData = [];
+        let totalAbsentStudents = 0;
+        let totalConnected = 0;
+        let totalNotConnected = 0;
+        let totalNotCalled = 0;
+        
+        for (const school of allSchools) {
+            const schoolIdStr = school.schoolId;
+            const schoolStats = schoolsMap.get(schoolIdStr);
+            
+            if (schoolStats) {
+                // School has absent students
+                totalAbsentStudents += schoolStats.totalAbsentStudents;
+                totalConnected += schoolStats.connectedCount;
+                totalNotConnected += schoolStats.notConnectedCount;
+                totalNotCalled += schoolStats.notCalledCount;
+                
+                schoolsData.push({
+                    schoolDetails: schoolStats.schoolDetails,
+                    totalAbsentStudents: schoolStats.totalAbsentStudents,
+                    connectedCount: schoolStats.connectedCount,
+                    notConnectedCount: schoolStats.notConnectedCount,
+                    notCalledCount: schoolStats.notCalledCount,
+                    students: schoolStats.students
+                });
+            } else {
+                // School has ZERO absent students - include it with zeros
+                schoolsData.push({
+                    schoolDetails: {
+                        schoolId: school.schoolId,
+                        schoolName: school.schoolName,
+                        districtId: school.districtId,
+                        districtName: school.districtName,
+                        blockId: school.blockId,
+                        blockName: school.blockName
+                    },
+                    totalAbsentStudents: 0,
+                    connectedCount: 0,
+                    notConnectedCount: 0,
+                    notCalledCount: 0,
+                    students: []
+                });
+            }
+        }
+        
+        // Sort schools by school name
+        schoolsData.sort((a, b) => 
+            a.schoolDetails.schoolName.localeCompare(b.schoolDetails.schoolName)
+        );
+        
+        // Calculate percentages
+        const connectedPercentage = totalAbsentStudents > 0 
+            ? ((totalConnected / totalAbsentStudents) * 100).toFixed(2)
+            : 0;
+        const notConnectedPercentage = totalAbsentStudents > 0 
+            ? ((totalNotConnected / totalAbsentStudents) * 100).toFixed(2)
+            : 0;
+        const notCalledPercentage = totalAbsentStudents > 0 
+            ? ((totalNotCalled / totalAbsentStudents) * 100).toFixed(2)
+            : 0;
+
+        return res.status(200).json({
+            success: true,
+            message: "Student absentee calling dashboard data fetched successfully",
+            filters: {
+                batch: batch || "All",
+                schoolId: schoolId || "All",
+                districtId: districtId || "All",
+                blockId: blockId || "All",
+                date: attendanceDate.toISOString().split('T')[0]
+            },
+            summary: {
+                totalSchools: schoolsData.length,
+                totalAbsentStudents: totalAbsentStudents,
+                connectedCount: totalConnected,
+                notConnectedCount: totalNotConnected,
+                notCalledCount: totalNotCalled,
+                connectedPercentage: parseFloat(connectedPercentage),
+                notConnectedPercentage: parseFloat(notConnectedPercentage),
+                notCalledPercentage: parseFloat(notCalledPercentage)
+            },
+            schoolsData: schoolsData
+        });
+
+    } catch (error) {
+        console.error("Error in StudentAbsenteeCallingDashboard:", error);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+
+
+
 
 
 
