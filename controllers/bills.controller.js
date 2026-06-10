@@ -775,29 +775,29 @@ export const getAllBillsWithUserDetails = async (req, res) => {
       },
 
       // 🔹 Lookup with proper filter on district + schoolIds
+      // 🔹 Lookup with proper filter on district + schoolIds
+{
+  $lookup: {
+    from: "district_block_schools",
+    let: {
+      distIds: "$districtIds",
+      schoolIds: "$schoolIds",
+    },
+    pipeline: [
       {
-        $lookup: {
-          from: "district_block_schools",
-          let: {
-            distIds: "$districtIds",
-            schoolIds: "$schoolIds",
+        $match: {
+          $expr: {
+            $and: [
+              { $in: ["$districtId", "$$distIds"] },
+              { $in: ["$schoolId", "$$schoolIds"] },  // ← CHANGED HERE
+            ],
           },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $in: ["$districtId", "$$distIds"] },
-                    { $in: ["$centerId", "$$schoolIds"] },
-                  ],
-                },
-              },
-            },
-          ],
-          as: "regionDetails",
         },
       },
-
+    ],
+    as: "regionDetails",
+  },
+},
       // 🔹 Final Projection
       {
         $project: {
