@@ -990,31 +990,503 @@ export const DeletUploads = async (req, res) => {
 
 
 
-export const StudentUploadObjectivesDashboard = async (req, res) => {
-  try {
-    // Define batches to track
-    const targetBatches = ["2026-28", "2025-27"];
+// export const StudentUploadObjectivesDashboard = async (req, res) => {
+
+//   console.log("I am inside StudentUpload.controller.js, api: StudentUploadObjectivesDashboard")
+
+//   const {batch, startDate, endDate, Subject} = req.body
+
+//   console.log(req.body)
+
+//   try {
+
+
+
+//     // Define batches to track
+//     const targetBatches = ["2026-28", "2025-27"];
     
-    // Step 1: Get all StudentUploadObjectives for the target batches
-    const objectives = await StudentUploadObjective.find({
-      batch: { $in: targetBatches }
-    }).lean();
+//     // Step 1: Get all StudentUploadObjectives for the target batches
+//     const objectives = await StudentUploadObjective.find({
+//       batch: { $in: targetBatches }
+//     }).lean();
+    
+//     if (!objectives.length) {
+//       return res.status(200).json({
+//         success: true,
+//         data: [],
+//         message: "No objectives found for the specified batches"
+//       });
+//     }
+    
+//     // Step 2: Get all students with isSlcTaken: false for target batches
+//     const students = await Student.find({
+//       batch: { $in: targetBatches },
+//       isSlcTaken: false
+//     }).lean();
+    
+//     // Step 3: Group students by batch
+//     const studentsByBatch = {};
+//     students.forEach(student => {
+//       if (!studentsByBatch[student.batch]) {
+//         studentsByBatch[student.batch] = [];
+//       }
+//       studentsByBatch[student.batch].push(student);
+//     });
+    
+//     // Step 4: Get all uploads for these objectives and students
+//     const objectiveIds = objectives.map(obj => obj._id);
+//     const studentIds = students.map(student => student._id);
+    
+//     const uploads = await StudentUpload.find({
+//       unqObjectIdOfStudentUploads: { $in: objectiveIds },
+//       unqStudentObjectId: { $in: studentIds },
+//       batch: { $in: targetBatches }
+//     }).lean();
+    
+//     // Step 5: Group uploads by objective ID and batch
+//     const uploadsByObjectiveAndBatch = {};
+//     uploads.forEach(upload => {
+//       const key = `${upload.unqObjectIdOfStudentUploads}_${upload.batch}`;
+//       if (!uploadsByObjectiveAndBatch[key]) {
+//         uploadsByObjectiveAndBatch[key] = new Set();
+//       }
+//       uploadsByObjectiveAndBatch[key].add(upload.unqStudentObjectId.toString());
+//     });
+    
+//     // Step 6: Prepare the dashboard data
+//     const dashboardData = objectives.map(objective => {
+//       const batchData = {};
+      
+//       targetBatches.forEach(batch => {
+//         const studentsInBatch = studentsByBatch[batch] || [];
+//         const totalStudents = studentsInBatch.length;
+        
+//         const uploadKey = `${objective._id}_${batch}`;
+//         const uploadedCount = uploadsByObjectiveAndBatch[uploadKey] 
+//           ? uploadsByObjectiveAndBatch[uploadKey].size 
+//           : 0;
+        
+//         const pendingUploads = totalStudents - uploadedCount;
+        
+//         batchData[batch] = {
+//           totalStudents: totalStudents,
+//           uploadedCount: uploadedCount,
+//           pendingUploads: pendingUploads,
+//           completionPercentage: totalStudents > 0 
+//             ? ((uploadedCount / totalStudents) * 100).toFixed(2) 
+//             : 0
+//         };
+//       });
+      
+//       return {
+//         objectiveId: objective._id,
+//         objective: objective.objective,
+//         subject: objective.subject,
+//         descriptionOfObject: objective.descriptionOfObject,
+//         dateOfObjective: objective.dateOfObjective,
+//         submissionDate: objective.submissionDate,
+//         batchWiseStats: batchData,
+//         overallStats: {
+//           totalStudentsAcrossBatches: targetBatches.reduce((sum, batch) => 
+//             sum + (batchData[batch]?.totalStudents || 0), 0),
+//           totalUploadedAcrossBatches: targetBatches.reduce((sum, batch) => 
+//             sum + (batchData[batch]?.uploadedCount || 0), 0),
+//           totalPendingAcrossBatches: targetBatches.reduce((sum, batch) => 
+//             sum + (batchData[batch]?.pendingUploads || 0), 0)
+//         }
+//       };
+//     });
+    
+//     // Step 7: Calculate batch-wise overall statistics
+//     const batchWiseSummary = {};
+//     targetBatches.forEach(batch => {
+//       const studentsInBatch = studentsByBatch[batch] || [];
+//       const totalStudents = studentsInBatch.length;
+      
+//       let totalUploaded = 0;
+//       dashboardData.forEach(objective => {
+//         totalUploaded += objective.batchWiseStats[batch]?.uploadedCount || 0;
+//       });
+      
+//       batchWiseSummary[batch] = {
+//         totalStudents: totalStudents,
+//         totalUploadsCompleted: totalUploaded,
+//         totalObjectivesCount: objectives.filter(obj => obj.batch === batch).length,
+//         averageCompletion: totalStudents > 0 && objectives.filter(obj => obj.batch === batch).length > 0
+//           ? ((totalUploaded / (totalStudents * objectives.filter(obj => obj.batch === batch).length)) * 100).toFixed(2)
+//           : 0
+//       };
+//     });
+    
+//     return res.status(200).json({
+//       success: true,
+//       data: dashboardData,
+//       batchWiseSummary: batchWiseSummary,
+//       targetBatches: targetBatches,
+//       summary: {
+//         totalObjectives: objectives.length,
+//         totalStudentsConsidered: students.length,
+//         totalUploadsMade: uploads.length
+//       }
+//     });
+    
+//   } catch (error) {
+//     console.error("Error in StudentUploadObjectivesDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+// export const StudentUploadObjectivesDashboard = async (req, res) => {
+
+//   console.log("I am inside StudentUpload.controller.js, api: StudentUploadObjectivesDashboard");
+
+//   const { batch, startDate, endDate, subject } = req.body;
+
+//   console.log("Request body:", req.body);
+
+//   try {
+//     // Step 1: Build filter for objectives
+//     let objectiveFilter = {};
+
+//     // Add date range filter on dateOfObjective
+//     if (startDate && endDate) {
+//       const start = new Date(startDate);
+//       start.setHours(0, 0, 0, 0);
+      
+//       const end = new Date(endDate);
+//       end.setHours(23, 59, 59, 999);
+      
+//       objectiveFilter.dateOfObjective = {
+//         $gte: start,
+//         $lte: end
+//       };
+//     } else if (startDate) {
+//       const start = new Date(startDate);
+//       start.setHours(0, 0, 0, 0);
+//       objectiveFilter.dateOfObjective = { $gte: start };
+//     } else if (endDate) {
+//       const end = new Date(endDate);
+//       end.setHours(23, 59, 59, 999);
+//       objectiveFilter.dateOfObjective = { $lte: end };
+//     }
+
+//     // Add batch filter if provided
+//     if (batch && batch !== "all" && batch !== "null" && batch !== "") {
+//       objectiveFilter.batch = batch;
+//     }
+
+//     // Add subject filter if provided
+//     if (subject && subject !== "all" && subject !== "null" && subject !== "") {
+//       objectiveFilter.subject = subject;
+//     }
+
+//     console.log("Objective filter:", objectiveFilter);
+
+//     // Step 2: Get all StudentUploadObjectives based on filters
+//     let objectives = await StudentUploadObjective.find(objectiveFilter).lean();
+    
+//     if (!objectives.length) {
+//       return res.status(200).json({
+//         success: true,
+//         data: [],
+//         message: "No objectives found for the specified filters",
+//         filters: { batch, startDate, endDate, subject }
+//       });
+//     }
+
+//     // Step 3: Get unique batches that actually exist in the filtered objectives
+//     const existingBatches = [...new Set(objectives.map(obj => obj.batch))];
+    
+//     // Determine which batches to track
+//     let targetBatches = [];
+    
+//     if (batch && batch !== "all" && batch !== "null" && batch !== "") {
+//       // If specific batch is selected, use only that batch (only if it exists in objectives)
+//       if (existingBatches.includes(batch)) {
+//         targetBatches = [batch];
+//       } else {
+//         targetBatches = existingBatches;
+//       }
+//     } else {
+//       // Use only batches that exist in the filtered objectives
+//       targetBatches = existingBatches;
+//     }
+
+//     console.log("Target batches:", targetBatches);
+//     console.log("Existing batches in objectives:", existingBatches);
+
+//     // Step 4: Get all students with isSlcTaken: false for target batches
+//     const students = await Student.find({
+//       batch: { $in: targetBatches },
+//       isSlcTaken: false
+//     }).lean();
+    
+//     console.log(`Found ${students.length} students for batches: ${targetBatches.join(", ")}`);
+
+//     // Step 5: Group students by batch
+//     const studentsByBatch = {};
+//     students.forEach(student => {
+//       if (!studentsByBatch[student.batch]) {
+//         studentsByBatch[student.batch] = [];
+//       }
+//       studentsByBatch[student.batch].push(student);
+//     });
+
+//     // Step 6: Get all uploads for these objectives and students
+//     const objectiveIds = objectives.map(obj => obj._id);
+//     const studentIds = students.map(student => student._id);
+    
+//     let uploadFilter = {
+//       unqObjectIdOfStudentUploads: { $in: objectiveIds },
+//       unqStudentObjectId: { $in: studentIds },
+//       batch: { $in: targetBatches }
+//     };
+
+//     const uploads = await StudentUpload.find(uploadFilter).lean();
+    
+//     console.log(`Found ${uploads.length} uploads for ${objectives.length} objectives and ${students.length} students`);
+
+//     // Step 7: Group uploads by objective ID and batch
+//     const uploadsByObjectiveAndBatch = {};
+//     uploads.forEach(upload => {
+//       const key = `${upload.unqObjectIdOfStudentUploads}_${upload.batch}`;
+//       if (!uploadsByObjectiveAndBatch[key]) {
+//         uploadsByObjectiveAndBatch[key] = new Set();
+//       }
+//       uploadsByObjectiveAndBatch[key].add(upload.unqStudentObjectId.toString());
+//     });
+
+//     // Step 8: Prepare the dashboard data - ONLY for batches that exist in the objective
+//     const dashboardData = objectives.map(objective => {
+//       const batchData = {};
+      
+//       // Only process batches that exist in targetBatches AND match the objective's actual batch
+//       // But we need to show stats for all target batches, even if objective doesn't have that batch
+//       // Actually, we should only show batches that are in targetBatches
+//       targetBatches.forEach(batch => {
+//         // Check if this objective actually belongs to this batch
+//         // If objective has a specific batch, only show stats for that batch
+//         if (objective.batch === batch || objective.batch === batch) {
+//           const studentsInBatch = studentsByBatch[batch] || [];
+//           const totalStudents = studentsInBatch.length;
+          
+//           const uploadKey = `${objective._id}_${batch}`;
+//           const uploadedCount = uploadsByObjectiveAndBatch[uploadKey] 
+//             ? uploadsByObjectiveAndBatch[uploadKey].size 
+//             : 0;
+          
+//           const pendingUploads = totalStudents - uploadedCount;
+          
+//           const completionPercentage = totalStudents > 0 
+//             ? ((uploadedCount / totalStudents) * 100).toFixed(2) 
+//             : "0.00";
+          
+//           batchData[batch] = {
+//             totalStudents: totalStudents,
+//             uploadedCount: uploadedCount,
+//             pendingUploads: pendingUploads,
+//             completionPercentage: parseFloat(completionPercentage)
+//           };
+//         }
+//       });
+      
+//       // Calculate overall stats across all batches for this objective
+//       let totalStudentsAcrossBatches = 0;
+//       let totalUploadedAcrossBatches = 0;
+//       let totalPendingAcrossBatches = 0;
+      
+//       Object.keys(batchData).forEach(batch => {
+//         totalStudentsAcrossBatches += batchData[batch]?.totalStudents || 0;
+//         totalUploadedAcrossBatches += batchData[batch]?.uploadedCount || 0;
+//         totalPendingAcrossBatches += batchData[batch]?.pendingUploads || 0;
+//       });
+      
+//       const overallCompletionPercentage = totalStudentsAcrossBatches > 0
+//         ? ((totalUploadedAcrossBatches / totalStudentsAcrossBatches) * 100).toFixed(2)
+//         : "0.00";
+      
+//       return {
+//         objectiveId: objective._id,
+//         objective: objective.objective,
+//         subject: objective.subject,
+//         descriptionOfObject: objective.descriptionOfObject || "",
+//         dateOfObjective: objective.dateOfObjective,
+//         submissionDate: objective.submissionDate,
+//         batch: objective.batch, // Add the actual batch of the objective
+//         batchWiseStats: batchData,
+//         overallStats: {
+//           totalStudents: totalStudentsAcrossBatches,
+//           totalUploads: totalUploadedAcrossBatches,
+//           totalPending: totalPendingAcrossBatches,
+//           completionPercentage: parseFloat(overallCompletionPercentage)
+//         }
+//       };
+//     });
+
+//     // Step 9: Calculate batch-wise overall statistics
+//     const batchWiseSummary = {};
+//     targetBatches.forEach(batch => {
+//       const studentsInBatch = studentsByBatch[batch] || [];
+//       const totalStudents = studentsInBatch.length;
+      
+//       let totalUploaded = 0;
+//       let totalObjectivesForBatch = 0;
+      
+//       dashboardData.forEach(objective => {
+//         if (objective.batchWiseStats[batch]) {
+//           totalUploaded += objective.batchWiseStats[batch].uploadedCount || 0;
+//           totalObjectivesForBatch++;
+//         }
+//       });
+      
+//       const totalPossibleUploads = totalStudents * totalObjectivesForBatch;
+//       const averageCompletion = totalPossibleUploads > 0
+//         ? ((totalUploaded / totalPossibleUploads) * 100).toFixed(2)
+//         : "0.00";
+      
+//       batchWiseSummary[batch] = {
+//         totalStudents: totalStudents,
+//         totalObjectives: totalObjectivesForBatch,
+//         totalUploadsCompleted: totalUploaded,
+//         totalPossibleUploads: totalPossibleUploads,
+//         averageCompletion: parseFloat(averageCompletion)
+//       };
+//     });
+
+//     // Step 10: Calculate overall summary
+//     let totalUploadsMade = 0;
+//     dashboardData.forEach(objective => {
+//       totalUploadsMade += objective.overallStats.totalUploads;
+//     });
+
+//     return res.status(200).json({
+//       success: true,
+//       data: dashboardData,
+//       batchWiseSummary: batchWiseSummary,
+//       targetBatches: targetBatches,
+//       filters: {
+//         batch: batch || "All",
+//         subject: subject || "All",
+//         startDate: startDate || null,
+//         endDate: endDate || null,
+//         dateRange: startDate && endDate ? `${startDate} to ${endDate}` : "No date filter"
+//       },
+//       summary: {
+//         totalObjectives: objectives.length,
+//         totalBatches: targetBatches.length,
+//         totalStudentsConsidered: students.length,
+//         totalUploadsMade: totalUploadsMade
+//       }
+//     });
+    
+//   } catch (error) {
+//     console.error("Error in StudentUploadObjectivesDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+export const StudentUploadObjectivesDashboard = async (req, res) => {
+
+  console.log("I am inside StudentUpload.controller.js, api: StudentUploadObjectivesDashboard");
+
+  const { batch, startDate, endDate, subject } = req.body;
+
+  console.log("Request body:", req.body);
+
+  try {
+    // Step 1: Build filter for objectives
+    let objectiveFilter = {};
+
+    // Add date range filter on dateOfObjective
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      
+      objectiveFilter.dateOfObjective = {
+        $gte: start,
+        $lte: end
+      };
+    } else if (startDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      objectiveFilter.dateOfObjective = { $gte: start };
+    } else if (endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      objectiveFilter.dateOfObjective = { $lte: end };
+    }
+
+    // Add batch filter if provided
+    if (batch && batch !== "all" && batch !== "null" && batch !== "") {
+      objectiveFilter.batch = batch;
+    }
+
+    // Add subject filter if provided
+    if (subject && subject !== "all" && subject !== "null" && subject !== "") {
+      objectiveFilter.subject = subject;
+    }
+
+    console.log("Objective filter:", objectiveFilter);
+
+    // Step 2: Get all StudentUploadObjectives based on filters
+    let objectives = await StudentUploadObjective.find(objectiveFilter).lean();
     
     if (!objectives.length) {
       return res.status(200).json({
         success: true,
         data: [],
-        message: "No objectives found for the specified batches"
+        message: "No objectives found for the specified filters",
+        filters: { batch, startDate, endDate, subject }
       });
     }
+
+    // Step 3: Get unique batches that actually exist in the filtered objectives
+    const existingBatches = [...new Set(objectives.map(obj => obj.batch))];
     
-    // Step 2: Get all students with isSlcTaken: false for target batches
+    // Determine which batches to track
+    let targetBatches = [];
+    
+    if (batch && batch !== "all" && batch !== "null" && batch !== "") {
+      // If specific batch is selected, use only that batch (only if it exists in objectives)
+      if (existingBatches.includes(batch)) {
+        targetBatches = [batch];
+      } else {
+        targetBatches = existingBatches;
+      }
+    } else {
+      // Use only batches that exist in the filtered objectives
+      targetBatches = existingBatches;
+    }
+
+    console.log("Target batches:", targetBatches);
+    console.log("Existing batches in objectives:", existingBatches);
+
+    // Step 4: Get all students with isSlcTaken: false for target batches
     const students = await Student.find({
       batch: { $in: targetBatches },
       isSlcTaken: false
     }).lean();
     
-    // Step 3: Group students by batch
+    console.log(`Found ${students.length} students for batches: ${targetBatches.join(", ")}`);
+
+    // Step 5: Group students by batch
     const studentsByBatch = {};
     students.forEach(student => {
       if (!studentsByBatch[student.batch]) {
@@ -1022,18 +1494,22 @@ export const StudentUploadObjectivesDashboard = async (req, res) => {
       }
       studentsByBatch[student.batch].push(student);
     });
-    
-    // Step 4: Get all uploads for these objectives and students
+
+    // Step 6: Get all uploads for these objectives and students
     const objectiveIds = objectives.map(obj => obj._id);
     const studentIds = students.map(student => student._id);
     
-    const uploads = await StudentUpload.find({
+    let uploadFilter = {
       unqObjectIdOfStudentUploads: { $in: objectiveIds },
       unqStudentObjectId: { $in: studentIds },
       batch: { $in: targetBatches }
-    }).lean();
+    };
+
+    const uploads = await StudentUpload.find(uploadFilter).lean();
     
-    // Step 5: Group uploads by objective ID and batch
+    console.log(`Found ${uploads.length} uploads for ${objectives.length} objectives and ${students.length} students`);
+
+    // Step 7: Group uploads by objective ID and batch
     const uploadsByObjectiveAndBatch = {};
     uploads.forEach(upload => {
       const key = `${upload.unqObjectIdOfStudentUploads}_${upload.batch}`;
@@ -1042,81 +1518,206 @@ export const StudentUploadObjectivesDashboard = async (req, res) => {
       }
       uploadsByObjectiveAndBatch[key].add(upload.unqStudentObjectId.toString());
     });
-    
-    // Step 6: Prepare the dashboard data
+
+    // Step 8: Get all schools for school-wise data
+    const allSchools = await District_Block_School.find({
+      isCenterClosed: false
+    }).lean();
+
+    // Step 9: Group students by school
+    const studentsBySchool = {};
+    students.forEach(student => {
+      const schoolId = student.schoolId;
+      if (!studentsBySchool[schoolId]) {
+        studentsBySchool[schoolId] = [];
+      }
+      studentsBySchool[schoolId].push(student);
+    });
+
+    // Step 10: Prepare the dashboard data with school-wise details
     const dashboardData = objectives.map(objective => {
       const batchData = {};
+      const schoolWiseData = {};
       
+      // Process each target batch
       targetBatches.forEach(batch => {
-        const studentsInBatch = studentsByBatch[batch] || [];
-        const totalStudents = studentsInBatch.length;
-        
-        const uploadKey = `${objective._id}_${batch}`;
-        const uploadedCount = uploadsByObjectiveAndBatch[uploadKey] 
-          ? uploadsByObjectiveAndBatch[uploadKey].size 
-          : 0;
-        
-        const pendingUploads = totalStudents - uploadedCount;
-        
-        batchData[batch] = {
-          totalStudents: totalStudents,
-          uploadedCount: uploadedCount,
-          pendingUploads: pendingUploads,
-          completionPercentage: totalStudents > 0 
+        if (objective.batch === batch) {
+          const studentsInBatch = studentsByBatch[batch] || [];
+          const totalStudents = studentsInBatch.length;
+          
+          const uploadKey = `${objective._id}_${batch}`;
+          const uploadedCount = uploadsByObjectiveAndBatch[uploadKey] 
+            ? uploadsByObjectiveAndBatch[uploadKey].size 
+            : 0;
+          
+          const pendingUploads = totalStudents - uploadedCount;
+          
+          const completionPercentage = totalStudents > 0 
             ? ((uploadedCount / totalStudents) * 100).toFixed(2) 
-            : 0
-        };
+            : "0.00";
+          
+          batchData[batch] = {
+            totalStudents: totalStudents,
+            uploadedCount: uploadedCount,
+            pendingUploads: pendingUploads,
+            completionPercentage: parseFloat(completionPercentage)
+          };
+
+          // Prepare school-wise data for this objective and batch
+          const schoolsData = [];
+          let totalStudentsForObjective = 0;
+          let totalUploadsForObjective = 0;
+
+          for (const school of allSchools) {
+            const schoolId = school.schoolId;
+            const schoolStudents = studentsBySchool[schoolId] || [];
+            
+            // Filter students by batch
+            const batchStudents = schoolStudents.filter(s => s.batch === batch);
+            const totalSchoolStudents = batchStudents.length;
+            
+            if (totalSchoolStudents > 0) {
+              totalStudentsForObjective += totalSchoolStudents;
+              
+              // Count uploads for this school
+              let uploadedSchoolCount = 0;
+              batchStudents.forEach(student => {
+                const studentUploadKey = `${objective._id}_${batch}`;
+                if (uploadsByObjectiveAndBatch[studentUploadKey] && 
+                    uploadsByObjectiveAndBatch[studentUploadKey].has(student._id.toString())) {
+                  uploadedSchoolCount++;
+                }
+              });
+              
+              totalUploadsForObjective += uploadedSchoolCount;
+              
+              schoolsData.push({
+                schoolId: school.schoolId,
+                schoolName: school.schoolName,
+                districtId: school.districtId,
+                districtName: school.districtName,
+                blockId: school.blockId,
+                blockName: school.blockName,
+                totalStudents: totalSchoolStudents,
+                uploadedCount: uploadedSchoolCount,
+                pendingUploads: totalSchoolStudents - uploadedSchoolCount,
+                completionPercentage: totalSchoolStudents > 0 
+                  ? ((uploadedSchoolCount / totalSchoolStudents) * 100).toFixed(2)
+                  : "0.00",
+                hasStudents: true
+              });
+            }
+          }
+
+          schoolWiseData[batch] = {
+            schools: schoolsData.sort((a, b) => a.schoolName.localeCompare(b.schoolName)),
+            totalStudents: totalStudentsForObjective,
+            totalUploads: totalUploadsForObjective,
+            totalPending: totalStudentsForObjective - totalUploadsForObjective,
+            completionPercentage: totalStudentsForObjective > 0
+              ? ((totalUploadsForObjective / totalStudentsForObjective) * 100).toFixed(2)
+              : "0.00"
+          };
+        }
       });
+      
+      // Calculate overall stats across all batches for this objective
+      let totalStudentsAcrossBatches = 0;
+      let totalUploadedAcrossBatches = 0;
+      let totalPendingAcrossBatches = 0;
+      
+      Object.keys(batchData).forEach(batch => {
+        totalStudentsAcrossBatches += batchData[batch]?.totalStudents || 0;
+        totalUploadedAcrossBatches += batchData[batch]?.uploadedCount || 0;
+        totalPendingAcrossBatches += batchData[batch]?.pendingUploads || 0;
+      });
+      
+      const overallCompletionPercentage = totalStudentsAcrossBatches > 0
+        ? ((totalUploadedAcrossBatches / totalStudentsAcrossBatches) * 100).toFixed(2)
+        : "0.00";
+      
+      // Get the batch for this objective
+      const objectiveBatch = objective.batch;
       
       return {
         objectiveId: objective._id,
+        objectiveName: objective.objective,
         objective: objective.objective,
         subject: objective.subject,
-        descriptionOfObject: objective.descriptionOfObject,
+        descriptionOfObject: objective.descriptionOfObject || "",
         dateOfObjective: objective.dateOfObjective,
         submissionDate: objective.submissionDate,
+        batch: objectiveBatch,
         batchWiseStats: batchData,
         overallStats: {
-          totalStudentsAcrossBatches: targetBatches.reduce((sum, batch) => 
-            sum + (batchData[batch]?.totalStudents || 0), 0),
-          totalUploadedAcrossBatches: targetBatches.reduce((sum, batch) => 
-            sum + (batchData[batch]?.uploadedCount || 0), 0),
-          totalPendingAcrossBatches: targetBatches.reduce((sum, batch) => 
-            sum + (batchData[batch]?.pendingUploads || 0), 0)
+          totalStudents: totalStudentsAcrossBatches,
+          totalUploads: totalUploadedAcrossBatches,
+          totalPending: totalPendingAcrossBatches,
+          completionPercentage: parseFloat(overallCompletionPercentage)
+        },
+        schoolWiseDetails: schoolWiseData[objectiveBatch] || {
+          schools: [],
+          totalStudents: 0,
+          totalUploads: 0,
+          totalPending: 0,
+          completionPercentage: "0.00"
         }
       };
     });
-    
-    // Step 7: Calculate batch-wise overall statistics
+
+    // Step 11: Calculate batch-wise overall statistics
     const batchWiseSummary = {};
     targetBatches.forEach(batch => {
       const studentsInBatch = studentsByBatch[batch] || [];
       const totalStudents = studentsInBatch.length;
       
       let totalUploaded = 0;
+      let totalObjectivesForBatch = 0;
+      
       dashboardData.forEach(objective => {
-        totalUploaded += objective.batchWiseStats[batch]?.uploadedCount || 0;
+        if (objective.batchWiseStats[batch]) {
+          totalUploaded += objective.batchWiseStats[batch].uploadedCount || 0;
+          totalObjectivesForBatch++;
+        }
       });
+      
+      const totalPossibleUploads = totalStudents * totalObjectivesForBatch;
+      const averageCompletion = totalPossibleUploads > 0
+        ? ((totalUploaded / totalPossibleUploads) * 100).toFixed(2)
+        : "0.00";
       
       batchWiseSummary[batch] = {
         totalStudents: totalStudents,
+        totalObjectives: totalObjectivesForBatch,
         totalUploadsCompleted: totalUploaded,
-        totalObjectivesCount: objectives.filter(obj => obj.batch === batch).length,
-        averageCompletion: totalStudents > 0 && objectives.filter(obj => obj.batch === batch).length > 0
-          ? ((totalUploaded / (totalStudents * objectives.filter(obj => obj.batch === batch).length)) * 100).toFixed(2)
-          : 0
+        totalPossibleUploads: totalPossibleUploads,
+        averageCompletion: parseFloat(averageCompletion)
       };
     });
-    
+
+    // Step 12: Calculate overall summary
+    let totalUploadsMade = 0;
+    dashboardData.forEach(objective => {
+      totalUploadsMade += objective.overallStats.totalUploads;
+    });
+
     return res.status(200).json({
       success: true,
       data: dashboardData,
       batchWiseSummary: batchWiseSummary,
       targetBatches: targetBatches,
+      filters: {
+        batch: batch || "All",
+        subject: subject || "All",
+        startDate: startDate || null,
+        endDate: endDate || null,
+        dateRange: startDate && endDate ? `${startDate} to ${endDate}` : "No date filter"
+      },
       summary: {
         totalObjectives: objectives.length,
+        totalBatches: targetBatches.length,
         totalStudentsConsidered: students.length,
-        totalUploadsMade: uploads.length
+        totalUploadsMade: totalUploadsMade
       }
     });
     
@@ -1129,15 +1730,6 @@ export const StudentUploadObjectivesDashboard = async (req, res) => {
     });
   }
 };
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1370,259 +1962,12 @@ export const StudentUploadObjectivesDashboard = async (req, res) => {
 
 
 
-// // StudentUploadDashboard controller
-// export const StudentUploadDashboard = async (req, res) => {
-//   console.log("I am in StudentUpload.controller.js, api: StudentUploadDashboard");
-  
-//   let { _id, batch } = req.body;
-// console.log(req.body)
-//   try {
-//     // Validate required fields
-//     if (!_id) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Objective ID(s) is required"
-//       });
-//     }
-
-//     // Convert _id to array if it's a string with commas or single id
-//     let objectiveIds = [];
-//     if (Array.isArray(_id)) {
-//       objectiveIds = _id;
-//     } else if (typeof _id === 'string') {
-//       if (_id.includes(',')) {
-//         // Split comma-separated string and trim whitespace
-//         objectiveIds = _id.split(',').map(id => id.trim());
-//       } else {
-//         objectiveIds = [_id];
-//       }
-//     }
-
-//     // Validate all IDs are valid MongoDB ObjectIds
-//     const isValidObjectId = (id) => {
-//       return mongoose.Types.ObjectId.isValid(id);
-//     };
-
-//     const invalidIds = objectiveIds.filter(id => !isValidObjectId(id));
-//     if (invalidIds.length > 0) {
-//       return res.status(400).json({
-//         success: false,
-//         message: `Invalid ObjectId(s): ${invalidIds.join(', ')}`
-//       });
-//     }
-
-//     // Step 1: Get all objectives details
-//     const objectives = await StudentUploadObjective.find({
-//       _id: { $in: objectiveIds }
-//     }).lean();
-
-//     if (!objectives.length) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "No objectives found for the provided IDs"
-//       });
-//     }
-
-//     // Get unique batches and subjects from objectives
-//     const uniqueBatches = [...new Set(objectives.map(obj => batch || obj.batch))];
-//     const targetBatch = batch || uniqueBatches[0];
-//     const uniqueSubjects = [...new Set(objectives.map(obj => obj.subject))];
-
-//     // Step 2: Get ALL schools that are not closed
-//     const allSchools = await District_Block_School.find({
-//       isCenterClosed: false
-//     }).lean();
-
-//     if (!allSchools.length) {
-//       return res.status(200).json({
-//         success: true,
-//         data: [],
-//         message: "No active schools found",
-//         objectiveDetails: objectives
-//       });
-//     }
-
-//     // Step 3: Get all students for the batch with isSlcTaken: false
-//     const students = await Student.find({
-//       batch: targetBatch,
-//       isSlcTaken: false
-//     }).lean();
-
-//     // Step 4: Group students by school
-//     const studentsBySchool = {};
-//     students.forEach(student => {
-//       const schoolId = student.schoolId;
-//       if (!studentsBySchool[schoolId]) {
-//         studentsBySchool[schoolId] = [];
-//       }
-//       studentsBySchool[schoolId].push(student);
-//     });
-
-//     // Step 5: Get all uploads for these objectives
-//     const uploads = await StudentUpload.find({
-//       unqObjectIdOfStudentUploads: { $in: objectiveIds },
-//       batch: targetBatch,
-//       subject: { $in: uniqueSubjects }
-//     }).lean();
-
-//     // Step 6: Group uploads by school and student
-//     const uploadsBySchool = {};
-//     uploads.forEach(upload => {
-//       const student = students.find(s => s._id.toString() === upload.unqStudentObjectId.toString());
-//       if (student) {
-//         const schoolId = student.schoolId;
-//         if (!uploadsBySchool[schoolId]) {
-//           uploadsBySchool[schoolId] = new Set();
-//         }
-//         uploadsBySchool[schoolId].add(upload.unqStudentObjectId.toString());
-//       }
-//     });
-
-//     // Step 7: Prepare school-wise dashboard data for ALL schools
-//     const schoolWiseData = [];
-//     let totalStudentsOverall = 0;
-//     let totalUploadsOverall = 0;
-//     let totalPendingOverall = 0;
-//     let totalSchoolsWithStudents = 0;
-
-//     for (const school of allSchools) {
-//       const schoolId = school.schoolId;
-//       const schoolStudents = studentsBySchool[schoolId] || [];
-//       const totalStudents = schoolStudents.length;
-      
-//       if (totalStudents > 0) {
-//         totalSchoolsWithStudents++;
-//       }
-      
-//       const uploadedCount = uploadsBySchool[schoolId] ? uploadsBySchool[schoolId].size : 0;
-//       const pendingUploads = totalStudents - uploadedCount;
-//       const completionPercentage = totalStudents > 0 
-//         ? ((uploadedCount / totalStudents) * 100).toFixed(2)
-//         : "0.00";
-
-//       totalStudentsOverall += totalStudents;
-//       totalUploadsOverall += uploadedCount;
-//       totalPendingOverall += pendingUploads;
-
-//       schoolWiseData.push({
-//         schoolId: school.schoolId,
-//         schoolName: school.schoolName,
-//         districtId: school.districtId,
-//         districtName: school.districtName,
-//         blockId: school.blockId,
-//         blockName: school.blockName,
-//         totalStudents: totalStudents,
-//         uploadedCount: uploadedCount,
-//         pendingUploads: pendingUploads,
-//         completionPercentage: completionPercentage,
-//         hasStudents: totalStudents > 0
-//         // Removed students array as requested
-//       });
-//     }
-
-//     // Sort by school name
-//     schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
-
-//     // Step 8: Prepare summary statistics
-//     const summary = {
-//       totalObjectives: objectives.length,
-//       totalSchools: allSchools.length,
-//       totalSchoolsWithStudents: totalSchoolsWithStudents,
-//       totalSchoolsWithoutStudents: allSchools.length - totalSchoolsWithStudents,
-//       totalStudents: totalStudentsOverall,
-//       totalUploads: totalUploadsOverall,
-//       totalPending: totalPendingOverall,
-//       overallCompletionPercentage: totalStudentsOverall > 0 
-//         ? ((totalUploadsOverall / totalStudentsOverall) * 100).toFixed(2)
-//         : "0.00",
-//       objectiveDetails: objectives.map(obj => ({
-//         id: obj._id,
-//         objective: obj.objective,
-//         subject: obj.subject,
-//         descriptionOfObject: obj.descriptionOfObject,
-//         dateOfObjective: obj.dateOfObjective,
-//         submissionDate: obj.submissionDate,
-//         batch: targetBatch
-//       }))
-//     };
-
-//     // Step 9: Get top performing and bottom performing schools (only schools with students)
-//     const schoolsWithStudents = schoolWiseData.filter(school => school.hasStudents);
-//     const sortedByCompletion = [...schoolsWithStudents].sort((a, b) => 
-//       parseFloat(b.completionPercentage) - parseFloat(a.completionPercentage)
-//     );
-    
-//     const topSchools = sortedByCompletion.slice(0, 5);
-//     const bottomSchools = [...sortedByCompletion].reverse().slice(0, 5);
-
-//     // Step 10: Group by district for additional insights
-//     const districtWiseData = {};
-//     schoolWiseData.forEach(school => {
-//       if (school.totalStudents > 0) {
-//         if (!districtWiseData[school.districtName]) {
-//           districtWiseData[school.districtName] = {
-//             districtName: school.districtName,
-//             totalSchools: 0,
-//             totalStudents: 0,
-//             totalUploads: 0,
-//             totalPending: 0,
-//             schools: []
-//           };
-//         }
-//         districtWiseData[school.districtName].totalSchools++;
-//         districtWiseData[school.districtName].totalStudents += school.totalStudents;
-//         districtWiseData[school.districtName].totalUploads += school.uploadedCount;
-//         districtWiseData[school.districtName].totalPending += school.pendingUploads;
-//         districtWiseData[school.districtName].schools.push(school.schoolName);
-//       }
-//     });
-
-//     // Calculate district completion percentages
-//     Object.values(districtWiseData).forEach(district => {
-//       district.completionPercentage = district.totalStudents > 0 
-//         ? ((district.totalUploads / district.totalStudents) * 100).toFixed(2)
-//         : "0.00";
-//     });
-
-//     return res.status(200).json({
-//       success: true,
-//       data: schoolWiseData,
-//       summary: summary,
-//       insights: {
-//         topPerformingSchools: topSchools,
-//         bottomPerformingSchools: bottomSchools,
-//         averageCompletionRate: summary.overallCompletionPercentage,
-//         districtWiseSummary: Object.values(districtWiseData)
-//       },
-//       filters: {
-//         objectiveIds: objectiveIds,
-//         batch: targetBatch,
-//         isCenterClosed: false
-//       }
-//     });
-
-//   } catch (error) {
-//     console.error("Error in StudentUploadDashboard:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Internal server error",
-//       error: error.message
-//     });
-//   }
-// };
-
-
-
-
-
-
-
 // StudentUploadDashboard controller
 export const StudentUploadDashboard = async (req, res) => {
   console.log("I am in StudentUpload.controller.js, api: StudentUploadDashboard");
   
   let { _id, batch } = req.body;
-
+console.log(req.body)
   try {
     // Validate required fields
     if (!_id) {
@@ -1632,19 +1977,33 @@ export const StudentUploadDashboard = async (req, res) => {
       });
     }
 
-    // Convert _id to array
+    // Convert _id to array if it's a string with commas or single id
     let objectiveIds = [];
     if (Array.isArray(_id)) {
       objectiveIds = _id;
     } else if (typeof _id === 'string') {
       if (_id.includes(',')) {
+        // Split comma-separated string and trim whitespace
         objectiveIds = _id.split(',').map(id => id.trim());
       } else {
         objectiveIds = [_id];
       }
     }
 
-    // Get all objectives details
+    // Validate all IDs are valid MongoDB ObjectIds
+    const isValidObjectId = (id) => {
+      return mongoose.Types.ObjectId.isValid(id);
+    };
+
+    const invalidIds = objectiveIds.filter(id => !isValidObjectId(id));
+    if (invalidIds.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid ObjectId(s): ${invalidIds.join(', ')}`
+      });
+    }
+
+    // Step 1: Get all objectives details
     const objectives = await StudentUploadObjective.find({
       _id: { $in: objectiveIds }
     }).lean();
@@ -1656,12 +2015,12 @@ export const StudentUploadDashboard = async (req, res) => {
       });
     }
 
-    // Get unique batches and subjects
+    // Get unique batches and subjects from objectives
     const uniqueBatches = [...new Set(objectives.map(obj => batch || obj.batch))];
     const targetBatch = batch || uniqueBatches[0];
     const uniqueSubjects = [...new Set(objectives.map(obj => obj.subject))];
 
-    // Get ALL schools that are not closed
+    // Step 2: Get ALL schools that are not closed
     const allSchools = await District_Block_School.find({
       isCenterClosed: false
     }).lean();
@@ -1670,17 +2029,18 @@ export const StudentUploadDashboard = async (req, res) => {
       return res.status(200).json({
         success: true,
         data: [],
-        message: "No active schools found"
+        message: "No active schools found",
+        objectiveDetails: objectives
       });
     }
 
-    // Get all students for the batch with isSlcTaken: false
+    // Step 3: Get all students for the batch with isSlcTaken: false
     const students = await Student.find({
       batch: targetBatch,
       isSlcTaken: false
     }).lean();
 
-    // Group students by school
+    // Step 4: Group students by school
     const studentsBySchool = {};
     students.forEach(student => {
       const schoolId = student.schoolId;
@@ -1690,95 +2050,147 @@ export const StudentUploadDashboard = async (req, res) => {
       studentsBySchool[schoolId].push(student);
     });
 
-    // Get all uploads for these objectives
+    // Step 5: Get all uploads for these objectives
     const uploads = await StudentUpload.find({
       unqObjectIdOfStudentUploads: { $in: objectiveIds },
       batch: targetBatch,
       subject: { $in: uniqueSubjects }
     }).lean();
 
-    // Group uploads by objective and school
-    const uploadsByObjectiveAndSchool = {};
+    // Step 6: Group uploads by school and student
+    const uploadsBySchool = {};
     uploads.forEach(upload => {
-      const objectiveId = upload.unqObjectIdOfStudentUploads.toString();
       const student = students.find(s => s._id.toString() === upload.unqStudentObjectId.toString());
       if (student) {
         const schoolId = student.schoolId;
-        const key = `${objectiveId}_${schoolId}`;
-        if (!uploadsByObjectiveAndSchool[key]) {
-          uploadsByObjectiveAndSchool[key] = new Set();
+        if (!uploadsBySchool[schoolId]) {
+          uploadsBySchool[schoolId] = new Set();
         }
-        uploadsByObjectiveAndSchool[key].add(upload.unqStudentObjectId.toString());
+        uploadsBySchool[schoolId].add(upload.unqStudentObjectId.toString());
       }
     });
 
-    // Prepare objective-wise school data
-    const objectiveWiseData = [];
+    // Step 7: Prepare school-wise dashboard data for ALL schools
+    const schoolWiseData = [];
+    let totalStudentsOverall = 0;
+    let totalUploadsOverall = 0;
+    let totalPendingOverall = 0;
+    let totalSchoolsWithStudents = 0;
 
-    for (const objective of objectives) {
-      const schoolWiseData = [];
-      let totalStudentsForObjective = 0;
-      let totalUploadsForObjective = 0;
-
-      for (const school of allSchools) {
-        const schoolId = school.schoolId;
-        const schoolStudents = studentsBySchool[schoolId] || [];
-        const totalStudents = schoolStudents.length;
-        
-        const key = `${objective._id}_${schoolId}`;
-        const uploadedCount = uploadsByObjectiveAndSchool[key] ? uploadsByObjectiveAndSchool[key].size : 0;
-        const pendingUploads = totalStudents - uploadedCount;
-        const completionPercentage = totalStudents > 0 
-          ? ((uploadedCount / totalStudents) * 100).toFixed(2)
-          : "0.00";
-
-        if (totalStudents > 0) {
-          totalStudentsForObjective += totalStudents;
-          totalUploadsForObjective += uploadedCount;
-        }
-
-        schoolWiseData.push({
-          schoolId: school.schoolId,
-          schoolName: school.schoolName,
-          districtId: school.districtId,
-          districtName: school.districtName,
-          blockId: school.blockId,
-          blockName: school.blockName,
-          totalStudents: totalStudents,
-          uploadedCount: uploadedCount,
-          pendingUploads: pendingUploads,
-          completionPercentage: completionPercentage,
-          hasStudents: totalStudents > 0
-        });
+    for (const school of allSchools) {
+      const schoolId = school.schoolId;
+      const schoolStudents = studentsBySchool[schoolId] || [];
+      const totalStudents = schoolStudents.length;
+      
+      if (totalStudents > 0) {
+        totalSchoolsWithStudents++;
       }
+      
+      const uploadedCount = uploadsBySchool[schoolId] ? uploadsBySchool[schoolId].size : 0;
+      const pendingUploads = totalStudents - uploadedCount;
+      const completionPercentage = totalStudents > 0 
+        ? ((uploadedCount / totalStudents) * 100).toFixed(2)
+        : "0.00";
 
-      // Sort by school name
-      schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+      totalStudentsOverall += totalStudents;
+      totalUploadsOverall += uploadedCount;
+      totalPendingOverall += pendingUploads;
 
-      objectiveWiseData.push({
-        objectiveId: objective._id,
-        objectiveName: objective.objective,
-        subject: objective.subject,
-        descriptionOfObject: objective.descriptionOfObject,
-        dateOfObjective: objective.dateOfObjective,
-        submissionDate: objective.submissionDate,
-        batch: targetBatch,
-        totalStudents: totalStudentsForObjective,
-        totalUploads: totalUploadsForObjective,
-        totalPending: totalStudentsForObjective - totalUploadsForObjective,
-        completionPercentage: totalStudentsForObjective > 0 
-          ? ((totalUploadsForObjective / totalStudentsForObjective) * 100).toFixed(2)
-          : "0.00",
-        schools: schoolWiseData
+      schoolWiseData.push({
+        schoolId: school.schoolId,
+        schoolName: school.schoolName,
+        districtId: school.districtId,
+        districtName: school.districtName,
+        blockId: school.blockId,
+        blockName: school.blockName,
+        totalStudents: totalStudents,
+        uploadedCount: uploadedCount,
+        pendingUploads: pendingUploads,
+        completionPercentage: completionPercentage,
+        hasStudents: totalStudents > 0
+        // Removed students array as requested
       });
     }
 
-    return res.status(200).json({
-      success: true,
-      data: objectiveWiseData,
+    // Sort by school name
+    schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+
+    // Step 8: Prepare summary statistics
+    const summary = {
       totalObjectives: objectives.length,
       totalSchools: allSchools.length,
-      message: `Data fetched for ${objectives.length} objective(s)`
+      totalSchoolsWithStudents: totalSchoolsWithStudents,
+      totalSchoolsWithoutStudents: allSchools.length - totalSchoolsWithStudents,
+      totalStudents: totalStudentsOverall,
+      totalUploads: totalUploadsOverall,
+      totalPending: totalPendingOverall,
+      overallCompletionPercentage: totalStudentsOverall > 0 
+        ? ((totalUploadsOverall / totalStudentsOverall) * 100).toFixed(2)
+        : "0.00",
+      objectiveDetails: objectives.map(obj => ({
+        id: obj._id,
+        objective: obj.objective,
+        subject: obj.subject,
+        descriptionOfObject: obj.descriptionOfObject,
+        dateOfObjective: obj.dateOfObjective,
+        submissionDate: obj.submissionDate,
+        batch: targetBatch
+      }))
+    };
+
+    // Step 9: Get top performing and bottom performing schools (only schools with students)
+    const schoolsWithStudents = schoolWiseData.filter(school => school.hasStudents);
+    const sortedByCompletion = [...schoolsWithStudents].sort((a, b) => 
+      parseFloat(b.completionPercentage) - parseFloat(a.completionPercentage)
+    );
+    
+    const topSchools = sortedByCompletion.slice(0, 5);
+    const bottomSchools = [...sortedByCompletion].reverse().slice(0, 5);
+
+    // Step 10: Group by district for additional insights
+    const districtWiseData = {};
+    schoolWiseData.forEach(school => {
+      if (school.totalStudents > 0) {
+        if (!districtWiseData[school.districtName]) {
+          districtWiseData[school.districtName] = {
+            districtName: school.districtName,
+            totalSchools: 0,
+            totalStudents: 0,
+            totalUploads: 0,
+            totalPending: 0,
+            schools: []
+          };
+        }
+        districtWiseData[school.districtName].totalSchools++;
+        districtWiseData[school.districtName].totalStudents += school.totalStudents;
+        districtWiseData[school.districtName].totalUploads += school.uploadedCount;
+        districtWiseData[school.districtName].totalPending += school.pendingUploads;
+        districtWiseData[school.districtName].schools.push(school.schoolName);
+      }
+    });
+
+    // Calculate district completion percentages
+    Object.values(districtWiseData).forEach(district => {
+      district.completionPercentage = district.totalStudents > 0 
+        ? ((district.totalUploads / district.totalStudents) * 100).toFixed(2)
+        : "0.00";
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: schoolWiseData,
+      summary: summary,
+      insights: {
+        topPerformingSchools: topSchools,
+        bottomPerformingSchools: bottomSchools,
+        averageCompletionRate: summary.overallCompletionPercentage,
+        districtWiseSummary: Object.values(districtWiseData)
+      },
+      filters: {
+        objectiveIds: objectiveIds,
+        batch: targetBatch,
+        isCenterClosed: false
+      }
     });
 
   } catch (error) {
@@ -1790,3 +2202,185 @@ export const StudentUploadDashboard = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+// // StudentUploadDashboard controller
+// export const StudentUploadDashboard = async (req, res) => {
+//   console.log("I am in StudentUpload.controller.js, api: StudentUploadDashboard");
+  
+//   let { _id, batch } = req.body;
+
+//   console.log(req.body)
+
+//   try {
+//     // Validate required fields
+//     if (!_id) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Objective ID(s) is required"
+//       });
+//     }
+
+//     // Convert _id to array
+//     let objectiveIds = [];
+//     if (Array.isArray(_id)) {
+//       objectiveIds = _id;
+//     } else if (typeof _id === 'string') {
+//       if (_id.includes(',')) {
+//         objectiveIds = _id.split(',').map(id => id.trim());
+//       } else {
+//         objectiveIds = [_id];
+//       }
+//     }
+
+//     // Get all objectives details
+//     const objectives = await StudentUploadObjective.find({
+//       _id: { $in: objectiveIds }
+//     }).lean();
+
+//     if (!objectives.length) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "No objectives found for the provided IDs"
+//       });
+//     }
+
+//     // Get unique batches and subjects
+//     const uniqueBatches = [...new Set(objectives.map(obj => batch || obj.batch))];
+//     const targetBatch = batch || uniqueBatches[0];
+//     const uniqueSubjects = [...new Set(objectives.map(obj => obj.subject))];
+
+//     // Get ALL schools that are not closed
+//     const allSchools = await District_Block_School.find({
+//       isCenterClosed: false
+//     }).lean();
+
+//     if (!allSchools.length) {
+//       return res.status(200).json({
+//         success: true,
+//         data: [],
+//         message: "No active schools found"
+//       });
+//     }
+
+//     // Get all students for the batch with isSlcTaken: false
+//     const students = await Student.find({
+//       batch: targetBatch,
+//       isSlcTaken: false
+//     }).lean();
+
+//     // Group students by school
+//     const studentsBySchool = {};
+//     students.forEach(student => {
+//       const schoolId = student.schoolId;
+//       if (!studentsBySchool[schoolId]) {
+//         studentsBySchool[schoolId] = [];
+//       }
+//       studentsBySchool[schoolId].push(student);
+//     });
+
+//     // Get all uploads for these objectives
+//     const uploads = await StudentUpload.find({
+//       unqObjectIdOfStudentUploads: { $in: objectiveIds },
+//       batch: targetBatch,
+//       subject: { $in: uniqueSubjects }
+//     }).lean();
+
+//     // Group uploads by objective and school
+//     const uploadsByObjectiveAndSchool = {};
+//     uploads.forEach(upload => {
+//       const objectiveId = upload.unqObjectIdOfStudentUploads.toString();
+//       const student = students.find(s => s._id.toString() === upload.unqStudentObjectId.toString());
+//       if (student) {
+//         const schoolId = student.schoolId;
+//         const key = `${objectiveId}_${schoolId}`;
+//         if (!uploadsByObjectiveAndSchool[key]) {
+//           uploadsByObjectiveAndSchool[key] = new Set();
+//         }
+//         uploadsByObjectiveAndSchool[key].add(upload.unqStudentObjectId.toString());
+//       }
+//     });
+
+//     // Prepare objective-wise school data
+//     const objectiveWiseData = [];
+
+//     for (const objective of objectives) {
+//       const schoolWiseData = [];
+//       let totalStudentsForObjective = 0;
+//       let totalUploadsForObjective = 0;
+
+//       for (const school of allSchools) {
+//         const schoolId = school.schoolId;
+//         const schoolStudents = studentsBySchool[schoolId] || [];
+//         const totalStudents = schoolStudents.length;
+        
+//         const key = `${objective._id}_${schoolId}`;
+//         const uploadedCount = uploadsByObjectiveAndSchool[key] ? uploadsByObjectiveAndSchool[key].size : 0;
+//         const pendingUploads = totalStudents - uploadedCount;
+//         const completionPercentage = totalStudents > 0 
+//           ? ((uploadedCount / totalStudents) * 100).toFixed(2)
+//           : "0.00";
+
+//         if (totalStudents > 0) {
+//           totalStudentsForObjective += totalStudents;
+//           totalUploadsForObjective += uploadedCount;
+//         }
+
+//         schoolWiseData.push({
+//           schoolId: school.schoolId,
+//           schoolName: school.schoolName,
+//           districtId: school.districtId,
+//           districtName: school.districtName,
+//           blockId: school.blockId,
+//           blockName: school.blockName,
+//           totalStudents: totalStudents,
+//           uploadedCount: uploadedCount,
+//           pendingUploads: pendingUploads,
+//           completionPercentage: completionPercentage,
+//           hasStudents: totalStudents > 0
+//         });
+//       }
+
+//       // Sort by school name
+//       schoolWiseData.sort((a, b) => a.schoolName.localeCompare(b.schoolName));
+
+//       objectiveWiseData.push({
+//         objectiveId: objective._id,
+//         objectiveName: objective.objective,
+//         subject: objective.subject,
+//         descriptionOfObject: objective.descriptionOfObject,
+//         dateOfObjective: objective.dateOfObjective,
+//         submissionDate: objective.submissionDate,
+//         batch: targetBatch,
+//         totalStudents: totalStudentsForObjective,
+//         totalUploads: totalUploadsForObjective,
+//         totalPending: totalStudentsForObjective - totalUploadsForObjective,
+//         completionPercentage: totalStudentsForObjective > 0 
+//           ? ((totalUploadsForObjective / totalStudentsForObjective) * 100).toFixed(2)
+//           : "0.00",
+//         schools: schoolWiseData
+//       });
+//     }
+
+//     return res.status(200).json({
+//       success: true,
+//       data: objectiveWiseData,
+//       totalObjectives: objectives.length,
+//       totalSchools: allSchools.length,
+//       message: `Data fetched for ${objectives.length} objective(s)`
+//     });
+
+//   } catch (error) {
+//     console.error("Error in StudentUploadDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
