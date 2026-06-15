@@ -5,7 +5,21 @@ import mongoose, { Schema } from "mongoose";
 const StudentSchema = new Schema(
   {
     studentSrn: { type: String, required: true, unique: true },
-    rollNumber: { type: String, required: true, unique: true },
+    rollNumber: { type: String },
+
+
+    // rollNumber: { 
+    //   type: String, 
+    //   required: false, 
+    //   unique: true, 
+    //   sparse: true,  // This allows multiple null values
+    //   index: { 
+    //     unique: true, 
+    //     partialFilterExpression: { rollNumber: { $type: "string" } } 
+    //   } 
+    // },
+
+
     firstName: { type: String, required: true },
     //lastName: { type: String },
     fatherName: { type: String,  },
@@ -18,9 +32,9 @@ const StudentSchema = new Schema(
     gender: { type: String, required: true },
     category: { type: String },
     address: { type: String, },
-    districtId: { type: String, ref: "District", required: true },
-    blockId: { type: String, ref: "Block", required: true },
-    schoolId: { type: String, ref: "School", required: true },
+    districtId: { type: String, required: true },
+    blockId: { type: String, required: true },
+    schoolId: { type: String, required: true },
     classofStudent: { type: String, required: true },
     parent: { type: String, ref: "User" },
     enrollmentDate: { type: Date,  },
@@ -78,8 +92,25 @@ const StudentSchema = new Schema(
   januaryMonthAttendancePercentage: {type: String},
   februaryMonthAttendancePercentage: {type: String},
 
-  examinationVenue:{type: String}
-    
+  examinationVenue:{type: String},
+  studentCreatedBy: {
+      type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "User",
+              // required: true,
+              default:null
+  },
+   studentRemovedBy: {
+      type: mongoose.Schema.Types.ObjectId, // reference to User
+              ref: "User",
+              // required: true,
+              default:null
+  },
+
+   studentCreationDate:{type: Date},
+   studentRemoveDate: {type: String},
+   studentCRUDStatus: {type: String}, //Removed, SLC Released, Added 
+   
+
   },
   { timestamps: true }
 );

@@ -1,7 +1,7 @@
 //Writing all the Business logic, Rest APIs, for student.model.js;
 
-import mongoose from "mongoose";
 
+import mongoose from 'mongoose';
 // import { Student } from "../models/Student.model.js";
 
 // import  {Student}  from "../models/student.model.js"
@@ -2109,6 +2109,8 @@ export const CreateStudent = async (req, res) => {
   console.log("I am inside student.controller.js, api: CreateStudent")
   const { students, isBulk } = req.body;
 
+  console.log(req.body)
+
   try {
     // Helper function to safely convert to string (handles null/undefined)
     const safeToString = (value) => {
@@ -2359,8 +2361,491 @@ export const CreateStudent = async (req, res) => {
 
 
 
+// // Create Student Form (Single Student)
+// export const CreateStudentFormAPI = async (req, res) => {
+//   console.log("I am inside student.controller.js, api: CreateStudentFormAPI");
+//   const studentData = req.body;
 
+//   console.log("Received data:", studentData);
 
+//   try {
+//     // Helper function to safely convert to string
+//     const safeToString = (value) => {
+//       if (value === null || value === undefined || value === '') return null;
+//       return value.toString().trim();
+//     };
+
+//     // Helper function to parse date fields
+//     const parseDate = (dateValue) => {
+//       if (!dateValue || dateValue === null || dateValue === undefined || dateValue === '') return null;
+//       if (dateValue instanceof Date) return dateValue;
+//       const parsed = new Date(dateValue);
+//       return isNaN(parsed.getTime()) ? null : parsed;
+//     };
+
+//     // Helper function to parse number fields
+//     const parseNumber = (value) => {
+//       if (value === null || value === undefined || value === '') return null;
+//       const num = Number(value);
+//       return isNaN(num) ? null : num;
+//     };
+
+//     // Check if SRN already exists (without populate)
+//     const checkExistingSRN = async (srn) => {
+//       if (!srn) return null;
+//       const existingStudent = await Student.findOne({ studentSrn: srn });
+      
+//       if (existingStudent) {
+//         return {
+//           exists: true,
+//           student: {
+//             studentSrn: existingStudent.studentSrn,
+//             firstName: existingStudent.firstName,
+//             lastName: existingStudent.lastName,
+//             fatherName: existingStudent.fatherName,
+//             districtId: existingStudent.districtId,
+//             blockId: existingStudent.blockId,
+//             schoolId: existingStudent.schoolId,
+//             classofStudent: existingStudent.classofStudent,
+//             batch: existingStudent.batch
+//           }
+//         };
+//       }
+//       return { exists: false };
+//     };
+
+//     // Validate required fields for the form
+//     const validateStudentData = (data) => {
+//       const required = [
+//         'studentSrn', 'firstName', 'gender', 
+//         'districtId', 'blockId', 'schoolId', 
+//         'classofStudent', 'batch'
+//       ];
+      
+//       const missing = required.filter(field => !data[field] || data[field] === '');
+      
+//       if (missing.length > 0) {
+//         return { 
+//           valid: false, 
+//           error: `Missing required fields: ${missing.join(', ')}` 
+//         };
+//       }
+      
+//       // Validate SRN - should be 10 digits
+//       if (data.studentSrn && !/^\d{10}$/.test(data.studentSrn)) {
+//         return { valid: false, error: 'Student SRN must be exactly 10 digits' };
+//       }
+      
+//       // Validate contact numbers - exactly 10 digits
+//       if (data.personalContact && !/^\d{10}$/.test(data.personalContact)) {
+//         return { valid: false, error: 'Personal Contact must be exactly 10 digits' };
+//       }
+//       if (data.ParentContact && !/^\d{10}$/.test(data.ParentContact)) {
+//         return { valid: false, error: 'Parent Contact must be exactly 10 digits' };
+//       }
+//       if (data.otherContact && !/^\d{10}$/.test(data.otherContact)) {
+//         return { valid: false, error: 'Other Contact must be exactly 10 digits' };
+//       }
+      
+//       return { valid: true };
+//     };
+
+//     // Transform data for database
+//     const transformStudentData = (rawData) => {
+//       return {
+//         studentSrn: safeToString(rawData.studentSrn),
+//         rollNumber: safeToString(rawData.rollNumber),
+//         firstName: safeToString(rawData.firstName),
+//         lastName: null,
+//         fatherName: safeToString(rawData.fatherName),
+//         motherName: safeToString(rawData.motherName),
+//         email: null,
+//         personalContact: safeToString(rawData.personalContact),
+//         ParentContact: safeToString(rawData.ParentContact),
+//         otherContact: safeToString(rawData.otherContact),
+//         dob: parseDate(rawData.dob),
+//         gender: safeToString(rawData.gender),
+//         category: safeToString(rawData.category),
+//         address: safeToString(rawData.address),
+//         districtId: safeToString(rawData.districtId),
+//         blockId: safeToString(rawData.blockId),
+//         schoolId: safeToString(rawData.schoolId),
+//         classofStudent: safeToString(rawData.classofStudent),
+//         parent: null,
+//         enrollmentDate: new Date(),
+//         batch: safeToString(rawData.batch),
+//         session: {
+//           session1: null,
+//           session2: null,
+//         },
+//         singleSideDistance: parseNumber(rawData.singleSideDistance),
+//         bothSideDistance: parseNumber(rawData.bothSideDistance),
+//         slc: true,
+//         isSlcTaken: false,
+//         slcReleasingDate: null,
+//         erpEnrollingDate: new Date(),
+//         medium: null,
+//         isStudentOf: "MB",
+//         isDressGiven: false,
+//         isTabGiven: false,
+//         tabIMEI: null,
+//         isSimGiven: false,
+//         simNumber: null,
+//         simIMSI: null,
+//         bankName: null,
+//         bankIFSC: null,
+//         bankAccNumber: null,
+//         bankHolderName: null,
+//         batchCompleted: false,
+//         shirtSizeInInches: null,
+//         waistSizeInInches: null,
+//         waistToBottomLengthInInches: null,
+//         dressAmountSubmitted: false,
+//         dressSizeConfirmationForm: null,
+//         examinationVenue: null,
+//       };
+//     };
+
+//     // First, check if SRN already exists
+//     const srnCheck = await checkExistingSRN(studentData.studentSrn);
+//     if (srnCheck.exists) {
+//       return res.status(409).json({
+//         success: false,
+//         message: `Student with SRN ${studentData.studentSrn} already exists`,
+//         existingStudent: srnCheck.student
+//       });
+//     }
+
+//     // Validate data
+//     const validation = validateStudentData(studentData);
+//     if (!validation.valid) {
+//       return res.status(400).json({
+//         success: false,
+//         message: validation.error,
+//       });
+//     }
+
+//     // Transform data
+//     const transformedData = transformStudentData(studentData);
+
+//     // Double check for existing student (race condition)
+//     const existingStudent = await Student.findOne({
+//       $or: [
+//         { studentSrn: transformedData.studentSrn },
+//         ...(transformedData.rollNumber ? [{ rollNumber: transformedData.rollNumber }] : [])
+//       ]
+//     });
+
+//     if (existingStudent) {
+//       return res.status(409).json({
+//         success: false,
+//         message: `Student with SRN ${transformedData.studentSrn} already exists`,
+//       });
+//     }
+
+//     // Create student
+//     const student = new Student(transformedData);
+//     await student.save();
+
+//     return res.status(201).json({
+//       success: true,
+//       message: 'Student created successfully',
+//       data: student,
+//     });
+
+//   } catch (error) {
+//     console.error('Error in CreateStudentFormAPI:', error);
+//     return res.status(500).json({
+//       success: false,
+//       message: 'Internal server error',
+//       error: error.message,
+//     });
+//   }
+// };
+// Create Student Form (Single Student)
+export const CreateStudentFormAPI = async (req, res) => {
+  console.log("I am inside student.controller.js, api: CreateStudentFormAPI");
+  const studentData = req.body;
+  const { studentCRUDStatus } = studentData; // 'Added', 'Removed', 'SLC Released'
+
+  console.log("Received data:", studentData);
+  console.log("Student CRUD Status:", studentCRUDStatus);
+
+  try {
+    // Helper function to safely convert to string
+    const safeToString = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      return value.toString().trim();
+    };
+
+    // Helper function to parse date fields
+    const parseDate = (dateValue) => {
+      if (!dateValue || dateValue === null || dateValue === undefined || dateValue === '') return null;
+      if (dateValue instanceof Date) return dateValue;
+      const parsed = new Date(dateValue);
+      return isNaN(parsed.getTime()) ? null : parsed;
+    };
+
+    // Helper function to parse number fields
+    const parseNumber = (value) => {
+      if (value === null || value === undefined || value === '') return null;
+      const num = Number(value);
+      return isNaN(num) ? null : num;
+    };
+
+    // Helper function to convert userId to ObjectId
+    const getObjectId = (id) => {
+      if (!id) return null;
+      try {
+        if (mongoose.Types.ObjectId.isValid(id)) {
+          return new mongoose.Types.ObjectId(id);
+        }
+        return null;
+      } catch (error) {
+        console.error("Error converting to ObjectId:", error);
+        return null;
+      }
+    };
+
+    // Check if SRN already exists
+    const checkExistingSRN = async (srn) => {
+      if (!srn) return null;
+      const existingStudent = await Student.findOne({ studentSrn: srn });
+      
+      if (existingStudent) {
+        return {
+          exists: true,
+          student: existingStudent
+        };
+      }
+      return { exists: false };
+    };
+
+    // Handle Remove case
+    const handleRemoveStudent = async (existingStudent) => {
+      console.log("Removing student:", existingStudent.studentSrn);
+      
+      const updatedStudent = await Student.findOneAndUpdate(
+        { studentSrn: existingStudent.studentSrn },
+        {
+          $set: {
+            slc: false,
+            isSlcTaken: true,
+            studentCRUDStatus: "Removed",
+            studentRemovedBy: getObjectId(studentData.userId),
+            studentRemoveDate: new Date().toISOString()
+          }
+        },
+        { new: true }
+      );
+      
+      return {
+        updated: true,
+        student: updatedStudent
+      };
+    };
+
+    // Handle SLC Release case - Same as Remove, just different status
+    const handleSLCRelease = async (existingStudent) => {
+      console.log("Releasing SLC for student:", existingStudent.studentSrn);
+      
+      const updatedStudent = await Student.findOneAndUpdate(
+        { studentSrn: existingStudent.studentSrn },
+        {
+          $set: {
+            slc: false,
+            isSlcTaken: true,
+            studentCRUDStatus: "SLC Released",
+            studentRemovedBy: getObjectId(studentData.userId),
+            studentRemoveDate: new Date().toISOString()
+          }
+        },
+        { new: true }
+      );
+      
+      return {
+        updated: true,
+        student: updatedStudent
+      };
+    };
+
+    // Transform data for database (only for Add case)
+    const transformStudentData = (rawData) => {
+      return {
+        studentSrn: safeToString(rawData.studentSrn),
+        rollNumber: safeToString(rawData.rollNumber),
+        firstName: safeToString(rawData.firstName),
+        lastName: null,
+        fatherName: safeToString(rawData.fatherName),
+        motherName: safeToString(rawData.motherName),
+        email: null,
+        personalContact: safeToString(rawData.personalContact),
+        ParentContact: safeToString(rawData.ParentContact),
+        otherContact: safeToString(rawData.otherContact),
+        dob: parseDate(rawData.dob),
+        gender: safeToString(rawData.gender),
+        category: safeToString(rawData.category),
+        address: safeToString(rawData.address),
+        districtId: safeToString(rawData.districtId),
+        blockId: safeToString(rawData.blockId),
+        schoolId: safeToString(rawData.schoolId),
+        classofStudent: safeToString(rawData.classofStudent),
+        parent: null,
+        enrollmentDate: new Date(),
+        batch: safeToString(rawData.batch),
+        session: {
+          session1: null,
+          session2: null,
+        },
+        singleSideDistance: parseNumber(rawData.singleSideDistance),
+        bothSideDistance: parseNumber(rawData.bothSideDistance),
+        slc: true,
+        isSlcTaken: false,
+        slcReleasingDate: null,
+        erpEnrollingDate: new Date(),
+        medium: null,
+        isStudentOf: rawData.isStudentOf || "MB",
+        isDressGiven: false,
+        isTabGiven: false,
+        tabIMEI: null,
+        isSimGiven: false,
+        simNumber: null,
+        simIMSI: null,
+        bankName: null,
+        bankIFSC: null,
+        bankAccNumber: null,
+        bankHolderName: null,
+        batchCompleted: false,
+        shirtSizeInInches: null,
+        waistSizeInInches: null,
+        waistToBottomLengthInInches: null,
+        dressAmountSubmitted: false,
+        dressSizeConfirmationForm: null,
+        examinationVenue: null,
+        studentCreatedBy: getObjectId(rawData.userId),
+        studentCreationDate: new Date(),
+        studentCRUDStatus: "Added",
+        studentRemovedBy: null,
+        studentRemoveDate: null,
+      };
+    };
+
+    // First, check if SRN already exists
+    const srnCheck = await checkExistingSRN(studentData.studentSrn);
+    
+    // Handle cases when student exists
+    if (srnCheck.exists) {
+      const existingStudent = srnCheck.student;
+      
+      // Case 1: Remove student
+      if (studentCRUDStatus === "Removed") {
+        const result = await handleRemoveStudent(existingStudent);
+        return res.status(200).json({
+          success: true,
+          message: 'Student removed successfully',
+          data: result.student
+        });
+      }
+      
+      // Case 2: SLC Released - NO CONDITION CHECK, directly update
+      if (studentCRUDStatus === "SLC Released") {
+        const result = await handleSLCRelease(existingStudent);
+        return res.status(200).json({
+          success: true,
+          message: 'Student SLC released successfully',
+          data: result.student
+        });
+      }
+      
+      // Case 3: Add but student already exists (normal duplicate)
+      if (studentCRUDStatus === "Added") {
+        return res.status(409).json({
+          success: false,
+          message: `Student with SRN ${studentData.studentSrn} already exists`,
+          existingStudent: {
+            studentSrn: existingStudent.studentSrn,
+            firstName: existingStudent.firstName,
+            lastName: existingStudent.lastName,
+            fatherName: existingStudent.fatherName,
+            districtId: existingStudent.districtId,
+            blockId: existingStudent.blockId,
+            schoolId: existingStudent.schoolId,
+            classofStudent: existingStudent.classofStudent,
+            batch: existingStudent.batch
+          }
+        });
+      }
+    }
+
+    // If student doesn't exist and we're trying to Remove or SLC Released
+    if (!srnCheck.exists && (studentCRUDStatus === "Removed" || studentCRUDStatus === "SLC Released")) {
+      return res.status(404).json({
+        success: false,
+        message: `Student with SRN ${studentData.studentSrn} not found`,
+      });
+    }
+
+    // Validate required fields for Add case
+    const requiredFields = [
+      'studentSrn', 'firstName', 'gender', 
+      'districtId', 'blockId', 'schoolId', 
+      'classofStudent', 'batch'
+    ];
+    
+    const missing = requiredFields.filter(field => !studentData[field] || studentData[field] === '');
+    
+    if (missing.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missing.join(', ')}`
+      });
+    }
+    
+    // Validate SRN - should be 10 digits
+    if (studentData.studentSrn && !/^\d{10}$/.test(studentData.studentSrn)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Student SRN must be exactly 10 digits'
+      });
+    }
+
+    // Transform data for Add case
+    const transformedData = transformStudentData(studentData);
+
+    // Double check for existing student (race condition)
+    const existingStudent = await Student.findOne({
+      $or: [
+        { studentSrn: transformedData.studentSrn },
+        ...(transformedData.rollNumber ? [{ rollNumber: transformedData.rollNumber }] : [])
+      ]
+    });
+
+    if (existingStudent) {
+      return res.status(409).json({
+        success: false,
+        message: `Student with SRN ${transformedData.studentSrn} already exists`,
+      });
+    }
+
+    // Create new student (Add case)
+    const student = new Student(transformedData);
+    await student.save();
+
+    return res.status(201).json({
+      success: true,
+      message: 'Student created successfully',
+      data: student,
+    });
+
+  } catch (error) {
+    console.error('Error in CreateStudentFormAPI:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error.message,
+    });
+  }
+};
 // // Update Student by SRN with selective fields
 // export const UpdateStudentBySrn = async (req, res) => {
 //   console.log("I am inside student.controller.js, api: UpdateStudentBySrn");

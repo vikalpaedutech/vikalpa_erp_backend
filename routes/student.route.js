@@ -9,7 +9,8 @@ import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents,
      GetStudentsBySlc, GetMBStudents, MarkMBStudentAttendance, StudentAbsenteeCalling,
      StudentAttendanceDashboard, GetAllMbStudentsData, CreateStudent,
      UpdateStudentBySrn,
-     StudentAbsenteeCallingDashboard
+     StudentAbsenteeCallingDashboard,
+     CreateStudentFormAPI
     } from "../controllers/student.controller.js";
 
 //creating express router.
@@ -56,5 +57,13 @@ router.post("/get-all-mb-student-data", GetAllMbStudentsData);
 router.post("/create-mb-student-data", CreateStudent);
 
 router.post("/update-mb-student-data", UpdateStudentBySrn);
+
+// router.post("/create-student-form", CreateStudentFormAPI);
+
+
+// In your routes file
+router.post("/create-student-form", CreateStudentFormAPI); // For Add
+router.post("/remove-student", CreateStudentFormAPI); // For Remove
+router.post("/slc-release", CreateStudentFormAPI); // For SLC Release
 
 export default router;
