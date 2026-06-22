@@ -125,7 +125,6 @@ const GamificationPointLogicSchema = new Schema(
 
 
 
-
 //Below model is for updating points of users
 const GamificationPointOfUserScheam = new Schema(
   {
@@ -135,22 +134,35 @@ const GamificationPointOfUserScheam = new Schema(
       required: true,
      
     },
-
     pointType: {type: String}, //selfAttendancePoint, studentAttendancePoint, pdfUploadPoint, callingAbsenteePoint, marksPoint
     pointValue: {type: Number},
     // classOfCenter: {type: String},
     batch: {type: String},
     unqIdOfPointObject:{type: mongoose.Schema.Types.ObjectId},  //Id like exam id or so...
     isPointClaimed: {type:Boolean, default: false},
-
-
-    gamificationDate: {type: Date}
+    examId: {
+      type:mongoose.Schema.Types.ObjectId,
+      ref: "examAndTest",
+    },
+    gamificationDate: {type: Date},
+    disciplinaryPointValues:[
+      {
+      beforeNoon: {type:Number, default:null},
+      unqIdOfPointObject:{type: mongoose.Schema.Types.ObjectId},
+       batch: {type: String},
+    },
+    {
+       afterNoon: {type: Number, default: null},
+       unqIdOfPointObject:{type: mongoose.Schema.Types.ObjectId},
+        batch: {type: String},
+    }
+    ]
   },
   { timestamps: true }
 )
 
-
 export const GamificationPointLogic =  mongoose.model("GamificationPointLogic", GamificationPointLogicSchema);
+
 
 
 

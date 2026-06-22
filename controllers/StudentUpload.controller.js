@@ -188,6 +188,7 @@ export const UplaoadStudentFiles = async (req, res) => {
 
 export const getStudentUploadsObjectives = async (req, res) => {
 
+  console.log("I am in StudentUpload.controller.js, api: getStudentUploadsObjectives")
   try {
 
     // Start of today

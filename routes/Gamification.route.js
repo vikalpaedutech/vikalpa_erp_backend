@@ -2,7 +2,7 @@
 
 import express from "express";
 
-import { callingAbsentee, ClaimGamificationPoint, CreateGamificationPointLogic, disciplinary, fetchUserGamificationPoints, GamificationPointAssigningToUsers, pdfUpload, selfAttendancePoint, studentAttendance } from "../controllers/Gamification.controller.js";
+import { callingAbsentee, ClaimGamificationPoint, CreateGamificationPointLogic, disciplinary, fetchUserGamificationPoints, gamificationDashboardV2, GamificationPointAssigningToUsers, marks, pdfUpload, selfAttendancePoint, studentAttendance } from "../controllers/Gamification.controller.js";
 
 //creating express router.
 
@@ -25,11 +25,19 @@ router.post('/calling-absentee-point', callingAbsentee);
 
 router.post('/disciplinary-point', disciplinary);
 
+router.post('/marks-point', marks)
+
 
 router .post('/claim-gamification-point', ClaimGamificationPoint)
 
 
 
 router.post('/fetch-gamification-points', fetchUserGamificationPoints)
+
+
+router.post('/gamification-dashboard-v2', gamificationDashboardV2)
+
+
+
 
 export default router;

@@ -16,7 +16,10 @@ const ExamAndTestSchema = new Schema(
     classofStudent: { type: String, required: true }, //Class like 8, 10,
     status: {type:String, default:"Pending"}, //Shows the status as Pending, Complete for marks updation. If user has completely updated amrks then...
     //status is upated to complete so that the test id does not appear in the drop down menu if completed
-    fileUpload: {type: Boolean, default: false} //If students has any file to upload regarding their test, it will be used to flagged as true or false
+    fileUpload: {type: Boolean, default: false}, //If students has any file to upload regarding their test, it will be used to flagged as true or false
+    marksUploadWithinDaysOfCreationInErp: {type:Number, required: true}// It puts the validation as to in how many days
+    //marks must be  uploaded of students from createdAt, so that gamification can be based on how faster,
+    //CC updates student's marks.
   },
   { timestamps: true }
 );
