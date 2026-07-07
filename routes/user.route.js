@@ -25,8 +25,11 @@ import {
     updateUserAccesses,
 
     UserAttendanceDashboard,
-    MarkUserAttendanceManually
+    MarkUserAttendanceManually,
+    leaveApproval
 } from "../controllers/user.controller.js";
+
+import { createUserLeave } from "../controllers/UserLeave.controller.js";
 
 const router = express.Router();
 
@@ -94,5 +97,17 @@ router.post("/update-user-access", updateUserAccesses)
 router.post("/get-user-attendance-dashboard", UserAttendanceDashboard)
 
 router.post("/mark-user-attendance-manually", MarkUserAttendanceManually)
+
+router.post("/leave-approval", leaveApproval)
+
+
+
+
+
+
+//User leave schema
+
+
+router.post("/create-user-leave", createUserLeave)
 
 export default router;

@@ -5,38 +5,6 @@ import { User, UserAccess } from "../models/user.model.js";
 import { UserAttendance } from "../models/userAttendnace.model.js";
 import { District_Block_School } from "../models/district_block_school.model.js";
 
-// Create a new user (POST)
-// export const createUser = async (req, res) => {
-//     console.log("I am inside user controller, createUser API");
-
-//     try {
-//         const { userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
-//                 isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
-//                 classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude } = req.body;
-        
-//                 console.log(req.body)
-//         const user = await User.create({
-//             userId, name, email, password, contact1, contact2, department, role, assignmentLevel, 
-//             isAdmin, assignedDistricts, assignedBlocks, assignedSchools, districtIds, blockIds, schoolIds,
-//             classId, studentId, permission, accessModules, isActive, profileImage, longitude, latitude
-//         });
-
-//         res.status(201).json({ status: "Success", data: user });
-//     } catch (error) {
-//         console.log("Error creating user", error.message);
-//         res.status(500).json({ status: "Error", message: "Server error" });
-//     }
-// };
-
-
-
-
-
-
-
-
-
-
 
 
 // Create a new user (POST)
@@ -1178,316 +1146,24 @@ export const updateUser = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-// export const updateUserAccesses = async (req, res) => {
-//   try {
-//     const { 
-//       unqObjectId,
-//       modules,
-//       classId,
-//       // Region operations
-//       addDistrict,
-//       removeDistrict,
-//       addBlock,
-//       removeBlock,
-//       addSchool,
-//       removeSchool,
-//       // Full region replacement
-//       region 
-//     } = req.body;
-
-//     console.log('i am update user access')
-//     console.log(req.body)
-
-//     // Validate if unqObjectId is provided
-//     if (!unqObjectId) {
-//       return res.status(400).json({ 
-//         status: "Error", 
-//         message: "unqObjectId is required" 
-//       });
-//     }
-
-//     // Check if user access exists
-//     const existingUserAccess = await UserAccess.findOne({ unqObjectId });
-    
-//     if (!existingUserAccess) {
-//       return res.status(404).json({ 
-//         status: "Error", 
-//         message: "User access not found" 
-//       });
-//     }
-
-//     let updateOperation = {};
-
-//     // Handle direct field updates
-//     if (modules !== undefined) {
-//       updateOperation.modules = modules;
-//     }
-
-//     if (classId !== undefined) {
-//       updateOperation.classId = classId;
-//     }
-
-//     // Handle full region replacement
-//     if (region !== undefined) {
-//       updateOperation.region = region;
-//     }
-
-//     // Handle adding a new district
-//     if (addDistrict) {
-//       const { districtId } = addDistrict;
-      
-//       // Check if district already exists
-//       const districtExists = existingUserAccess.region.some(
-//         r => r.districtId === districtId
-//       );
-
-//       if (!districtExists) {
-//         updateOperation.$push = {
-//           ...updateOperation.$push,
-//           region: {
-//             districtId,
-//             blockIds: []
-//           }
-//         };
-//       } else {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `District ${districtId} already exists`
-//         });
-//       }
-//     }
-
-//     // Handle removing a district
-//     if (removeDistrict) {
-//       const { districtId } = removeDistrict;
-      
-//       updateOperation.$pull = {
-//         ...updateOperation.$pull,
-//         region: {
-//           districtId: districtId
-//         }
-//       };
-//     }
-
-//     // Handle adding a block to a district
-//     if (addBlock) {
-//       const { districtId, blockId } = addBlock;
-      
-//       // Check if district exists
-//       const districtIndex = existingUserAccess.region.findIndex(
-//         r => r.districtId === districtId
-//       );
-
-//       if (districtIndex === -1) {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `District ${districtId} not found`
-//         });
-//       }
-
-//       // Check if block already exists in the district
-//       const blockExists = existingUserAccess.region[districtIndex].blockIds.some(
-//         b => b.blockId === blockId
-//       );
-
-//       if (!blockExists) {
-//         updateOperation.$push = {
-//           ...updateOperation.$push,
-//           [`region.${districtIndex}.blockIds`]: {
-//             blockId,
-//             schoolIds: []
-//           }
-//         };
-//       } else {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `Block ${blockId} already exists in district ${districtId}`
-//         });
-//       }
-//     }
-
-//     // Handle removing a block
-//     if (removeBlock) {
-//       const { districtId, blockId } = removeBlock;
-      
-//       // Find the district
-//       const districtIndex = existingUserAccess.region.findIndex(
-//         r => r.districtId === districtId
-//       );
-
-//       if (districtIndex === -1) {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `District ${districtId} not found`
-//         });
-//       }
-
-//       updateOperation.$pull = {
-//         ...updateOperation.$pull,
-//         [`region.${districtIndex}.blockIds`]: {
-//           blockId: blockId
-//         }
-//       };
-//     }
-
-//     // Handle adding a school to a block
-//     if (addSchool) {
-//       const { districtId, blockId, schoolId } = addSchool;
-      
-//       // Find the district
-//       const districtIndex = existingUserAccess.region.findIndex(
-//         r => r.districtId === districtId
-//       );
-
-//       if (districtIndex === -1) {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `District ${districtId} not found`
-//         });
-//       }
-
-//       // Find the block within the district
-//       const blockIndex = existingUserAccess.region[districtIndex].blockIds.findIndex(
-//         b => b.blockId === blockId
-//       );
-
-//       if (blockIndex === -1) {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `Block ${blockId} not found in district ${districtId}`
-//         });
-//       }
-
-//       // Check if school already exists in the block
-//       const schoolExists = existingUserAccess.region[districtIndex].blockIds[blockIndex].schoolIds.some(
-//         s => s.schoolId === schoolId
-//       );
-
-//       if (!schoolExists) {
-//         updateOperation.$push = {
-//           ...updateOperation.$push,
-//           [`region.${districtIndex}.blockIds.${blockIndex}.schoolIds`]: {
-//             schoolId
-//           }
-//         };
-//       } else {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `School ${schoolId} already exists in block ${blockId}`
-//         });
-//       }
-//     }
-
-//     // Handle removing a school
-//     if (removeSchool) {
-//       const { districtId, blockId, schoolId } = removeSchool;
-      
-//       // Find the district
-//       const districtIndex = existingUserAccess.region.findIndex(
-//         r => r.districtId === districtId
-//       );
-
-//       if (districtIndex === -1) {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `District ${districtId} not found`
-//         });
-//       }
-
-//       // Find the block within the district
-//       const blockIndex = existingUserAccess.region[districtIndex].blockIds.findIndex(
-//         b => b.blockId === blockId
-//       );
-
-//       if (blockIndex === -1) {
-//         return res.status(400).json({
-//           status: "Error",
-//           message: `Block ${blockId} not found in district ${districtId}`
-//         });
-//       }
-
-//       updateOperation.$pull = {
-//         ...updateOperation.$pull,
-//         [`region.${districtIndex}.blockIds.${blockIndex}.schoolIds`]: {
-//           schoolId: schoolId
-//         }
-//       };
-//     }
-
-//     // Check if there's anything to update
-//     if (Object.keys(updateOperation).length === 0) {
-//       return res.status(400).json({ 
-//         status: "Error", 
-//         message: "No valid update operations provided" 
-//       });
-//     }
-
-//     // Update the user access
-//     const updatedUserAccess = await UserAccess.findOneAndUpdate(
-//       { unqObjectId },
-//       updateOperation,
-//       { new: true, runValidators: true }
-//     );
-
-//     res.status(200).json({ 
-//       status: "Success", 
-//       message: "User access updated successfully",
-//       data: updatedUserAccess 
-//     });
-
-//   } catch (error) {
-//     console.log("Error updating user access:", error.message);
-    
-//     // Handle validation errors
-//     if (error.name === 'ValidationError') {
-//       const messages = Object.values(error.errors).map(err => err.message);
-//       return res.status(400).json({ 
-//         status: "Error", 
-//         message: messages.join(', ') 
-//       });
-//     }
-
-//     res.status(500).json({ 
-//       status: "Error", 
-//       message: "Server error while updating user access" 
-//     });
-//   }
-// };
-
-
-
-
-
-
-
 export const updateUserAccesses = async (req, res) => {
   try {
     const { 
       unqObjectId,
       modules,
       batch,
-      // Region operations
       addDistrict,
       removeDistrict,
       addBlock,
       removeBlock,
       addSchool,
       removeSchool,
-      // Full region replacement
       region 
     } = req.body;
 
     console.log('Updating user access for:', unqObjectId);
     console.log('Request body:', JSON.stringify(req.body, null, 2));
 
-    // Validate if unqObjectId is provided
     if (!unqObjectId) {
       return res.status(400).json({ 
         status: "Error", 
@@ -1495,7 +1171,6 @@ export const updateUserAccesses = async (req, res) => {
       });
     }
 
-    // Check if user access exists
     const existingUserAccess = await UserAccess.findOne({ unqObjectId });
     
     if (!existingUserAccess) {
@@ -1505,34 +1180,42 @@ export const updateUserAccesses = async (req, res) => {
       });
     }
 
-    // Create a deep copy of the current region for manipulation
     let updatedRegion = existingUserAccess.region ? 
       JSON.parse(JSON.stringify(existingUserAccess.region)) : [];
     
     let updateNeeded = false;
+    let message = "No changes made";
 
     // Handle direct field updates
     if (modules !== undefined) {
       existingUserAccess.modules = modules;
       updateNeeded = true;
+      message = "Modules updated";
     }
 
     if (batch !== undefined) {
       existingUserAccess.batch = batch;
       updateNeeded = true;
+      message = "Batch updated";
     }
 
-    // Handle full region replacement
     if (region !== undefined) {
       existingUserAccess.region = region;
       updateNeeded = true;
+      message = "Region updated";
     }
 
     // Handle adding a new district
     if (addDistrict) {
       const { districtId } = addDistrict;
       
-      // Check if district already exists
+      if (!districtId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "districtId is required for addDistrict"
+        });
+      }
+
       const districtExists = updatedRegion.some(r => r.districtId === districtId);
 
       if (!districtExists) {
@@ -1541,30 +1224,50 @@ export const updateUserAccesses = async (req, res) => {
           blockIds: []
         });
         updateNeeded = true;
+        message = `District ${districtId} added`;
         console.log(`Added district: ${districtId}`);
+      } else {
+        message = `District ${districtId} already exists`;
+        console.log(`District ${districtId} already exists`);
       }
     }
 
     // Handle removing a district
     if (removeDistrict) {
       const { districtId } = removeDistrict;
+      
+      if (!districtId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "districtId is required for removeDistrict"
+        });
+      }
+
       const initialLength = updatedRegion.length;
       updatedRegion = updatedRegion.filter(r => r.districtId !== districtId);
       
       if (updatedRegion.length !== initialLength) {
         updateNeeded = true;
+        message = `District ${districtId} removed`;
         console.log(`Removed district: ${districtId}`);
+      } else {
+        message = `District ${districtId} not found`;
       }
     }
 
-    // Handle adding a block to a district
+    // Handle adding a block
     if (addBlock) {
       const { districtId, blockId } = addBlock;
       
-      // Find or create district
+      if (!districtId || !blockId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "districtId and blockId are required for addBlock"
+        });
+      }
+
       let districtIndex = updatedRegion.findIndex(r => r.districtId === districtId);
       
-      // If district doesn't exist, create it first
       if (districtIndex === -1) {
         updatedRegion.push({
           districtId,
@@ -1574,7 +1277,6 @@ export const updateUserAccesses = async (req, res) => {
         console.log(`Auto-created district: ${districtId}`);
       }
 
-      // Check if block already exists in the district
       const blockExists = updatedRegion[districtIndex].blockIds.some(
         b => b.blockId === blockId
       );
@@ -1585,7 +1287,11 @@ export const updateUserAccesses = async (req, res) => {
           schoolIds: []
         });
         updateNeeded = true;
+        message = `Block ${blockId} added to district ${districtId}`;
         console.log(`Added block: ${blockId} to district: ${districtId}`);
+      } else {
+        message = `Block ${blockId} already exists in district ${districtId}`;
+        console.log(`Block ${blockId} already exists in district: ${districtId}`);
       }
     }
 
@@ -1593,6 +1299,13 @@ export const updateUserAccesses = async (req, res) => {
     if (removeBlock) {
       const { districtId, blockId } = removeBlock;
       
+      if (!districtId || !blockId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "districtId and blockId are required for removeBlock"
+        });
+      }
+
       const districtIndex = updatedRegion.findIndex(r => r.districtId === districtId);
 
       if (districtIndex !== -1) {
@@ -1603,19 +1316,49 @@ export const updateUserAccesses = async (req, res) => {
         
         if (updatedRegion[districtIndex].blockIds.length !== initialLength) {
           updateNeeded = true;
+          message = `Block ${blockId} removed from district ${districtId}`;
           console.log(`Removed block: ${blockId} from district: ${districtId}`);
+        } else {
+          message = `Block ${blockId} not found in district ${districtId}`;
         }
+      } else {
+        message = `District ${districtId} not found`;
       }
     }
 
-    // Handle adding a school to a block
+    // Handle adding a school - FIXED: Always return success if school exists
     if (addSchool) {
       const { districtId, blockId, schoolId } = addSchool;
       
+      console.log('=== ADD SCHOOL REQUEST ===');
+      console.log('DistrictId:', districtId);
+      console.log('BlockId:', blockId);
+      console.log('SchoolId:', schoolId);
+      
+      if (!districtId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "districtId is required for addSchool"
+        });
+      }
+      
+      if (!blockId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "blockId is required for addSchool"
+        });
+      }
+      
+      if (!schoolId || schoolId === '') {
+        return res.status(400).json({
+          status: "Error",
+          message: "schoolId is required and cannot be empty for addSchool"
+        });
+      }
+
       // Find or create district
       let districtIndex = updatedRegion.findIndex(r => r.districtId === districtId);
       
-      // If district doesn't exist, create it
       if (districtIndex === -1) {
         updatedRegion.push({
           districtId,
@@ -1625,12 +1368,11 @@ export const updateUserAccesses = async (req, res) => {
         console.log(`Auto-created district: ${districtId}`);
       }
 
-      // Find or create block within the district
+      // Find or create block
       let blockIndex = updatedRegion[districtIndex].blockIds.findIndex(
         b => b.blockId === blockId
       );
       
-      // If block doesn't exist, create it
       if (blockIndex === -1) {
         updatedRegion[districtIndex].blockIds.push({
           blockId,
@@ -1640,17 +1382,27 @@ export const updateUserAccesses = async (req, res) => {
         console.log(`Auto-created block: ${blockId} in district: ${districtId}`);
       }
 
-      // Check if school already exists in the block
-      const schoolExists = updatedRegion[districtIndex].blockIds[blockIndex].schoolIds.some(
-        s => s.schoolId === schoolId
-      );
+      // Clean existing schools (remove empty objects)
+      const existingSchools = updatedRegion[districtIndex].blockIds[blockIndex].schoolIds || [];
+      const cleanSchools = existingSchools.filter(s => s && s.schoolId && s.schoolId !== '');
+      updatedRegion[districtIndex].blockIds[blockIndex].schoolIds = cleanSchools;
+      
+      // Check if school exists
+      const schoolExists = cleanSchools.some(s => s.schoolId === schoolId);
 
       if (!schoolExists) {
         updatedRegion[districtIndex].blockIds[blockIndex].schoolIds.push({
           schoolId
         });
         updateNeeded = true;
-        console.log(`Added school: ${schoolId} to block: ${blockId} in district: ${districtId}`);
+        message = `School ${schoolId} added to block ${blockId}`;
+        console.log(`✅ Added school: ${schoolId} to block: ${blockId} in district: ${districtId}`);
+      } else {
+        // 🔥 FIX: School already exists, but we should still return success
+        message = `School ${schoolId} already exists in block ${blockId}`;
+        console.log(`School ${schoolId} already exists in block: ${blockId}`);
+        // Don't set updateNeeded = false, keep it as is
+        // If no other changes, we'll still save but with no changes
       }
     }
 
@@ -1658,6 +1410,13 @@ export const updateUserAccesses = async (req, res) => {
     if (removeSchool) {
       const { districtId, blockId, schoolId } = removeSchool;
       
+      if (!districtId || !blockId || !schoolId) {
+        return res.status(400).json({
+          status: "Error",
+          message: "districtId, blockId, and schoolId are required for removeSchool"
+        });
+      }
+
       const districtIndex = updatedRegion.findIndex(r => r.districtId === districtId);
 
       if (districtIndex !== -1) {
@@ -1667,26 +1426,61 @@ export const updateUserAccesses = async (req, res) => {
 
         if (blockIndex !== -1) {
           const initialLength = updatedRegion[districtIndex].blockIds[blockIndex].schoolIds.length;
-          updatedRegion[districtIndex].blockIds[blockIndex].schoolIds = 
-            updatedRegion[districtIndex].blockIds[blockIndex].schoolIds.filter(
-              s => s.schoolId !== schoolId
-            );
+          
+          const filteredSchools = updatedRegion[districtIndex].blockIds[blockIndex].schoolIds.filter(
+            s => s && s.schoolId && s.schoolId !== '' && s.schoolId !== schoolId
+          );
+          
+          updatedRegion[districtIndex].blockIds[blockIndex].schoolIds = filteredSchools;
           
           if (updatedRegion[districtIndex].blockIds[blockIndex].schoolIds.length !== initialLength) {
             updateNeeded = true;
+            message = `School ${schoolId} removed from block ${blockId}`;
             console.log(`Removed school: ${schoolId} from block: ${blockId} in district: ${districtId}`);
+          } else {
+            message = `School ${schoolId} not found in block ${blockId}`;
           }
+        } else {
+          message = `Block ${blockId} not found in district ${districtId}`;
         }
+      } else {
+        message = `District ${districtId} not found`;
       }
     }
 
-    // Apply the updated region if changes were made
+    // Clean the region
     if (updateNeeded) {
-      existingUserAccess.region = updatedRegion;
+      const cleanRegion = (region) => {
+        return region.map(district => ({
+          ...district,
+          blockIds: district.blockIds.map(block => ({
+            ...block,
+            schoolIds: (block.schoolIds || [])
+              .filter(s => s && s.schoolId && s.schoolId !== '')
+              .map(s => ({ schoolId: s.schoolId }))
+          }))
+        }));
+      };
+      
+      existingUserAccess.region = cleanRegion(updatedRegion);
+      console.log('✅ Cleaned region before saving');
     }
 
-    // Check if there's anything to update
+    // 🔥 FIX: Even if no changes, return success with existing data
+    // Only return error if absolutely no operation was provided
     if (!updateNeeded && modules === undefined && batch === undefined && region === undefined) {
+      // Check if any operation was provided but no changes were needed
+      if (addSchool || removeSchool || addBlock || removeBlock || addDistrict || removeDistrict) {
+        // Operation was provided but no changes needed (e.g., school already exists)
+        // Return success with current data
+        console.log('ℹ️ No changes needed, returning current data');
+        return res.status(200).json({
+          status: "Success",
+          message: message || "No changes needed",
+          data: existingUserAccess
+        });
+      }
+      
       return res.status(400).json({ 
         status: "Error", 
         message: "No valid update operations provided" 
@@ -1696,12 +1490,12 @@ export const updateUserAccesses = async (req, res) => {
     // Save the updated document
     const updatedUserAccess = await existingUserAccess.save();
 
-    console.log('Update successful:', updatedUserAccess._id);
-    console.log('Updated region:', JSON.stringify(updatedUserAccess.region, null, 2));
+    console.log('✅ Update successful:', updatedUserAccess._id);
+    console.log('✅ Message:', message);
 
     res.status(200).json({ 
       status: "Success", 
-      message: "User access updated successfully",
+      message: message || "User access updated successfully",
       data: updatedUserAccess 
     });
 
@@ -1709,7 +1503,6 @@ export const updateUserAccesses = async (req, res) => {
     console.log("Error updating user access:", error.message);
     console.log("Error stack:", error.stack);
     
-    // Handle validation errors
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ 
@@ -1718,7 +1511,6 @@ export const updateUserAccesses = async (req, res) => {
       });
     }
 
-    // Handle duplicate key errors
     if (error.code === 11000) {
       return res.status(400).json({ 
         status: "Error", 
@@ -1736,213 +1528,16 @@ export const updateUserAccesses = async (req, res) => {
 
 
 
-
-
-
-
-
 //version 2 api
 
 
-// export const UserAttendanceDashboard = async (req, res) => {
-//   try {
-//     const { date, role, schoolIds } = req.body;
-    
-//     console.log(req.body)
-//     // Set current date if no date provided
-//     let filterDate;
-//     if (date) {
-//       filterDate = new Date(date);
-//       filterDate.setHours(0, 0, 0, 0);
-//     } else {
-//       filterDate = new Date();
-//       filterDate.setHours(0, 0, 0, 0);
-//     }
-    
-//     // Next day for date range
-//     const nextDate = new Date(filterDate);
-//     nextDate.setDate(filterDate.getDate() + 1);
-    
-//     // Build user match conditions
-//     const userMatchConditions = {
-//       isActive: true
-//     };
-    
-//     // Add role filter if provided
-//     if (role && role.trim() !== "") {
-//       userMatchConditions.role = role;
-//     }
-    
-//     let pipeline = [
-//       // Filter users based on role and isActive
-//       { $match: userMatchConditions },
-//       {
-//         $lookup: {
-//           from: "useraccesses",
-//           localField: "_id",
-//           foreignField: "unqObjectId",
-//           as: "useraccessdetails"
-//         }
-//       },
-//       { $unwind: "$useraccessdetails" },
-//       {
-//         $lookup: {
-//           from: "userattendances",
-//           let: { 
-//             userId: "$useraccessdetails.unqObjectId",
-//             startDate: filterDate,
-//             endDate: nextDate
-//           },
-//           pipeline: [
-//             {
-//               $match: {
-//                 $expr: {
-//                   $and: [
-//                     { $eq: ["$unqUserObjectId", "$$userId"] },
-//                     { $gte: ["$date", "$$startDate"] },
-//                     { $lt: ["$date", "$$endDate"] }
-//                   ]
-//                 }
-//               }
-//             },
-//             { $sort: { date: -1 } }
-//           ],
-//           as: "userAttendanceDetails"
-//         }
-//       },
-//       { $unwind: "$useraccessdetails.region" },
-//       { $unwind: "$useraccessdetails.region.blockIds" },
-//       { $unwind: "$useraccessdetails.region.blockIds.schoolIds" }
-//     ];
-    
-//     // Filter by schoolIds if provided and array is not empty
-//     if (schoolIds && Array.isArray(schoolIds) && schoolIds.length > 0) {
-//       pipeline.push({
-//         $match: {
-//           "useraccessdetails.region.blockIds.schoolIds.schoolId": {
-//             $in: schoolIds
-//           }
-//         }
-//       });
-//     }
-    
-//     // Continue with remaining pipeline
-//     pipeline.push(
-//       {
-//         $lookup: {
-//           from: "district_block_schools",
-//           let: { schoolId: "$useraccessdetails.region.blockIds.schoolIds.schoolId" },
-//           pipeline: [
-//             {
-//               $match: {
-//                 $expr: {
-//                   $eq: ["$schoolId", "$$schoolId"]
-//                 }
-//               }
-//             },
-//             {
-//               $project: {
-//                 schoolId: 1,
-//                 schoolName: 1,
-//                 districtId: 1,
-//                 districtName: 1,
-//                 blockId: 1,
-//                 blockName: 1,
-//                 isCenterClosed: 1
-//               }
-//             }
-//           ],
-//           as: "schoolDetails"
-//         }
-//       },
-//       { $unwind: { path: "$schoolDetails", preserveNullAndEmptyArrays: true } },
-//       {
-//         $group: {
-//           _id: "$_id",
-//           userId: { $first: "$userId" },
-//           name: { $first: "$name" },
-//           email: { $first: "$email" },
-//           password: { $first: "$password" },
-//           contact1: { $first: "$contact1" },
-//           contact2: { $first: "$contact2" },
-//           department: { $first: "$department" },
-//           role: { $first: "$role" },
-//           isActive: { $first: "$isActive" },
-//           profileImage: { $first: "$profileImage" },
-//           longitude: { $first: "$longitude" },
-//           latitude: { $first: "$latitude" },
-//           createdAt: { $first: "$createdAt" },
-//           updatedAt: { $first: "$updatedAt" },
-//           __v: { $first: "$__v" },
-//           avgScore: { $first: "$avgScore" },
-//           rank: { $first: "$rank" },
-//           useraccessdetails: { $first: "$useraccessdetails" },
-//           userAttendanceDetails: { $first: "$userAttendanceDetails" },
-//           schoolIds: { $addToSet: "$useraccessdetails.region.blockIds.schoolIds.schoolId" },
-//           schoolsData: { 
-//             $addToSet: {
-//               schoolId: "$useraccessdetails.region.blockIds.schoolIds.schoolId",
-//               schoolName: "$schoolDetails.schoolName",
-//               districtId: "$schoolDetails.districtId",
-//               districtName: "$schoolDetails.districtName",
-//               blockId: "$schoolDetails.blockId",
-//               blockName: "$schoolDetails.blockName",
-//               isCenterClosed: "$schoolDetails.isCenterClosed"
-//             }
-//           }
-//         }
-//       },
-//       {
-//         $project: {
-//           _id: 1,
-//           userId: 1,
-//           name: 1,
-//           email: 1,
-//           contact1: 1,
-//           contact2: 1,
-//           department: 1,
-//           role: 1,
-//           isActive: 1,
-//           profileImage: 1,
-//           longitude: 1,
-//           latitude: 1,
-//           createdAt: 1,
-//           updatedAt: 1,
-//           avgScore: 1,
-//           rank: 1,
-//           useraccessdetails: 1,
-//           userAttendanceDetails: 1,
-//           schoolIds: 1,
-//           schoolsData: 1
-//         }
-//       }
-//     );
-
-//     const response = await User.aggregate(pipeline);
-
-//     res.status(200).json({ 
-//       status: "Ok", 
-//       responseCount: response.length, 
-//       data: response,
-//       filters: {
-//         date: filterDate,
-//         role: role || "All",
-//         isActive: true,
-//         schoolIds: schoolIds && schoolIds.length > 0 ? schoolIds : "All"
-//       }
-//     });
-//   } catch (error) {
-//     console.log("Error occurred:", error);
-//     res.status(500).json({ status: "Error", message: error.message });
-//   }
-// };
 
 
 
 
 export const UserAttendanceDashboard = async (req, res) => {
   try {
-    const { date, role, schoolIds } = req.body;
+    const { date, role, schoolIds, attendanceType, attendanceStatus } = req.body;
     
     console.log(req.body);
     
@@ -1968,11 +1563,64 @@ export const UserAttendanceDashboard = async (req, res) => {
     // Add role filter - supports both string and array
     if (role) {
       if (Array.isArray(role) && role.length > 0) {
-        // If role is an array with values
         userMatchConditions.role = { $in: role };
       } else if (typeof role === 'string' && role.trim() !== "") {
-        // If role is a non-empty string
         userMatchConditions.role = role;
+      }
+    }
+    
+    // Build attendance match conditions for the lookup
+    let attendanceMatchConditions = {
+      $expr: {
+        $and: [
+          { $eq: ["$unqUserObjectId", "$$userId"] },
+          { $gte: ["$date", "$$startDate"] },
+          { $lt: ["$date", "$$endDate"] }
+        ]
+      }
+    };
+
+    // Add attendance type filter
+    if (attendanceType) {
+      let typeCondition = [];
+      
+      if (Array.isArray(attendanceType) && attendanceType.length > 0) {
+        typeCondition = attendanceType.map(type => {
+          if (type === "Field Visit") {
+            return { $eq: ["$attendanceType", "Field Visit"] };
+          } else if (type === "Manual Attendance" || type === "Daily Attendance") {
+            return { $eq: ["$attendanceType", type] };
+          } else if (type === "Leave") {
+            return { $eq: ["$attendanceType", "Leave"] };
+          }
+          return null;
+        }).filter(cond => cond !== null);
+        
+        if (typeCondition.length > 0) {
+          attendanceMatchConditions.$expr.$and.push({ $or: typeCondition });
+        }
+      } else if (typeof attendanceType === 'string' && attendanceType.trim() !== "") {
+        let condition = null;
+        if (attendanceType === "Field Visit") {
+          condition = { $eq: ["$attendanceType", "Field Visit"] };
+        } else if (attendanceType === "Manual Attendance" || attendanceType === "Daily Attendance") {
+          condition = { $eq: ["$attendanceType", attendanceType] };
+        } else if (attendanceType === "Leave") {
+          condition = { $eq: ["$attendanceType", "Leave"] };
+        }
+        
+        if (condition) {
+          attendanceMatchConditions.$expr.$and.push(condition);
+        }
+      }
+    }
+
+    // Add attendance status filter (present/absent)
+    if (attendanceStatus) {
+      if (attendanceStatus === "present") {
+        attendanceMatchConditions.$expr.$and.push({ $eq: ["$isPresent", true] });
+      } else if (attendanceStatus === "absent") {
+        attendanceMatchConditions.$expr.$and.push({ $eq: ["$isPresent", false] });
       }
     }
     
@@ -1998,14 +1646,35 @@ export const UserAttendanceDashboard = async (req, res) => {
           },
           pipeline: [
             {
-              $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ["$unqUserObjectId", "$$userId"] },
-                    { $gte: ["$date", "$$startDate"] },
-                    { $lt: ["$date", "$$endDate"] }
-                  ]
-                }
+              $match: attendanceMatchConditions
+            },
+            {
+              $project: {
+                _id: 1,
+                unqUserObjectId: 1,
+                userId: 1,
+                date: 1,
+                attendance: 1,
+                attendanceType: 1,  // Make sure this is included
+                reasonIfNotPresent: 1,
+                isLeaveApproved: 1,
+                approvalRemark: 1,
+                approvedBy: 1,
+                loginTime: 1,
+                logoutTime: 1,
+                longitude: 1,
+                latitude: 1,
+                coordinateDifference: 1,
+                logoutLongitude: 1,
+                logoutLatitude: 1,
+                logoutCoordinateDifference: 1,
+                fileName: 1,
+                fileUrl: 1,
+                visitingLocation: 1,
+                attendanceMarkedBy: 1,
+                remarkForManualAttendance: 1,
+                createdAt: 1,
+                updatedAt: 1
               }
             },
             { $sort: { date: -1 } }
@@ -2133,6 +1802,22 @@ export const UserAttendanceDashboard = async (req, res) => {
       }
     }
 
+    // Format attendance type for response display
+    let attendanceTypeDisplay = "All";
+    if (attendanceType) {
+      if (Array.isArray(attendanceType)) {
+        attendanceTypeDisplay = attendanceType.join(", ");
+      } else {
+        attendanceTypeDisplay = attendanceType;
+      }
+    }
+
+    // Format attendance status for response display
+    let attendanceStatusDisplay = "All";
+    if (attendanceStatus) {
+      attendanceStatusDisplay = attendanceStatus;
+    }
+
     res.status(200).json({ 
       status: "Ok", 
       responseCount: response.length, 
@@ -2141,7 +1826,9 @@ export const UserAttendanceDashboard = async (req, res) => {
         date: filterDate,
         role: roleDisplay,
         isActive: true,
-        schoolIds: schoolIds && schoolIds.length > 0 ? schoolIds : "All"
+        schoolIds: schoolIds && schoolIds.length > 0 ? schoolIds : "All",
+        attendanceType: attendanceTypeDisplay,
+        attendanceStatus: attendanceStatusDisplay
       }
     });
   } catch (error) {
@@ -2149,10 +1836,6 @@ export const UserAttendanceDashboard = async (req, res) => {
     res.status(500).json({ status: "Error", message: error.message });
   }
 };
-
-
-
-
 
 
 
@@ -2262,6 +1945,109 @@ console.log(req.body)
     res.status(500).json({ 
       status: "Error", 
       message: error.message 
+    });
+  }
+};
+
+
+
+
+
+
+
+
+export const leaveApproval = async (req, res) => {
+  try {
+    const { attendanceId, isLeaveApproved, approvalRemark, approvedBy } = req.body;
+
+    // Validate required fields
+    if (!attendanceId) {
+      return res.status(400).json({
+        status: "Error",
+        message: "attendanceId is required"
+      });
+    }
+
+    // Validate isLeaveApproved is a boolean
+    if (isLeaveApproved !== undefined && typeof isLeaveApproved !== 'boolean') {
+      return res.status(400).json({
+        status: "Error",
+        message: "isLeaveApproved must be a boolean value"
+      });
+    }
+
+    // Check if attendance record exists
+    const existingAttendance = await UserAttendance.findById(attendanceId);
+    if (!existingAttendance) {
+      return res.status(404).json({
+        status: "Error",
+        message: "Attendance record not found"
+      });
+    }
+
+    // Build update object with only provided fields
+    const updateData = {};
+    
+    if (isLeaveApproved !== undefined) {
+      updateData.isLeaveApproved = isLeaveApproved;
+    }
+    
+    if (approvalRemark) {
+      updateData.approvalRemark = approvalRemark;
+    }
+    
+    if (approvedBy) {
+      // Validate approvedBy is a valid ObjectId
+      if (!mongoose.Types.ObjectId.isValid(approvedBy)) {
+        return res.status(400).json({
+          status: "Error",
+          message: "Invalid approvedBy user ID"
+        });
+      }
+      
+      // Check if the approver exists
+      const approver = await User.findById(approvedBy);
+      if (!approver) {
+        return res.status(404).json({
+          status: "Error",
+          message: "Approver user not found"
+        });
+      }
+      
+      updateData.approvedBy = approvedBy;
+    }
+
+    // If no fields to update
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        status: "Error",
+        message: "No fields provided to update"
+      });
+    }
+
+    // Update the attendance record
+    const updatedAttendance = await UserAttendance.findByIdAndUpdate(
+      attendanceId,
+      { $set: updateData },
+      { 
+        new: true, // Return the updated document
+        runValidators: true // Run schema validations
+      }
+    );
+
+    // Return success response
+    return res.status(200).json({
+      status: "Ok",
+      message: "Leave approval updated successfully",
+      data: updatedAttendance
+    });
+
+  } catch (error) {
+    console.error("Error in leaveApproval:", error);
+    return res.status(500).json({
+      status: "Error",
+      message: "Failed to update leave approval",
+      error: error.message
     });
   }
 };

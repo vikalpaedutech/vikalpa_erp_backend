@@ -48,8 +48,8 @@ const StudentSchema = new Schema(
     documents: { type: Object, default: {} },
     singleSideDistance: { type: Number },
     bothSideDistance: { type: Number },
-    slc: { type: Boolean, default: false },
-    isSlcTaken: { type: Boolean, default: false },
+    slc: { type: Boolean, default: null },
+    isSlcTaken: { type: Boolean, default: null },
     slcReleasingDate: { type: Date },
     erpEnrollingDate: { type: Date },
     medium: { type: String, default:null },  //enum: ["CBSE", "HBSE"]
@@ -93,6 +93,7 @@ const StudentSchema = new Schema(
   februaryMonthAttendancePercentage: {type: String},
 
   examinationVenue:{type: String},
+  //Student creation or removing or scl releaising
   studentCreatedBy: {
       type: mongoose.Schema.Types.ObjectId, // reference to User
               ref: "User",
@@ -100,16 +101,28 @@ const StudentSchema = new Schema(
               default:null
   },
    studentRemovedBy: {
-      type: mongoose.Schema.Types.ObjectId, // reference to User
+      type: mongoose.Schema.Types.ObjectId, // reference to User (who initates request)
               ref: "User",
               // required: true,
               default:null
   },
 
-   studentCreationDate:{type: Date},
-   studentRemoveDate: {type: String},
-   studentCRUDStatus: {type: String}, //Removed, SLC Released, Added 
+   studentCreationDate:{type: Date}, //once the approval of authorised person comes, this is upated
+   studentRemoveDate: {type: String}, //once the approval of authorised person comes, this is upated
+   studentCRUDStatus: {type: String}, //Removed, SLC Released, Added. It tells us either student be Removed, Add or etc.
    
+   //First user create request to Add, Remove, Release SLC of students
+
+   request: {type:String}, //Add, Remove, Release SLC, Approved. CC or any other user initates request to add, remove, release slc of students. It doesn't
+   // directly get removed or anything like that rather it goes to superior ofr approval
+   requestDate: {type: Date},
+   requestStatus:{type: String}, //Pending, Rejected, Approved
+   requestApprovedBy: {
+     type: mongoose.Schema.Types.ObjectId, // reference to User (who initates request)
+              ref: "User",
+              // required: true,
+              default:null
+   }
 
   },
   { timestamps: true }

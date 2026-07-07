@@ -120,6 +120,7 @@ import schoolDisciplinaryRoute from "./routes/schoolDisciplinary.route.js"
 
 import studentUploadRoute from "./routes/StudentUpload.route.js"
 
+import academicRoute from "./routes/Academic.route.js"
 //using routes for route.g
 
 app.use('/api', districtRouter);
@@ -161,6 +162,7 @@ app.use("/api", studentUploadRoute)
 
 
 
+app.use("/api", academicRoute)
 
 
 //Exporting this express app.

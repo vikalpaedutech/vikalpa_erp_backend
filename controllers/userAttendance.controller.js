@@ -19,6 +19,145 @@ export const uploadFile = multer({ storage }).single('file');
 
 //New Apis 07-05-2026-------------------------------------
 
+// export const markUserAttendance = async (req, res) => {
+//   let {
+//     unqUserObjectId,
+//     userId,
+//     date,
+//     attendance,
+//     loginTime,
+//     logoutTime,
+//     longitude,
+//     latitude,
+//     coordinateDifference,
+//     logoutLongitude,
+//     logoutLatitude,
+//     logoutCoordinateDifference,
+//     fileName,
+//     fileUrl,
+//     attendanceType,
+//     visitingLocation,
+//     attendanceMarkedBy,
+//     remarkForManualAttendance
+//   } = req.body;
+
+//   console.log(req.body)
+
+//   console.log(req.file)
+
+//   try {
+//     // Validate required fields
+//     if (!unqUserObjectId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "unqUserObjectId is required"
+//       });
+//     }
+
+//     // Check if attendance already exists for this user on this date
+//     const existingAttendance = await UserAttendance.findOne({
+//       unqUserObjectId,
+//       date: {
+//         $gte: new Date(date).setHours(0, 0, 0, 0),
+//         $lt: new Date(date).setHours(23, 59, 59, 999)
+//       }
+//     });
+
+//     let attendanceRecord;
+
+//      // Upload file if present
+//     if (req.file) {
+//       const mimeType = req.file.mimetype;
+//       fileName = `attendance-${userId}-${Date.now()}.jpg`;
+//       console.log(`📤 Uploading to DO Spaces: ${fileName} (${(req.file.size / 1024).toFixed(2)}KB)`);
+      
+//       fileUrl = await uploadToDOStorage(req.file.buffer, fileName, mimeType);
+//       console.log(`✅ File uploaded: ${fileUrl}`);
+//     }
+
+//     if (existingAttendance) {
+//       // Update existing attendance
+//       attendanceRecord = await UserAttendance.findByIdAndUpdate(
+//         existingAttendance._id,
+//         {
+//           ...(userId && { userId }),
+//           ...(attendance && { attendance }),
+//           ...(loginTime && { loginTime }),
+//           ...(logoutTime && { logoutTime }),
+//           ...(longitude && { longitude }),
+//           ...(latitude && { latitude }),
+//           ...(coordinateDifference && { coordinateDifference }),
+//           ...(logoutLongitude && { logoutLongitude }),
+//           ...(logoutLatitude && { logoutLatitude }),
+//           ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
+//           ...(fileName && { fileName }),
+//           ...(fileUrl && { fileUrl }),
+//           ...(attendanceType && { attendanceType }),
+//           ...(visitingLocation && { visitingLocation }),
+//           ...(attendanceMarkedBy && { attendanceMarkedBy }),
+//           ...(remarkForManualAttendance && { remarkForManualAttendance })
+//         },
+//         { new: true, runValidators: true }
+//       ).populate('unqUserObjectId', 'name email'); // Populate user details if needed
+
+//       return res.status(200).json({
+//         success: true,
+//         message: "Attendance updated successfully",
+//         data: attendanceRecord
+//       });
+//     } else {
+//       // Create new attendance record
+//       attendanceRecord = await UserAttendance.create({
+//         unqUserObjectId,
+//         userId: userId || null,
+//         date: date || new Date(),
+//         attendance: attendance || "Absent",
+//         loginTime: loginTime || new Date(),
+//         logoutTime: logoutTime || new Date(),
+//         longitude: longitude || 0,
+//         latitude: latitude || 0,
+//         coordinateDifference: coordinateDifference || null,
+//         logoutLongitude: logoutLongitude || 0,
+//         logoutLatitude: logoutLatitude || 0,
+//         logoutCoordinateDifference: logoutCoordinateDifference || null,
+//         fileName: fileName || null,
+//         fileUrl: fileUrl || null,
+//         attendanceType: attendanceType || null,
+//         visitingLocation: visitingLocation || null,
+//         attendanceMarkedBy: attendanceMarkedBy || null,
+//         remarkForManualAttendance: remarkForManualAttendance || null
+//       });
+
+//       // Populate the user details
+//       await attendanceRecord.populate('unqUserObjectId', 'name email');
+
+//       return res.status(201).json({
+//         success: true,
+//         message: "Attendance marked successfully",
+//         data: attendanceRecord
+//       });
+//     }
+
+//   } catch (error) {
+//     console.error("Error in markUserAttendance:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
 export const markUserAttendance = async (req, res) => {
   let {
     unqUserObjectId,
@@ -38,12 +177,14 @@ export const markUserAttendance = async (req, res) => {
     attendanceType,
     visitingLocation,
     attendanceMarkedBy,
-    remarkForManualAttendance
+    remarkForManualAttendance,
+    reasonIfNotPresent,  // New field
+    isLeaveApproved,     // New field
+    approvalRemark       // New field
   } = req.body;
 
-  console.log(req.body)
-
-  console.log(req.file)
+  console.log(req.body);
+  console.log(req.file);
 
   try {
     // Validate required fields
@@ -52,6 +193,16 @@ export const markUserAttendance = async (req, res) => {
         success: false,
         message: "unqUserObjectId is required"
       });
+    }
+
+    // Validate: If attendance is not "Present", reasonIfNotPresent is required
+    if (attendance && attendance !== "Present") {
+      if (!reasonIfNotPresent || reasonIfNotPresent.trim() === "") {
+        return res.status(400).json({
+          success: false,
+          message: "reasonIfNotPresent is required when attendance is not 'Present'"
+        });
+      }
     }
 
     // Check if attendance already exists for this user on this date
@@ -65,7 +216,7 @@ export const markUserAttendance = async (req, res) => {
 
     let attendanceRecord;
 
-     // Upload file if present
+    // Upload file if present
     if (req.file) {
       const mimeType = req.file.mimetype;
       fileName = `attendance-${userId}-${Date.now()}.jpg`;
@@ -77,28 +228,41 @@ export const markUserAttendance = async (req, res) => {
 
     if (existingAttendance) {
       // Update existing attendance
+      const updateData = {
+        ...(userId && { userId }),
+        ...(attendance && { attendance }),
+        ...(loginTime && { loginTime }),
+        ...(logoutTime && { logoutTime }),
+        ...(longitude && { longitude }),
+        ...(latitude && { latitude }),
+        ...(coordinateDifference && { coordinateDifference }),
+        ...(logoutLongitude && { logoutLongitude }),
+        ...(logoutLatitude && { logoutLatitude }),
+        ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
+        ...(fileName && { fileName }),
+        ...(fileUrl && { fileUrl }),
+        ...(attendanceType && { attendanceType }),
+        ...(visitingLocation && { visitingLocation }),
+        ...(attendanceMarkedBy && { attendanceMarkedBy }),
+        ...(remarkForManualAttendance && { remarkForManualAttendance }),
+        // New fields
+        ...(reasonIfNotPresent !== undefined && { reasonIfNotPresent }),
+        ...(isLeaveApproved !== undefined && { isLeaveApproved }),
+        ...(approvalRemark !== undefined && { approvalRemark })
+      };
+
+      // If attendance is "Present", clear reasonIfNotPresent
+      if (attendance === "Present") {
+        updateData.reasonIfNotPresent = null;
+        updateData.isLeaveApproved = null;
+        updateData.approvalRemark = null;
+      }
+
       attendanceRecord = await UserAttendance.findByIdAndUpdate(
         existingAttendance._id,
-        {
-          ...(userId && { userId }),
-          ...(attendance && { attendance }),
-          ...(loginTime && { loginTime }),
-          ...(logoutTime && { logoutTime }),
-          ...(longitude && { longitude }),
-          ...(latitude && { latitude }),
-          ...(coordinateDifference && { coordinateDifference }),
-          ...(logoutLongitude && { logoutLongitude }),
-          ...(logoutLatitude && { logoutLatitude }),
-          ...(logoutCoordinateDifference && { logoutCoordinateDifference }),
-          ...(fileName && { fileName }),
-          ...(fileUrl && { fileUrl }),
-          ...(attendanceType && { attendanceType }),
-          ...(visitingLocation && { visitingLocation }),
-          ...(attendanceMarkedBy && { attendanceMarkedBy }),
-          ...(remarkForManualAttendance && { remarkForManualAttendance })
-        },
+        updateData,
         { new: true, runValidators: true }
-      ).populate('unqUserObjectId', 'name email'); // Populate user details if needed
+      ).populate('unqUserObjectId', 'name email');
 
       return res.status(200).json({
         success: true,
@@ -107,6 +271,9 @@ export const markUserAttendance = async (req, res) => {
       });
     } else {
       // Create new attendance record
+      // If attendance is "Present", set reasonIfNotPresent to null
+      const finalReasonIfNotPresent = attendance === "Present" ? null : (reasonIfNotPresent || null);
+
       attendanceRecord = await UserAttendance.create({
         unqUserObjectId,
         userId: userId || null,
@@ -125,7 +292,11 @@ export const markUserAttendance = async (req, res) => {
         attendanceType: attendanceType || null,
         visitingLocation: visitingLocation || null,
         attendanceMarkedBy: attendanceMarkedBy || null,
-        remarkForManualAttendance: remarkForManualAttendance || null
+        remarkForManualAttendance: remarkForManualAttendance || null,
+        // New fields
+        reasonIfNotPresent: finalReasonIfNotPresent,
+        isLeaveApproved: attendance === "Present" ? null : (isLeaveApproved || null),
+        approvalRemark: attendance === "Present" ? null : (approvalRemark || null)
       });
 
       // Populate the user details
@@ -147,6 +318,7 @@ export const markUserAttendance = async (req, res) => {
     });
   }
 };
+
 
 
 
@@ -990,4 +1162,329 @@ export const GetAttendanceDataOfUsersByMonthAndYear = async (req, res) => {
 
 //Version 2 apis
 
+// export const userSelfAttendanceDashboard = async (req, res) => {
+//   try {
+//     const { _id, date, month, year, startDate, endDate } = req.body;
 
+//     // Validate required fields
+//     if (!_id) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "User ID is required"
+//       });
+//     }
+
+//     // Find user details
+//     const user = await User.findById(_id);
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found"
+//       });
+//     }
+
+//     // Build query for attendance
+//     let attendanceQuery = { unqUserObjectId: _id };
+
+//     // Priority 1: Custom date range (startDate and endDate)
+//     if (startDate && endDate) {
+//       const start = new Date(startDate);
+//       const end = new Date(endDate);
+//       end.setHours(23, 59, 59, 999); // Include entire end day
+      
+//       attendanceQuery.date = {
+//         $gte: start,
+//         $lte: end
+//       };
+//     }
+//     // Priority 2: Specific date (date, month, year)
+//     else if (date && month && year) {
+//       const specificDate = new Date(year, month - 1, date);
+//       const nextDate = new Date(year, month - 1, date + 1);
+      
+//       attendanceQuery.date = {
+//         $gte: specificDate,
+//         $lt: nextDate
+//       };
+//     }
+//     // Priority 3: Full month (month and year)
+//     else if (month && year) {
+//       const startDateOfMonth = new Date(year, month - 1, 1);
+//       const endDateOfMonth = new Date(year, month, 0, 23, 59, 59);
+      
+//       attendanceQuery.date = {
+//         $gte: startDateOfMonth,
+//         $lte: endDateOfMonth
+//       };
+//     }
+
+//     // Fetch attendance records
+//     const attendanceRecords = await UserAttendance.find(attendanceQuery)
+//       .sort({ date: -1 }) // Sort by date descending (newest first)
+//       .lean();
+
+//     // Calculate attendance statistics
+//     const totalDays = attendanceRecords.length;
+//     const presentDays = attendanceRecords.filter(record => record.status === 'present').length;
+//     const absentDays = attendanceRecords.filter(record => record.status === 'absent').length;
+//     const leaveDays = attendanceRecords.filter(record => record.status === 'leave').length;
+//     const halfDays = attendanceRecords.filter(record => record.status === 'half-day').length;
+
+//     // Calculate attendance percentage
+//     const attendancePercentage = totalDays > 0 
+//       ? ((presentDays + halfDays * 0.5) / totalDays * 100).toFixed(2)
+//       : 0;
+
+//     // Prepare response data
+//     const responseData = {
+//       userDetails: {
+//         _id: user._id,
+//         userId: user.userId,
+//         name: user.name,
+//         email: user.email,
+//         mobile: user.contact1 || user.contact2,
+//         department: user.department,
+//         role: user.role,
+//         profileImage: user.profileImage,
+//         avgScore: user.avgScore,
+//         rank: user.rank
+//       },
+//       attendanceSummary: {
+//         totalDays,
+//         presentDays,
+//         absentDays,
+//         leaveDays,
+//         halfDays,
+//         attendancePercentage: parseFloat(attendancePercentage)
+//       },
+//       attendanceRecords: attendanceRecords.map(record => ({
+//         _id: record._id,
+//         date: record.date,
+//         status: record.status,
+//         checkInTime: record.checkInTime || null,
+//         checkOutTime: record.checkOutTime || null,
+//         workingHours: record.workingHours || null,
+//         remarks: record.remarks || null,
+//       })),
+//       filters: {
+//         type: startDate && endDate ? 'range' : 
+//               date && month && year ? 'specific' : 
+//               month && year ? 'month' : 'all',
+//         startDate: startDate || null,
+//         endDate: endDate || null,
+//         date: date || null,
+//         month: month || null,
+//         year: year || null
+//       }
+//     };
+
+//     return res.status(200).json({
+//       success: true,
+//       message: "Attendance dashboard data fetched successfully",
+//       data: responseData
+//     });
+
+//   } catch (error) {
+//     console.error("Error in userAttendanceDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+export const userSelfAttendanceDashboard = async (req, res) => {
+  try {
+    const { _id, date, month, year, startDate, endDate } = req.body;
+
+    // Validate required fields
+    if (!_id) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required"
+      });
+    }
+
+    // Find user details
+    const user = await User.findById(_id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Build query for attendance
+    let attendanceQuery = { unqUserObjectId: _id };
+    let filterStartDate, filterEndDate;
+
+    // Priority 1: Custom date range (startDate and endDate)
+    if (startDate && endDate) {
+      filterStartDate = new Date(startDate);
+      filterEndDate = new Date(endDate);
+      filterEndDate.setHours(23, 59, 59, 999);
+      
+      attendanceQuery.date = {
+        $gte: filterStartDate,
+        $lte: filterEndDate
+      };
+    }
+    // Priority 2: Specific date (date, month, year)
+    else if (date && month && year) {
+      filterStartDate = new Date(year, month - 1, date);
+      filterEndDate = new Date(year, month - 1, date + 1);
+      
+      attendanceQuery.date = {
+        $gte: filterStartDate,
+        $lt: filterEndDate
+      };
+    }
+    // Priority 3: Full month (month and year)
+    else if (month && year) {
+      filterStartDate = new Date(year, month - 1, 1);
+      filterEndDate = new Date(year, month, 0, 23, 59, 59);
+      
+      attendanceQuery.date = {
+        $gte: filterStartDate,
+        $lte: filterEndDate
+      };
+    }
+
+    // Fetch attendance records from DB
+    const attendanceRecords = await UserAttendance.find(attendanceQuery)
+      .sort({ date: -1 })
+      .lean();
+
+    // Generate all dates in the range
+    let allDates = [];
+    if (filterStartDate && filterEndDate) {
+      const start = new Date(filterStartDate);
+      const end = new Date(filterEndDate);
+      
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+      
+      let currentDate = new Date(start);
+      while (currentDate <= end) {
+        allDates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+
+    let finalRecords = [];
+
+    if (allDates.length > 0) {
+      // Create a map of existing attendance records by date string
+      const attendanceMap = {};
+      attendanceRecords.forEach(record => {
+        const dateStr = new Date(record.date).toDateString();
+        attendanceMap[dateStr] = record;
+      });
+
+      // Build final records with all dates
+      finalRecords = allDates.map(date => {
+        const dateStr = date.toDateString();
+        const existingRecord = attendanceMap[dateStr];
+        
+        if (existingRecord) {
+          // Return the exact DB record as is
+          return existingRecord;
+        } else {
+          // Create a new record with Absent status (matching your DB structure)
+          return {
+            _id: `auto_${date.toISOString()}`,
+            unqUserObjectId: user._id,
+            userId: user.userId,
+            date: date,
+            attendance: "Absent",  // Using your DB field name
+            loginTime: null,
+            longitude: null,
+            latitude: null,
+            coordinateDifference: null,
+            logoutLongitude: null,
+            logoutLatitude: null,
+            fileName: null,
+            fileUrl: null,
+            attendanceType: null,
+            visitingLocation: null,
+            createdAt: date,
+            updatedAt: date,
+            __v: 0,
+            isAutoGenerated: true // Extra field to identify auto-generated records
+          };
+        }
+      });
+    } else {
+      // No date range, return records as is
+      finalRecords = attendanceRecords;
+    }
+
+    // Sort by date descending (newest first)
+    finalRecords.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Calculate attendance statistics
+    const totalDays = finalRecords.length;
+    const presentDays = finalRecords.filter(record => record.attendance === 'Present').length;
+    const absentDays = finalRecords.filter(record => record.attendance === 'Absent').length;
+    const leaveDays = finalRecords.filter(record => record.attendance === 'Leave').length;
+    const halfDays = finalRecords.filter(record => record.attendance === 'Half-Day').length;
+
+    // Calculate attendance percentage
+    const attendancePercentage = totalDays > 0 
+      ? ((presentDays + halfDays * 0.5) / totalDays * 100).toFixed(2)
+      : 0;
+
+    // Prepare response data
+    const responseData = {
+      userDetails: {
+        _id: user._id,
+        userId: user.userId,
+        name: user.name,
+        email: user.email,
+        mobile: user.contact1 || user.contact2,
+        department: user.department,
+        role: user.role,
+        profileImage: user.profileImage,
+        avgScore: user.avgScore,
+        rank: user.rank
+      },
+      attendanceSummary: {
+        totalDays,
+        presentDays,
+        absentDays,
+        leaveDays,
+        halfDays,
+        attendancePercentage: parseFloat(attendancePercentage)
+      },
+      attendanceRecords: finalRecords, // Directly send the records as they are
+      filters: {
+        type: startDate && endDate ? 'range' : 
+              date && month && year ? 'specific' : 
+              month && year ? 'month' : 'all',
+        startDate: startDate || null,
+        endDate: endDate || null,
+        date: date || null,
+        month: month || null,
+        year: year || null
+      }
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Attendance dashboard data fetched successfully",
+      data: responseData
+    });
+
+  } catch (error) {
+    console.error("Error in userSelfAttendanceDashboard:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};

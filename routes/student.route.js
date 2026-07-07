@@ -10,7 +10,12 @@ import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents,
      StudentAttendanceDashboard, GetAllMbStudentsData, CreateStudent,
      UpdateStudentBySrn,
      StudentAbsenteeCallingDashboard,
-     CreateStudentFormAPI
+     CreateStudentFormAPI,
+     GetStudents,
+     DownloadStudentData,
+     getstudentAddRequest,
+     studentAddUpdatedApi,
+     GetMBStudentsForAttendance
     } from "../controllers/student.controller.js";
 
 //creating express router.
@@ -61,9 +66,24 @@ router.post("/update-mb-student-data", UpdateStudentBySrn);
 // router.post("/create-student-form", CreateStudentFormAPI);
 
 
-// In your routes file
+
 router.post("/create-student-form", CreateStudentFormAPI); // For Add
 router.post("/remove-student", CreateStudentFormAPI); // For Remove
 router.post("/slc-release", CreateStudentFormAPI); // For SLC Release
+
+router.post("/get-students", GetStudents); // For student data
+
+
+router.post("/download-students-data", DownloadStudentData); // For download students data
+
+router.post("/get-student-add-request", getstudentAddRequest)
+
+router.post("/update-student-add-request", studentAddUpdatedApi)
+
+
+
+router.post("/get-mb-students-for-attendance", GetMBStudentsForAttendance)
+
+
 
 export default router;

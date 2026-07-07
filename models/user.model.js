@@ -103,3 +103,60 @@ const UserAccessSchema = new Schema(
 
 export const UserAccess = mongoose.model("UserAccess", UserAccessSchema);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Leave management
+
+
+
+
+//User access model
+const UserLeaveSchema = new Schema(
+  {
+    unqObjectId: {
+      type: mongoose.Schema.Types.ObjectId, // reference to User
+      ref: "User",
+      required: true,
+    },
+
+    year:{type: String, default:null},
+    // casualLeave:{type:Number, default:0},
+    // sickLeave:{type:Number, default:0},
+    // earnedLeave:{type:Number, default:0},
+    // paidLeave:{type:Number, default:0},
+    // leaveWithoutPay:{type:Number, default:0},
+    // maternityLeave:{type:Number, default:0},
+    // paternityLeave:{type:Number, default:0},
+    // compensatoryOff:{type:Number, default:0},
+    // floatingHoliday:{type:Number, default:0},
+    // gazettedHolidays:{type:Number, default:0},
+    // wfh:{type:Number, default:0},
+    // halfDay:{type:Number, default:0},
+    
+    leaves:{
+      type:Object, default:{
+        leaveType: {type: String, default:null},// CL, SL, EL, PL, LWP, ML, PL, Comp-off...
+        totalAlloted:{type:Number, default:0},
+        totalUsed: {type:Number, default:0},
+        remaining: {type: Number, default:0}
+      }
+    }
+    
+
+  },
+  { timestamps: true }
+);
+
+export const UserLeave = mongoose.model("UserLeave", UserLeaveSchema);
+
