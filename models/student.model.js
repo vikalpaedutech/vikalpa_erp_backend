@@ -122,7 +122,9 @@ const StudentSchema = new Schema(
               ref: "User",
               // required: true,
               default:null
-   }
+   },
+   focus200ExamVenue:{type: String, default:null},
+   focus200ExamDate:{type:String, default: null}
 
   },
   { timestamps: true }

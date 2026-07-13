@@ -382,7 +382,15 @@ export const GetStudentsBySlc = async (req, res) =>{
 
 
  try {
-  const response = await Student.find({slc: true,  classofStudent:'9'})
+ const response = await Student.find({
+  // slc: true, 
+  classofStudent: '9',
+  focus200ExamVenue: { 
+    $exists: true,
+    $ne: null,
+    $nin: ["", " "]
+  }
+});
 
       res.status(200).json({
       status: "Success",
