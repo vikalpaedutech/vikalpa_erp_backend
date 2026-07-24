@@ -15,7 +15,8 @@ import {createPost, getStudentIfisSlcTakenIsFalse, getAllStudents,
      DownloadStudentData,
      getstudentAddRequest,
      studentAddUpdatedApi,
-     GetMBStudentsForAttendance
+     GetMBStudentsForAttendance,
+     updateDressSize
     } from "../controllers/student.controller.js";
 
 //creating express router.
@@ -84,6 +85,6 @@ router.post("/update-student-add-request", studentAddUpdatedApi)
 
 router.post("/get-mb-students-for-attendance", GetMBStudentsForAttendance)
 
-
+router.post("/update-dress-size", updateDressSize)
 
 export default router;

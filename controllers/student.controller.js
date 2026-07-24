@@ -1040,6 +1040,101 @@ export const MarkMBStudentAttendance = async (req, res) => {
 
 
 
+// export const updateDressSize = async (req, res) =>{
+
+//   const {_id, shirtSizeInInches,  waistToBottomLengthInInches} = req.body;
+
+//   try {
+//     const response = await Student.findByIdAndUpdate({_id:_id}, {
+//       shirtSizeInInches:shirtSizeInInches,
+//       waistToBottomLengthInInches:waistToBottomLengthInInches
+//     })
+//   } catch (error) {
+    
+//   }
+// }
+
+
+
+
+
+export const updateDressSize = async (req, res) => {
+  const { _id, shirtSizeInInches, waistToBottomLengthInInches } = req.body;
+
+  try {
+    // Validate _id
+    if (!_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Student ID (_id) is required"
+      });
+    }
+
+    // Validate at least one field is provided
+    if (shirtSizeInInches === undefined && waistToBottomLengthInInches === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one field (shirtSizeInInches or waistToBottomLengthInInches) must be provided"
+      });
+    }
+
+    // Build update object dynamically
+    const updateData = {};
+    if (shirtSizeInInches !== undefined) {
+      if (typeof shirtSizeInInches !== 'number' || shirtSizeInInches < 0) {
+        return res.status(400).json({
+          success: false,
+          message: "shirtSizeInInches must be a positive number"
+        });
+      }
+      updateData.shirtSizeInInches = shirtSizeInInches;
+    }
+
+    if (waistToBottomLengthInInches !== undefined) {
+      if (typeof waistToBottomLengthInInches !== 'number' || waistToBottomLengthInInches < 0) {
+        return res.status(400).json({
+          success: false,
+          message: "waistToBottomLengthInInches must be a positive number"
+        });
+      }
+      updateData.waistToBottomLengthInInches = waistToBottomLengthInInches;
+    }
+
+    // Update student
+    const updatedStudent = await Student.findByIdAndUpdate(
+      _id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({
+        success: false,
+        message: "Student not found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Dress size updated successfully",
+      data: {
+        _id: updatedStudent._id,
+        studentSrn: updatedStudent.studentSrn,
+        firstName: updatedStudent.firstName,
+        shirtSizeInInches: updatedStudent.shirtSizeInInches,
+        waistToBottomLengthInInches: updatedStudent.waistToBottomLengthInInches
+      }
+    });
+
+  } catch (error) {
+    console.error("Error updating dress size:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Failed to update dress size"
+    });
+  }
+};
+
 
 
 // Marking student attendance
@@ -5013,8 +5108,13 @@ export const getstudentAddRequest = async (req, res) => {
 
 
 export const studentAddUpdatedApi = async (req, res) => {
+
+console.log("I am in student.controller.js, api: studentAddUpdateApi")
+
   try {
     const { studentId, requestStatus, approvedByUserId, request } = req.body;
+
+    console.log(req.body)
 
     // Validate required fields
     if (!studentId) {
