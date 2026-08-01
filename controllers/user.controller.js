@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { User, UserAccess } from "../models/user.model.js";
 import { UserAttendance } from "../models/userAttendnace.model.js";
 import { District_Block_School } from "../models/district_block_school.model.js";
-
+import { GamificationUser } from "../models/user.model.js";
 
 
 // Create a new user (POST)
@@ -433,7 +433,7 @@ export const setUserAccess = async (req, res) => {
 
 export const getAllUsersWithAccess = async (req, res) =>{
 
-    console.log('Hello get all users')
+    console.log('I am in user.controller.js, getAllUsersWithAccess')
 
 
     try {
@@ -2051,3 +2051,75 @@ export const leaveApproval = async (req, res) => {
     });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//GamificationUser controller to create or assign region
+
+export const createGamificationUser = async (req, res) => {
+
+  console.log('I am in user.controller.js, api: createGamificationUser')
+
+  const {unqUserObjectId, region, access } = req.body;
+
+  console.log(req.body)
+
+  try {
+
+    const response = await GamificationUser.create(req.body)
+
+    res.status(200).json({status:'Ok', data: response})
+
+  } catch (error) {
+    console.log('Internal server error')
+    res.status(500).json({status:'false', message:error})
+
+  }
+}
+
+
+export const getGamificationUser = async (req, res) => {
+
+  console.log('I am in user.controller.js, api: getGamificationUser');
+
+const {unqUserObjectId, createdAt} = req.body;
+
+const startDate = new Date(createdAt);
+startDate.setUTCHours(0,0,0,0)
+
+const endDate = new Date(createdAt);
+endDate.setUTCHours(59, 59, 59, 59)
+console.log(startDate)
+console.log(endDate)
+console.log(req.body)
+
+
+try {
+
+  const response = await GamificationUser.find({unqUserObjectId:unqUserObjectId, 
+    createdAt:{
+      $gte:startDate,
+      $lte:endDate
+    }
+  })
+
+  res.status(200).json({status:"Ok", data:response})
+  console.log(response)
+
+} catch (error) {
+      console.log('Internal server error')
+    res.status(500).json({status:'false', message:error})
+}
+
+}

@@ -8,7 +8,6 @@ import { District_Block_School } from "../models/district_block_school.model.js"
 import {AttendancePdf} from "../models/UploadAttendancePdf.model.js"
 //Attendance count api.
 
-
 export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
   // console.log(' i am inside studentAndAttendanceCount controller')
   try {
@@ -219,7 +218,7 @@ export const studentAndAttendanceAndAbsenteeCallingCount = async (req, res) => {
 
 // Attendance pdf api. Get counts by class and per date
 export const attendancePdfUploadStatusCountByClass = async (req, res) => {
-  // console.log('Inside attendancePdfUploadStatusCountByClass controller');
+  console.log('I am in dashboard.controller.js, api: attendancePdfUploadStatusCountByClass');
   try {
     const { schoolIds, startDate, endDate } = req.body;
 
@@ -341,6 +340,168 @@ export const attendancePdfUploadStatusCountByClass = async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+export const uploadedAttendancePdfDashboard = async (req, res) => {
+  console.log("I am in dashboard.controller.js, api: uploadedAttendancePdfDashboard")
+  const { 
+    district_block_schoolsObjectId, 
+    districtIds,  // Changed to array
+    schoolId, 
+    batch,        // Can be single or array
+    dateOfUpload 
+  } = req.body;
+
+  console.log(req.body)
+
+  try {
+    // Build query for district_block_schools
+    const schoolQuery = { isCenterClosed: false };
+    
+    if (district_block_schoolsObjectId) {
+      schoolQuery._id = district_block_schoolsObjectId;
+    }
+    
+    // Handle multiple district IDs
+    if (districtIds && districtIds.length > 0) {
+      schoolQuery.districtId = { $in: districtIds };
+    }
+    
+    if (schoolId) {
+      schoolQuery.schoolId = schoolId;
+    }
+
+    // Get all schools matching the criteria
+    const schools = await District_Block_School.find(schoolQuery).lean();
+
+    if (!schools || schools.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: "No schools found",
+        data: []
+      });
+    }
+
+    // Date filter with default (today's date)
+    let dateToUse = dateOfUpload;
+    if (!dateToUse) {
+      const today = new Date();
+      dateToUse = today.toISOString().split('T')[0];
+    }
+
+    // Build query for attendance PDFs
+    const pdfQuery = {};
+    
+    // Date filter - always applied
+    const startDate = new Date(dateToUse);
+    startDate.setHours(0, 0, 0, 0);
+    const endDate = new Date(dateToUse);
+    endDate.setHours(23, 59, 59, 999);
+    
+    pdfQuery.dateOfUpload = {
+      $gte: startDate,
+      $lte: endDate
+    };
+
+    // Handle batch filter - can be single or array
+    if (batch) {
+      if (Array.isArray(batch) && batch.length > 0) {
+        pdfQuery.batch = { $in: batch };
+      } else if (typeof batch === 'string') {
+        pdfQuery.batch = batch;
+      }
+    }
+
+    // Get all attendance PDFs matching the criteria
+    const attendancePdfs = await AttendancePdf.find(pdfQuery).lean();
+
+    // Create a map of schoolId to attendance status
+    const attendanceMap = new Map();
+    attendancePdfs.forEach(pdf => {
+      const schoolObjectId = pdf.district_block_schoolsObjectId.toString();
+      if (!attendanceMap.has(schoolObjectId)) {
+        attendanceMap.set(schoolObjectId, []);
+      }
+      attendanceMap.get(schoolObjectId).push(pdf);
+    });
+
+    // Prepare the response data
+    const result = schools.map(school => {
+      const schoolObjectId = school._id.toString();
+      const pdfs = attendanceMap.get(schoolObjectId) || [];
+      
+      let uploadedCount = 0;
+      let notUploadedCount = 0;
+      
+      if (batch) {
+        // Check if there's any PDF for this school with the specific batch(es)
+        let hasPdfForBatch = false;
+        if (Array.isArray(batch)) {
+          hasPdfForBatch = pdfs.some(pdf => batch.includes(pdf.batch));
+        } else {
+          hasPdfForBatch = pdfs.some(pdf => pdf.batch === batch);
+        }
+        uploadedCount = hasPdfForBatch ? 1 : 0;
+        notUploadedCount = hasPdfForBatch ? 0 : 1;
+      } else {
+        // Count all PDFs for that date
+        uploadedCount = pdfs.length;
+        notUploadedCount = pdfs.length === 0 ? 1 : 0;
+      }
+
+      return {
+        districtId: school.districtId,
+        districtName: school.districtName,
+        blockId: school.blockId,
+        blockName: school.blockName,
+        schoolId: school.schoolId,
+        schoolName: school.schoolName,
+        schoolObjectId: schoolObjectId,
+        dateOfUpload: dateToUse,
+        uploadedCount: uploadedCount,
+        notUploadedCount: notUploadedCount,
+        totalCount: uploadedCount + notUploadedCount,
+        isCenterClosed: school.isCenterClosed,
+        pdfDetails: pdfs.map(pdf => ({
+          batch: pdf.batch,
+          dateOfUpload: pdf.dateOfUpload,
+          fileName: pdf.fileName,
+          fileUrl: pdf.fileUrl,
+          isPdfUploaded: pdf.isPdfUploaded
+        }))
+      };
+    });
+
+    // Sort results: schools with uploaded PDFs first
+    result.sort((a, b) => b.uploadedCount - a.uploadedCount);
+
+    return res.status(200).json({
+      success: true,
+      message: "Dashboard data fetched successfully",
+      data: result,
+      summary: {
+        date: dateToUse,
+        isDefaultDate: !dateOfUpload,
+        totalSchools: result.length,
+        totalUploaded: result.reduce((sum, item) => sum + item.uploadedCount, 0),
+        totalNotUploaded: result.reduce((sum, item) => sum + item.notUploadedCount, 0)
+      }
+    });
+
+  } catch (error) {
+    console.error("Error in uploadedAttendancePdfDashboard:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
 
 
 

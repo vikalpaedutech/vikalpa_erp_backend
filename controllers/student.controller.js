@@ -409,6 +409,249 @@ export const GetStudentsBySlc = async (req, res) =>{
 
 
 
+// export const GetMBStudents = async (req, res) => {
+//   try {
+//     const { 
+//       districtId, 
+//       blockId, 
+//       schoolId, 
+//       batch, 
+//       startDate  // Single date only (YYYY-MM-DD)
+//     } = req.body;
+    
+//     console.log(req.body);
+//     console.log("i am inside 'student.controller.js' and api: 'GetMBStudents'");
+    
+//     // Build dynamic query object for students
+//     let studentQuery = {};
+    
+//     if (districtId && districtId.length > 0) {
+//       studentQuery.districtId = { $in: districtId };
+//     }
+    
+//     if (blockId && blockId.length > 0) {
+//       studentQuery.blockId = { $in: blockId };
+//     }
+    
+//     if (schoolId && schoolId.length > 0) {
+//       studentQuery.schoolId = { $in: schoolId };
+//     }
+    
+//     if (batch && batch.length > 0) {
+//       studentQuery.batch = { $in: batch };
+//     }
+
+//     console.log("Student Query:", studentQuery);
+    
+//     // Get students with all required fields including request-related fields
+//     const students = await Student.find(studentQuery)
+//       .select({
+//         _id: 1,
+//         studentSrn: 1,
+//         rollNumber: 1,
+//         firstName: 1,
+//         lastName: 1,
+//         fatherName: 1,
+//         motherName: 1,
+//         email: 1,
+//         personalContact: 1,
+//         ParentContact: 1,
+//         otherContact: 1,
+//         dob: 1,
+//         gender: 1,
+//         category: 1,
+//         address: 1,
+//         districtId: 1,
+//         blockId: 1,
+//         schoolId: 1,
+//         classofStudent: 1,
+//         parent: 1,
+//         enrollmentDate: 1,
+//         batch: 1,
+//         session: 1,
+//         documents: 1,
+//         singleSideDistance: 1,
+//         bothSideDistance: 1,
+//         slc: 1,
+//         isSlcTaken: 1,
+//         slcReleasingDate: 1,
+//         erpEnrollingDate: 1,
+//         medium: 1,
+//         isStudentOf: 1,
+//         isDressGiven: 1,
+//         isTabGiven: 1,
+//         tabIMEI: 1,
+//         isSimGiven: 1,
+//         simNumber: 1,
+//         simIMSI: 1,
+//         bankName: 1,
+//         bankIFSC: 1,
+//         bankAccNumber: 1,
+//         bankHolderName: 1,
+//         batchCompleted: 1,
+//         shirtSizeInInches: 1,
+//         waistSizeInInches: 1,
+//         waistToBottomLengthInInches: 1,
+//         dressAmountSubmitted: 1,
+//         dressSizeConfirmationForm: 1,
+//         examinationVenue: 1,
+//         studentCreatedBy: 1,
+//         studentRemovedBy: 1,
+//         studentCreationDate: 1,
+//         studentRemoveDate: 1,
+//         studentCRUDStatus: 1,
+//         request: 1,              // Added this field
+//         requestDate: 1,          // Added this field
+//         requestStatus: 1,        // Added this field
+//         requestApprovedBy: 1,    // Added this field
+//         createdAt: 1,
+//         updatedAt: 1
+//       });
+    
+//     if (students.length === 0) {
+//       return res.status(200).json({
+//         success: true,
+//         data: [],
+//         count: 0,
+//         filters: studentQuery
+//       });
+//     }
+    
+//     // Set date for attendance - SINGLE DATE ONLY with UTC timezone
+//     let startOfDayUTC;
+//     let endOfDayUTC;
+//     let dateString;
+    
+//     if (startDate) {
+//       // Parse the date string (YYYY-MM-DD)
+//       const [year, month, day] = startDate.split('-').map(Number);
+      
+//       // Create UTC date for start of day (00:00:00.000 UTC)
+//       startOfDayUTC = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
+      
+//       // Create UTC date for end of day (23:59:59.999 UTC)
+//       endOfDayUTC = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
+      
+//       dateString = startDate;
+//     } else {
+//       // Default to current date in UTC
+//       const currentDate = new Date();
+//       const year = currentDate.getUTCFullYear();
+//       const month = currentDate.getUTCMonth();
+//       const day = currentDate.getUTCDate();
+      
+//       startOfDayUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
+//       endOfDayUTC = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
+      
+//       dateString = startOfDayUTC.toISOString().split('T')[0];
+//     }
+    
+//     console.log("Target Date Range (UTC):", {
+//       startOfDayUTC: startOfDayUTC.toISOString(),
+//       endOfDayUTC: endOfDayUTC.toISOString(),
+//       dateString: dateString,
+//       startTimestamp: startOfDayUTC.getTime(),
+//       endTimestamp: endOfDayUTC.getTime()
+//     });
+    
+//     // Get student IDs
+//     const studentIds = students.map(s => s._id);
+    
+//     // Fetch existing attendance records for the single date using UTC range
+//     const existingAttendanceRecords = await StudentAttendance.find({
+//       unqStudentObjectId: { $in: studentIds },
+//       date: { 
+//         $gte: startOfDayUTC,
+//         $lte: endOfDayUTC
+//       }
+//     });
+    
+//     console.log(`Found ${existingAttendanceRecords.length} attendance records for date: ${dateString}`);
+    
+//     // Create a map for quick lookup: studentId -> attendance record
+//     const attendanceMap = new Map();
+//     existingAttendanceRecords.forEach(record => {
+//       const studentId = record.unqStudentObjectId.toString();
+//       attendanceMap.set(studentId, record);
+//     });
+    
+//     // Attach attendance to each student
+//     const studentsWithAttendance = students.map(student => {
+//       const studentId = student._id.toString();
+//       const existingRecord = attendanceMap.get(studentId);
+      
+//       let attendanceRecord = null;
+//       let status = "Absent";
+//       let isAttendanceMarked = false;
+      
+//       if (existingRecord) {
+//         // Record exists in database - use actual status
+//         attendanceRecord = existingRecord.toObject();
+//         status = existingRecord.status;
+//         isAttendanceMarked = existingRecord.isAttendanceMarked || false;
+//       } else {
+//         // No record in database - create dummy record for display
+//         attendanceRecord = {
+//           _id: `dummy_${studentId}_${dateString}`,
+//           unqStudentObjectId: student._id,
+//           date: startOfDayUTC,
+//           status: "Absent",
+//           isAttendanceMarked: false,
+//           TA: 0,
+//           absenteeCallingStatus: null,
+//           callingRemark1: null,
+//           callingRemark2: null,
+//           comments: null,
+//           isDummy: true,
+//           createdAt: new Date(),
+//           updatedAt: new Date()
+//         };
+//         status = "Absent";
+//         isAttendanceMarked = false;
+//       }
+      
+//       // Convert to plain object and add attendance fields
+//       const studentObj = student.toObject();
+//       studentObj.attendanceRecord = attendanceRecord;
+//       studentObj.attendanceStatus = status;
+//       studentObj.isAttendanceMarked = isAttendanceMarked;
+//       studentObj.attendanceDate = startOfDayUTC;
+      
+//       return studentObj;
+//     });
+    
+//     return res.status(200).json({
+//       success: true,
+//       data: studentsWithAttendance,
+//       count: studentsWithAttendance.length,
+//       filters: studentQuery,
+//       selectedDate: {
+//         date: startOfDayUTC,
+//         dateString: dateString,
+//         formattedDate: startOfDayUTC.toLocaleDateString('en-IN', { timeZone: 'UTC' }),
+//         startOfDayUTC: startOfDayUTC.toISOString(),
+//         endOfDayUTC: endOfDayUTC.toISOString()
+//       }
+//     });
+    
+//   } catch (error) {
+//     console.error("Error fetching students:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Error fetching students",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
 export const GetMBStudents = async (req, res) => {
   try {
     const { 
@@ -424,6 +667,9 @@ export const GetMBStudents = async (req, res) => {
     
     // Build dynamic query object for students
     let studentQuery = {};
+    
+    // ✅ ADD THIS - Only fetch students who haven't taken SLC
+    studentQuery.isSlcTaken = false;
     
     if (districtId && districtId.length > 0) {
       studentQuery.districtId = { $in: districtId };
@@ -500,10 +746,10 @@ export const GetMBStudents = async (req, res) => {
         studentCreationDate: 1,
         studentRemoveDate: 1,
         studentCRUDStatus: 1,
-        request: 1,              // Added this field
-        requestDate: 1,          // Added this field
-        requestStatus: 1,        // Added this field
-        requestApprovedBy: 1,    // Added this field
+        request: 1,
+        requestDate: 1,
+        requestStatus: 1,
+        requestApprovedBy: 1,
         createdAt: 1,
         updatedAt: 1
       });
@@ -523,18 +769,11 @@ export const GetMBStudents = async (req, res) => {
     let dateString;
     
     if (startDate) {
-      // Parse the date string (YYYY-MM-DD)
       const [year, month, day] = startDate.split('-').map(Number);
-      
-      // Create UTC date for start of day (00:00:00.000 UTC)
       startOfDayUTC = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
-      
-      // Create UTC date for end of day (23:59:59.999 UTC)
       endOfDayUTC = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 999));
-      
       dateString = startDate;
     } else {
-      // Default to current date in UTC
       const currentDate = new Date();
       const year = currentDate.getUTCFullYear();
       const month = currentDate.getUTCMonth();
@@ -542,7 +781,6 @@ export const GetMBStudents = async (req, res) => {
       
       startOfDayUTC = new Date(Date.UTC(year, month, day, 0, 0, 0, 0));
       endOfDayUTC = new Date(Date.UTC(year, month, day, 23, 59, 59, 999));
-      
       dateString = startOfDayUTC.toISOString().split('T')[0];
     }
     
@@ -585,12 +823,10 @@ export const GetMBStudents = async (req, res) => {
       let isAttendanceMarked = false;
       
       if (existingRecord) {
-        // Record exists in database - use actual status
         attendanceRecord = existingRecord.toObject();
         status = existingRecord.status;
         isAttendanceMarked = existingRecord.isAttendanceMarked || false;
       } else {
-        // No record in database - create dummy record for display
         attendanceRecord = {
           _id: `dummy_${studentId}_${dateString}`,
           unqStudentObjectId: student._id,
@@ -610,7 +846,6 @@ export const GetMBStudents = async (req, res) => {
         isAttendanceMarked = false;
       }
       
-      // Convert to plain object and add attendance fields
       const studentObj = student.toObject();
       studentObj.attendanceRecord = attendanceRecord;
       studentObj.attendanceStatus = status;
@@ -643,7 +878,6 @@ export const GetMBStudents = async (req, res) => {
     });
   }
 };
-
 
 
 
@@ -2102,13 +2336,9 @@ export const GetAllMbStudentsData = async (req, res) => {
 
 
 
-
-
-
-
 export const StudentAbsenteeCallingDashboard = async (req, res) => {
     try {
-        const { batch, schoolId, districtId, blockId, date } = req.body;
+        const { batch, schoolId, districtIds, blockId, date } = req.body;
 
         // Use current date if no date provided
         let attendanceDate;
@@ -2141,9 +2371,14 @@ export const StudentAbsenteeCallingDashboard = async (req, res) => {
         // Always get students where isSlcTaken is false
         studentMatchConditions.isSlcTaken = false;
 
-        // Build school query
+        // Build school query with districtIds array support
         let schoolQuery = { isCenterClosed: false };
-        if (districtId) schoolQuery.districtId = districtId;
+        
+        // ✅ Support multiple district IDs
+        if (districtIds && districtIds.length > 0) {
+            schoolQuery.districtId = { $in: districtIds };
+        }
+        
         if (blockId) schoolQuery.blockId = blockId;
         if (schoolId) schoolQuery.schoolId = schoolId;
         
@@ -2153,13 +2388,22 @@ export const StudentAbsenteeCallingDashboard = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "No schools found",
-                filters: { batch, schoolId, districtId, blockId, date: attendanceDate.toISOString().split('T')[0] },
+                filters: { 
+                    batch: batch || "All", 
+                    schoolId: schoolId || "All", 
+                    districtIds: districtIds || "All", 
+                    blockId: blockId || "All", 
+                    date: attendanceDate.toISOString().split('T')[0] 
+                },
                 summary: {
                     totalSchools: 0,
                     totalAbsentStudents: 0,
                     connectedCount: 0,
                     notConnectedCount: 0,
-                    notCalledCount: 0
+                    notCalledCount: 0,
+                    connectedPercentage: 0,
+                    notConnectedPercentage: 0,
+                    notCalledPercentage: 0
                 },
                 schoolsData: []
             });
@@ -2304,28 +2548,22 @@ export const StudentAbsenteeCallingDashboard = async (req, res) => {
                 schoolData.notCalledCount++;
             }
             
-            // FIXED: Now using all fields from student collection
             schoolData.students.push({
                 studentId: student._id,
-                // Student personal details
                 studentSrn: student.studentSrn || "N/A",
                 firstName: student.firstName || "N/A",
-                studentName: student.name || student.firstName || "N/A", // fallback
+                studentName: student.name || student.firstName || "N/A",
                 studentUserId: student.userId || "N/A",
-                // Parent details
                 fatherName: student.fatherName || "N/A",
                 motherName: student.motherName || "N/A",
-                // Contact details
                 contact1: student.contact1 || "N/A",
                 contact2: student.contact2 || "N/A",
                 personalContact: student.personalContact || "N/A",
                 parentContact: student.ParentContact || "N/A",
                 otherContact: student.otherContact || "N/A",
-                // Academic details
                 className: student.className || student.classofStudent || "N/A",
                 section: student.section || "N/A",
                 rollNumber: student.rollNumber || "N/A",
-                // Attendance and calling status
                 attendanceStatus: student.attendanceStatus,
                 absenteeCallingStatus: student.attendanceRecord?.absenteeCallingStatus || null,
                 callingRemark1: student.attendanceRecord?.callingRemark1 || null,
@@ -2405,7 +2643,7 @@ export const StudentAbsenteeCallingDashboard = async (req, res) => {
             filters: {
                 batch: batch || "All",
                 schoolId: schoolId || "All",
-                districtId: districtId || "All",
+                districtIds: districtIds || "All",
                 blockId: blockId || "All",
                 date: attendanceDate.toISOString().split('T')[0]
             },
@@ -2431,8 +2669,6 @@ export const StudentAbsenteeCallingDashboard = async (req, res) => {
         });
     }
 };
-
-
 
 
 

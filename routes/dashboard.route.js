@@ -10,7 +10,8 @@ import { attendancePdfUploadStatusCountByClass,
     getStudentCountsByClass,
     getTodayAttendanceSummaryByClass,
     getAbsenteeCallingSummary,
-    PresentAbsentCallingDashboard
+    PresentAbsentCallingDashboard,
+    uploadedAttendancePdfDashboard
 
  } from "../controllers/dashboard.controller.js"
 
@@ -29,4 +30,6 @@ router.post("/absentee-calling-summary", getAbsenteeCallingSummary);
 
 
 router.post("/totalstudent-present-absent-calling-count", PresentAbsentCallingDashboard)
+
+router.post ("/uploaded-attendance-pdf-dashboard", uploadedAttendancePdfDashboard)
 export default router;

@@ -1241,9 +1241,376 @@ export const DeleteStudentCopyChecking = async (req, res) => {
 
 
 
+// export const StudentCopyCheckinDashboard = async (req, res) => {
+//     try {
+//         const { batch, date, schoolId, districtId, blockId } = req.body;
+
+//         // Build match conditions for students
+//         const studentMatchConditions = {
+//             isSlcTaken: false
+//         };
+        
+//         if (batch) {
+//             studentMatchConditions.batch = batch;
+//         }
+        
+//         if (schoolId) {
+//             studentMatchConditions.schoolId = schoolId;
+//         }
+
+//         // Build date filter for copy checking
+//         let copyCheckingDateMatch = {};
+//         if (date) {
+//             const searchDate = new Date(date);
+//             if (isNaN(searchDate.getTime())) {
+//                 return res.status(400).json({
+//                     success: false,
+//                     message: "Invalid date format"
+//                 });
+//             }
+//             searchDate.setHours(0, 0, 0, 0);
+//             const endOfDay = new Date(searchDate);
+//             endOfDay.setHours(23, 59, 59, 999);
+            
+//             copyCheckingDateMatch = {
+//                 date: {
+//                     $gte: searchDate,
+//                     $lte: endOfDay
+//                 }
+//             };
+//         }
+
+//         // First, get all schools that match district/block filters
+//         let schoolQuery = {};
+//         if (districtId) schoolQuery.districtId = districtId;
+//         if (blockId) schoolQuery.blockId = blockId;
+        
+//         const allSchools = await District_Block_School.find(schoolQuery).lean();
+        
+//         if (allSchools.length === 0) {
+//             return res.status(200).json({
+//                 success: true,
+//                 message: "No schools found",
+//                 filters: { batch, date, schoolId, districtId, blockId },
+//                 summary: {
+//                     totalSchools: 0,
+//                     totalStudents: 0,
+//                     totalCopyCheckings: 0,
+//                     totalHomeWork: 0,
+//                     totalClassWork: 0,
+//                     overallCompletionRate: 0
+//                 },
+//                 schoolsData: []
+//             });
+//         }
+
+//         // Get student counts per school
+//         const studentAggregation = await Student.aggregate([
+//             { $match: studentMatchConditions },
+//             {
+//                 $group: {
+//                     _id: "$schoolId",
+//                     totalStudents: { $sum: 1 }
+//                 }
+//             }
+//         ]);
+        
+//         const studentCountMap = {};
+//         studentAggregation.forEach(item => {
+//             studentCountMap[item._id] = item.totalStudents;
+//         });
+
+//         // Get copy checking statistics per school
+//         const copyCheckingAggregation = await StudentCopyChecking.aggregate([
+//             {
+//                 $match: {
+//                     ...(batch && { batch }),
+//                     ...(schoolId && { schoolId }),
+//                     ...copyCheckingDateMatch
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         schoolId: "$schoolId",
+//                         subject: "$subject",
+//                         copyCheckingType: "$copyCheckingType",
+//                         status: "$status"
+//                     },
+//                     count: { $sum: 1 }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         schoolId: "$_id.schoolId",
+//                         subject: "$_id.subject",
+//                         copyCheckingType: "$_id.copyCheckingType"
+//                     },
+//                     statuses: {
+//                         $push: {
+//                             status: "$_id.status",
+//                             count: "$count"
+//                         }
+//                     },
+//                     total: { $sum: "$count" }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: {
+//                         schoolId: "$_id.schoolId",
+//                         subject: "$_id.subject"
+//                     },
+//                     copyTypes: {
+//                         $push: {
+//                             type: "$_id.copyCheckingType",
+//                             total: "$total",
+//                             statuses: "$statuses"
+//                         }
+//                     },
+//                     subjectTotal: { $sum: "$total" }
+//                 }
+//             },
+//             {
+//                 $group: {
+//                     _id: "$_id.schoolId",
+//                     subjects: {
+//                         $push: {
+//                             name: "$_id.subject",
+//                             total: "$subjectTotal",
+//                             copyTypes: "$copyTypes"
+//                         }
+//                     },
+//                     schoolTotal: { $sum: "$subjectTotal" },
+//                     homeWorkTotal: {
+//                         $sum: {
+//                             $sum: {
+//                                 $map: {
+//                                     input: {
+//                                         $filter: {
+//                                             input: "$copyTypes",
+//                                             cond: { $eq: ["$$this.type", "Home Work"] }
+//                                         }
+//                                     },
+//                                     as: "hw",
+//                                     in: "$$hw.total"
+//                                 }
+//                             }
+//                         }
+//                     },
+//                     classWorkTotal: {
+//                         $sum: {
+//                             $sum: {
+//                                 $map: {
+//                                     input: {
+//                                         $filter: {
+//                                             input: "$copyTypes",
+//                                             cond: { $eq: ["$$this.type", "Class Work"] }
+//                                         }
+//                                     },
+//                                     as: "cw",
+//                                     in: "$$cw.total"
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         ]);
+        
+//         const copyCheckingMap = {};
+//         copyCheckingAggregation.forEach(item => {
+//             copyCheckingMap[item._id] = item;
+//         });
+
+//         // Build school-wise data
+//         const schoolsData = [];
+//         let totalStudentsAll = 0;
+//         let totalCopyCheckingsAll = 0;
+//         let totalHomeWorkAll = 0;
+//         let totalClassWorkAll = 0;
+        
+//         for (const school of allSchools) {
+//             const schoolIdStr = school.schoolId;
+//             const studentCount = studentCountMap[schoolIdStr] || 0;
+//             const copyData = copyCheckingMap[schoolIdStr];
+            
+//             if (studentCount === 0 && !copyData) {
+//                 // School has no students in this batch, skip
+//                 continue;
+//             }
+            
+//             totalStudentsAll += studentCount;
+//             totalCopyCheckingsAll += copyData?.schoolTotal || 0;
+//             totalHomeWorkAll += copyData?.homeWorkTotal || 0;
+//             totalClassWorkAll += copyData?.classWorkTotal || 0;
+            
+//             // Calculate subject-wise breakdown
+//             const subjectWise = {};
+//             if (copyData?.subjects) {
+//                 copyData.subjects.forEach(subject => {
+//                     const typeWise = {};
+//                     subject.copyTypes.forEach(type => {
+//                         const statusWise = {
+//                             complete: 0,
+//                             incomplete: 0,
+//                             unavailable: 0
+//                         };
+//                         type.statuses.forEach(status => {
+//                             // Case-insensitive status comparison
+//                             const statusLower = status.status?.toLowerCase();
+//                             if (statusLower === "complete") statusWise.complete = status.count;
+//                             else if (statusLower === "incomplete") statusWise.incomplete = status.count;
+//                             else if (statusLower === "unavailable") statusWise.unavailable = status.count;
+//                         });
+//                         typeWise[type.type] = {
+//                             total: type.total,
+//                             ...statusWise
+//                         };
+//                     });
+//                     subjectWise[subject.name] = {
+//                         total: subject.total,
+//                         ...typeWise
+//                     };
+//                 });
+//             }
+            
+//             // Calculate type-wise totals
+//             const homeWorkData = {
+//                 total: copyData?.homeWorkTotal || 0,
+//                 complete: 0,
+//                 incomplete: 0,
+//                 unavailable: 0
+//             };
+            
+//             const classWorkData = {
+//                 total: copyData?.classWorkTotal || 0,
+//                 complete: 0,
+//                 incomplete: 0,
+//                 unavailable: 0
+//             };
+            
+//             // Calculate status counts for each type with case-insensitive comparison
+//             if (copyData?.subjects) {
+//                 copyData.subjects.forEach(subject => {
+//                     subject.copyTypes.forEach(type => {
+//                         type.statuses.forEach(status => {
+//                             const statusLower = status.status?.toLowerCase();
+//                             if (type.type === "Home Work") {
+//                                 if (statusLower === "complete") homeWorkData.complete += status.count;
+//                                 else if (statusLower === "incomplete") homeWorkData.incomplete += status.count;
+//                                 else if (statusLower === "unavailable") homeWorkData.unavailable += status.count;
+//                             } else if (type.type === "Class Work") {
+//                                 if (statusLower === "complete") classWorkData.complete += status.count;
+//                                 else if (statusLower === "incomplete") classWorkData.incomplete += status.count;
+//                                 else if (statusLower === "unavailable") classWorkData.unavailable += status.count;
+//                             }
+//                         });
+//                     });
+//                 });
+//             }
+            
+//             const totalRecords = (copyData?.schoolTotal || 0);
+//             const completedRecords = homeWorkData.complete + classWorkData.complete;
+//             const completionRate = totalRecords > 0 ? (completedRecords / totalRecords) * 100 : 0;
+            
+//             schoolsData.push({
+//                 schoolDetails: {
+//                     schoolId: school.schoolId,
+//                     schoolName: school.schoolName,
+//                     districtId: school.districtId,
+//                     districtName: school.districtName,
+//                     blockId: school.blockId,
+//                     blockName: school.blockName
+//                 },
+//                 totalStudents: studentCount,
+//                 studentsWithCopyCheckings: 0,
+//                 studentsWithoutCopyCheckings: 0,
+//                 overallStats: {
+//                     totalRecords: totalRecords,
+//                     typeWise: {
+//                         homeWork: homeWorkData,
+//                         classWork: classWorkData
+//                     },
+//                     subjectWise: subjectWise
+//                 },
+//                 completionRate: completionRate
+//             });
+//         }
+        
+//         const totalStats = {
+//             totalSchools: schoolsData.length,
+//             totalStudents: totalStudentsAll,
+//             totalCopyCheckings: totalCopyCheckingsAll,
+//             totalHomeWork: totalHomeWorkAll,
+//             totalClassWork: totalClassWorkAll,
+//             overallCompletionRate: schoolsData.length > 0 
+//                 ? schoolsData.reduce((sum, school) => sum + school.completionRate, 0) / schoolsData.length
+//                 : 0
+//         };
+        
+//         // Prepare subject-wise aggregated data with case-insensitive handling
+//         const subjectAggregation = {};
+//         schoolsData.forEach(school => {
+//             Object.entries(school.overallStats.subjectWise || {}).forEach(([subject, data]) => {
+//                 if (!subjectAggregation[subject]) {
+//                     subjectAggregation[subject] = {
+//                         total: 0,
+//                         complete: 0,
+//                         incomplete: 0,
+//                         unavailable: 0,
+//                         homeWorkTotal: 0,
+//                         classWorkTotal: 0
+//                     };
+//                 }
+//                 subjectAggregation[subject].total += data.total || 0;
+//                 subjectAggregation[subject].complete += (data["Home Work"]?.complete || 0) + (data["Class Work"]?.complete || 0);
+//                 subjectAggregation[subject].incomplete += (data["Home Work"]?.incomplete || 0) + (data["Class Work"]?.incomplete || 0);
+//                 subjectAggregation[subject].unavailable += (data["Home Work"]?.unavailable || 0) + (data["Class Work"]?.unavailable || 0);
+//                 subjectAggregation[subject].homeWorkTotal += data["Home Work"]?.total || 0;
+//                 subjectAggregation[subject].classWorkTotal += data["Class Work"]?.total || 0;
+//             });
+//         });
+
+//         return res.status(200).json({
+//             success: true,
+//             message: "Dashboard data fetched successfully",
+//             filters: {
+//                 batch: batch || "All",
+//                 date: date || "All",
+//                 schoolId: schoolId || "All",
+//                 districtId: districtId || "All",
+//                 blockId: blockId || "All"
+//             },
+//             summary: totalStats,
+//             schoolsData: schoolsData,
+//             subjectWiseSummary: subjectAggregation
+//         });
+
+//     } catch (error) {
+//         console.error("Error in StudentCopyCheckinDashboard:", error);
+//         return res.status(500).json({
+//             success: false,
+//             message: "Internal server error",
+//             error: error.message
+//         });
+//     }
+// };
+
+
+
+
+
+
+
+
+
+
+
 export const StudentCopyCheckinDashboard = async (req, res) => {
     try {
-        const { batch, date, schoolId, districtId, blockId } = req.body;
+        const { batch, date, schoolId, districtIds, blockId } = req.body;
 
         // Build match conditions for students
         const studentMatchConditions = {
@@ -1282,7 +1649,9 @@ export const StudentCopyCheckinDashboard = async (req, res) => {
 
         // First, get all schools that match district/block filters
         let schoolQuery = {};
-        if (districtId) schoolQuery.districtId = districtId;
+        if (districtIds && districtIds.length > 0) {
+            schoolQuery.districtId = { $in: districtIds };
+        }
         if (blockId) schoolQuery.blockId = blockId;
         
         const allSchools = await District_Block_School.find(schoolQuery).lean();
@@ -1291,7 +1660,7 @@ export const StudentCopyCheckinDashboard = async (req, res) => {
             return res.status(200).json({
                 success: true,
                 message: "No schools found",
-                filters: { batch, date, schoolId, districtId, blockId },
+                filters: { batch, date, schoolId, districtIds, blockId },
                 summary: {
                     totalSchools: 0,
                     totalStudents: 0,
@@ -1458,7 +1827,6 @@ export const StudentCopyCheckinDashboard = async (req, res) => {
                             unavailable: 0
                         };
                         type.statuses.forEach(status => {
-                            // Case-insensitive status comparison
                             const statusLower = status.status?.toLowerCase();
                             if (statusLower === "complete") statusWise.complete = status.count;
                             else if (statusLower === "incomplete") statusWise.incomplete = status.count;
@@ -1491,7 +1859,6 @@ export const StudentCopyCheckinDashboard = async (req, res) => {
                 unavailable: 0
             };
             
-            // Calculate status counts for each type with case-insensitive comparison
             if (copyData?.subjects) {
                 copyData.subjects.forEach(subject => {
                     subject.copyTypes.forEach(type => {
@@ -1550,7 +1917,7 @@ export const StudentCopyCheckinDashboard = async (req, res) => {
                 : 0
         };
         
-        // Prepare subject-wise aggregated data with case-insensitive handling
+        // Prepare subject-wise aggregated data
         const subjectAggregation = {};
         schoolsData.forEach(school => {
             Object.entries(school.overallStats.subjectWise || {}).forEach(([subject, data]) => {
@@ -1580,7 +1947,7 @@ export const StudentCopyCheckinDashboard = async (req, res) => {
                 batch: batch || "All",
                 date: date || "All",
                 schoolId: schoolId || "All",
-                districtId: districtId || "All",
+                districtIds: districtIds || "All",
                 blockId: blockId || "All"
             },
             summary: totalStats,

@@ -51,10 +51,6 @@ export const GetDistrictBlockSchoolByParams = async (req, res) =>{
 
   //user ke role basis pr, dynamically centerId, blockId, districtId query krunga.
 
-
-
-
-
   const {districtId, blockId, schoolId, role} = req.body;
 
 
@@ -71,7 +67,8 @@ console.log('I am inside district_block_school.controller.js and api: GetDistric
     // }, isCenterClosed:false})
 
 
-    const response = await District_Block_School.find({isCenterClosed:false})
+    const response = await District_Block_School.find({ isCenterClosed: false,
+  schoolId: { $in: schoolId }  })
 
 
     res.status(200).json({status:"Success", data:response})

@@ -160,3 +160,44 @@ const UserLeaveSchema = new Schema(
 
 export const UserLeave = mongoose.model("UserLeave", UserLeaveSchema);
 
+
+
+
+
+//User usersgamificationSchema.
+
+ const GamificationUsersSchema = new Schema (
+{
+unqUserObjectId:{
+  type:mongoose.Schema.Types.ObjectId,
+  ref:"User",
+  required:true
+},
+region: [
+      {
+        _id: false,
+        districtId: { type: String },
+        blockIds: [
+          {
+            _id: false,
+            blockId: { type: String },
+            schoolIds: [
+              {
+                _id: false,
+                schoolId: { type: String },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+
+  access:[],//access like: Gamification, regional etc
+  batch:[]
+
+},
+{timestamps:true}
+
+ )
+
+ export const GamificationUser = mongoose.model("GamificationUser", GamificationUsersSchema)

@@ -26,10 +26,13 @@ import {
 
     UserAttendanceDashboard,
     MarkUserAttendanceManually,
-    leaveApproval
+    leaveApproval,
+    createGamificationUser,
+    getGamificationUser
 } from "../controllers/user.controller.js";
 
 import { createUserLeave } from "../controllers/UserLeave.controller.js";
+
 
 const router = express.Router();
 
@@ -105,9 +108,16 @@ router.post("/leave-approval", leaveApproval)
 
 
 
-//User leave schema
+//User leave 
 
 
 router.post("/create-user-leave", createUserLeave)
+
+
+//gamification user 
+
+router.post("/create-gamificationuser", createGamificationUser)
+
+router.post("/get-gamificationuser", getGamificationUser)
 
 export default router;
