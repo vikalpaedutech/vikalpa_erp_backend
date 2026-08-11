@@ -37,31 +37,71 @@ export const createPost = async (req, res) => {
 
 //Get API
 
-export const GetTests = async (req, res) => {
+// export const GetTests = async (req, res) => {
 
-console.log("Hello get tests")
-const {classofStudent} = req.body;
+// console.log("Hello get tests")
+// const {classofStudent} = req.body;
 
-console.log(req.body)
+// console.log(req.body)
 
-try {
+// try {
 
-  console.log('i am inside try block')
+//   console.log('i am inside try block')
 
-  const response = await ExamAndTest.find({ status: "Pending", batch:"2024-26"}); //status: "Pending"
+//   const response = await ExamAndTest.find({ status: "Pending", batch:"2024-26"}); //status: "Pending"
 
-  res.status(200).json({ status: "Success", data: response });
+//   res.status(200).json({ status: "Success", data: response });
 
-  console.log(response)
+//   console.log(response)
   
-} catch (error) {
+// } catch (error) {
   
-  console.log("I am inside catch block ")
+//   console.log("I am inside catch block ")
 
-  res.status(500).json({ status: "Failed", message: error.message });
-}
+//   res.status(500).json({ status: "Failed", message: error.message });
+// }
 
-}
+// }
+
 
 
 //
+
+
+export const GetTests = async (req, res) => {
+  console.log("Hello get tests");
+  
+  const { batch } = req.body;
+  console.log("Request body:", req.body);
+  console.log("Batch received:", batch);
+
+  try {
+    console.log('I am inside try block');
+
+    // Build query object
+    const query = { status: "Pending" };
+    
+    // Add batch to query if provided
+    if (batch) {
+      query.batch = batch;
+    }
+
+    const response = await ExamAndTest.find(query);
+    
+    console.log("Response data:", response);
+
+    res.status(200).json({ 
+      status: "Success", 
+      data: response 
+    });
+    
+  } catch (error) {
+    console.log("I am inside catch block");
+    console.error("Error:", error.message);
+    
+    res.status(500).json({ 
+      status: "Failed", 
+      message: error.message 
+    });
+  }
+};

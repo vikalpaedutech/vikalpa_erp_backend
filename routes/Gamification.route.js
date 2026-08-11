@@ -2,7 +2,12 @@
 
 import express from "express";
 
-import { callingAbsentee, ClaimGamificationPoint, CreateGamificationPointLogic, disciplinary, fetchUserGamificationPoints, gamificationDashboardV2, GamificationPointAssigningToUsers, marks, pdfUpload, selfAttendancePoint, studentAttendance } from "../controllers/Gamification.controller.js";
+import { callingAbsentee, ClaimGamificationPoint, 
+    CreateGamificationPointLogic, disciplinary,
+     fetchUserGamificationPoints, gamificationDashboardV2,
+       marks, pdfUpload, 
+      selfAttendancePoint, studentAttendance, CreateGamificationContestant, 
+      GamificationRankDashboard} from "../controllers/Gamification.controller.js";
 
 //creating express router.
 
@@ -12,7 +17,7 @@ const router = express.Router();
 
 router.post('/create-gamification-point-logic', CreateGamificationPointLogic);
 
-router.post('/update-gamification-points', GamificationPointAssigningToUsers);
+// router.post('/update-gamification-points', GamificationPointAssigningToUsers);
 
 router.post('/self-attendance-point', selfAttendancePoint);
 
@@ -38,6 +43,8 @@ router.post('/fetch-gamification-points', fetchUserGamificationPoints)
 router.post('/gamification-dashboard-v2', gamificationDashboardV2)
 
 
+router.post('/create-gamification-contestant', CreateGamificationContestant)
 
+router.post('/gamification-rank-dashboard', GamificationRankDashboard)
 
 export default router;

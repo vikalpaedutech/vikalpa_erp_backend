@@ -161,6 +161,27 @@ const GamificationPointOfUserScheam = new Schema(
   { timestamps: true }
 )
 
+
+
+
+
+//This schema is for storing the users data who are the contestants of gamificaition
+//It will store contestant who will be the part of gamification privilige
+
+const GamificationContestantSchema = new Schema ({
+  unqUserObjectId: {
+     type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+  },
+  schoolId:{type: Array, default: [null]},
+  batch: {type: Array, default: [null]},
+
+})
+
+
+
+
 export const GamificationPointLogic =  mongoose.model("GamificationPointLogic", GamificationPointLogicSchema);
 
 
@@ -171,3 +192,4 @@ export const GamificationUserPoint =  mongoose.model("GamificationUserPoint", Ga
 
 
 
+export const GamificationContestant = mongoose.model("GamificationContestant",GamificationContestantSchema)

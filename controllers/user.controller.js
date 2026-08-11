@@ -386,6 +386,46 @@ export const patchUserByContact = async (req, res) => {
 
 //User access controller api to update useraccess.
 // Create or update UserAccess
+// export const setUserAccess = async (req, res) => {
+//   try {
+//     const { unqObjectId, userId, modules, region, batch } = req.body;
+
+//     if (!unqObjectId) {
+//       return res.status(400).json({ message: "unqObjectId (User ID) is required" });
+//     }
+
+//     // Use upsert: true → creates if not exists, updates if exists
+//     const updatedAccess = await UserAccess.findOneAndUpdate(
+//       { unqObjectId }, // match by user reference
+//       {
+//         $set: {
+//           userId,
+//           modules,
+//           region,
+//           batch,
+//         },
+//       },
+//       {
+//         new: true, // return updated doc
+//         upsert: true, // create if not exist
+//       }
+//     );
+
+//     res.status(200).json({
+//       message: "User access set successfully",
+//       data: updatedAccess,
+//     });
+//   } catch (error) {
+//     console.error("Error in setUserAccess:", error);
+//     res.status(500).json({ message: "Server error", error: error.message });
+//   }
+// };
+
+
+// //--------------------------------------------------------------
+
+
+
 export const setUserAccess = async (req, res) => {
   try {
     const { unqObjectId, userId, modules, region, batch } = req.body;
@@ -402,7 +442,7 @@ export const setUserAccess = async (req, res) => {
           userId,
           modules,
           region,
-          batch,
+          batch: batch || [], // ✅ Accept batch array
         },
       },
       {
@@ -420,11 +460,6 @@ export const setUserAccess = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-
-//--------------------------------------------------------------
-
-
 
 
 
@@ -2055,16 +2090,6 @@ export const leaveApproval = async (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
-
 //GamificationUser controller to create or assign region
 
 export const createGamificationUser = async (req, res) => {
@@ -2089,11 +2114,14 @@ export const createGamificationUser = async (req, res) => {
 }
 
 
+
 export const getGamificationUser = async (req, res) => {
 
   console.log('I am in user.controller.js, api: getGamificationUser');
 
 const {unqUserObjectId, createdAt} = req.body;
+
+console.log(req.body)
 
 const startDate = new Date(createdAt);
 startDate.setUTCHours(0,0,0,0)
