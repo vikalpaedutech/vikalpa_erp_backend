@@ -132,6 +132,7 @@ const GamificationPointOfUserScheam = new Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    
      
     },
     pointType: {type: String}, //selfAttendancePoint, studentAttendancePoint, pdfUploadPoint, callingAbsenteePoint, marksPoint
@@ -177,7 +178,38 @@ const GamificationContestantSchema = new Schema ({
   schoolId:{type: Array, default: [null]},
   batch: {type: Array, default: [null]},
 
-})
+},
+{ timestamps: true })
+
+
+
+
+
+
+
+const GamificationRankSchema = new Schema ({
+  unqUserObjectId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User',
+    unique: true 
+  },
+  month: { type: String, required: true }, // "2026-08"
+  totalPoints: { type: Number, default: 0 },
+  pointsClassification: {
+    selfAttendance: { type: Number, default: 0 },
+    studentAttendance: { type: Number, default: 0 },
+    uploadPdf: { type: Number, default: 0 },
+    callingAbsentee: { type: Number, default: 0 },
+    marks: { type: Number, default: 0 },
+    disciplinary: { type: Number, default: 0 }
+  },
+  rank: { type: Number, default: 0 },
+  calculatedAt: { type: Date, default: Date.now },
+
+},
+{ timestamps: true })
+
+
 
 
 
@@ -193,3 +225,6 @@ export const GamificationUserPoint =  mongoose.model("GamificationUserPoint", Ga
 
 
 export const GamificationContestant = mongoose.model("GamificationContestant",GamificationContestantSchema)
+
+
+export const GamfificationRank = mongoose.model("GamfificationRank",GamificationRankSchema)

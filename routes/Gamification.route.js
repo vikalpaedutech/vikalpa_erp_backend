@@ -7,7 +7,8 @@ import { callingAbsentee, ClaimGamificationPoint,
      fetchUserGamificationPoints, gamificationDashboardV2,
        marks, pdfUpload, 
       selfAttendancePoint, studentAttendance, CreateGamificationContestant, 
-      GamificationRankDashboard} from "../controllers/Gamification.controller.js";
+      GamificationRankDashboard, GamificationRankDashboardGeneral, updateMonthlyRankings,
+    } from "../controllers/Gamification.controller.js";
 
 //creating express router.
 
@@ -46,5 +47,13 @@ router.post('/gamification-dashboard-v2', gamificationDashboardV2)
 router.post('/create-gamification-contestant', CreateGamificationContestant)
 
 router.post('/gamification-rank-dashboard', GamificationRankDashboard)
+
+router.post('/gamification-rank-dashboard-all', GamificationRankDashboardGeneral);
+
+router.post('/update-ranks', updateMonthlyRankings);
+
+
+
+// router.get('/update-ranks', updateMonthlyRankings);
 
 export default router;

@@ -10,7 +10,8 @@ import { ReturnDocument } from "mongodb";
 import { User } from "../models/user.model.js";
 import { GamificationContestant } from "../models/gamification.model.js";
 import { response } from "express";
-
+import { UserAccess } from "../models/user.model.js";
+import { GamfificationRank } from "../models/gamification.model.js";
 
 
 
@@ -4981,6 +4982,12 @@ export const gamificationDashboardV2 = async (req, res) => {
 
 
 
+
+
+
+
+
+
 // import mongoose from "mongoose";
 // import { GamificationPointLogic, GamificationUserPoint, GamificationContestant } from "../models/gamification.model.js";
 // import { UserAttendance } from "../models/userAttendnace.model.js";
@@ -4994,554 +5001,1312 @@ export const gamificationDashboardV2 = async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // ✅ API: Gamification Rank Dashboard
 // ─────────────────────────────────────────────────────────────────────────────
+
+
+
+
+
+
+
+
+
+
+
+// export const GamificationRankDashboard = async (req, res) => {
+//   console.log("i am in Gamification.controller.js, api: GamificationRankDashboard")
+//   try {
+//     const { unqUserObjectId } = req.body;
+//     console.log(req.body)
+
+//     if (!unqUserObjectId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "unqUserObjectId is required"
+//       });
+//     }
+
+//     // Get current date for daily ranking
+//     const today = new Date();
+//     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+//     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+//     // Get user details from users collection
+//     const user = await User.findById(unqUserObjectId);
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found"
+//       });
+//     }
+
+//     // Get user access details
+//     const userAccess = await UserAccess.findOne({ unqObjectId: unqUserObjectId });
+//     if (!userAccess) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User access not found"
+//       });
+//     }
+
+//     // Get gamification contestant details
+//     const contestant = await GamificationContestant.findOne({ unqUserObjectId: unqUserObjectId });
+//     if (!contestant) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Gamification contestant not found"
+//       });
+//     }
+
+//     // Get region details from district_block_schools
+//     let regionDetails = {
+//       district: "",
+//       districtId: "",
+//       school: "",
+//       schoolId: ""
+//     };
+
+//     if (userAccess.region && userAccess.region.length > 0) {
+//       const region = userAccess.region[0];
+//       const districtId = region.districtId;
+      
+//       if (region.blockIds && region.blockIds.length > 0) {
+//         const block = region.blockIds[0];
+//         if (block.schoolIds && block.schoolIds.length > 0) {
+//           const schoolId = block.schoolIds[0].schoolId;
+          
+//           const schoolData = await District_Block_School.findOne({ 
+//             districtId: districtId, 
+//             schoolId: schoolId 
+//           });
+          
+//           if (schoolData) {
+//             regionDetails = {
+//               district: schoolData.districtName || "",
+//               districtId: schoolData.districtId || "",
+//               school: schoolData.schoolName || "",
+//               schoolId: schoolData.schoolId || ""
+//             };
+//           }
+//         }
+//       }
+//     }
+
+//     // Get batches from contestant
+//     const batches = contestant.batch || [];
+
+//     // Get gamification points for the user
+//     // For daily ranking - get points for today's date
+//     const userPoints = await GamificationUserPoint.find({
+//       unqObjectId: unqUserObjectId,
+//       gamificationDate: {
+//         $gte: startOfDay,
+//         $lt: endOfDay
+//       },
+//       isPointClaimed: true
+//     });
+
+//     // Calculate total points and points classification
+//     let totalPoint = 0;
+//     const pointsClassification = {
+//       selfAttendance: 0,
+//       studentAttendance: 0,
+//       uploadPdf: 0,
+//       callingAbsentee: 0,
+//       marks: 0,
+//       disciplinary: 0
+//     };
+
+//     userPoints.forEach(point => {
+//       const pointValue = point.pointValue || 0;
+//       totalPoint += pointValue;
+
+//       switch (point.pointType) {
+//         case "selfAttendance":
+//           pointsClassification.selfAttendance += pointValue;
+//           break;
+//         case "studentAttendance":
+//           pointsClassification.studentAttendance += pointValue;
+//           break;
+//         case "uploadPdf":
+//           pointsClassification.uploadPdf += pointValue;
+//           break;
+//         case "callingAbsentee":
+//           pointsClassification.callingAbsentee += pointValue;
+//           break;
+//         case "marks":
+//           pointsClassification.marks += pointValue;
+//           break;
+//         case "disciplinary":
+//           pointsClassification.disciplinary += pointValue;
+//           break;
+//         default:
+//           break;
+//       }
+//     });
+
+//     // Calculate user rank for today
+//     // Get all contestants with their today's total points
+//     const allContestants = await GamificationContestant.find({});
+//     const rankData = [];
+
+//     for (const contestant of allContestants) {
+//       const todayPoints = await GamificationUserPoint.find({
+//         unqObjectId: contestant.unqUserObjectId,
+//         gamificationDate: {
+//           $gte: startOfDay,
+//           $lt: endOfDay
+//         },
+//         isPointClaimed: true
+//       });
+
+//       let totalTodayPoints = 0;
+//       todayPoints.forEach(point => {
+//         totalTodayPoints += (point.pointValue || 0);
+//       });
+
+//       // Get earliest selfAttendance createdAt time for tie-breaking
+//       let earliestSelfAttendanceTime = null;
+//       const selfAttendancePoints = todayPoints.filter(point => point.pointType === "selfAttendance");
+//       if (selfAttendancePoints.length > 0) {
+//         // Sort by createdAt and get the earliest
+//         selfAttendancePoints.sort((a, b) => a.createdAt - b.createdAt);
+//         earliestSelfAttendanceTime = selfAttendancePoints[0].createdAt;
+//       }
+
+//       rankData.push({
+//         unqObjectId: contestant.unqUserObjectId,
+//         totalPoints: totalTodayPoints,
+//         earliestSelfAttendanceTime: earliestSelfAttendanceTime
+//       });
+//     }
+
+//     // Sort by totalPoints descending, then by earliestSelfAttendanceTime ascending
+//     rankData.sort((a, b) => {
+//       if (a.totalPoints !== b.totalPoints) {
+//         return b.totalPoints - a.totalPoints; // Higher points first
+//       }
+//       // If total points are same, compare earliest selfAttendance time
+//       if (a.earliestSelfAttendanceTime && b.earliestSelfAttendanceTime) {
+//         return a.earliestSelfAttendanceTime - b.earliestSelfAttendanceTime; // Earlier time first
+//       }
+//       if (a.earliestSelfAttendanceTime) return -1;
+//       if (b.earliestSelfAttendanceTime) return 1;
+//       return 0;
+//     });
+
+//     // Find user's rank
+//     let userRank = rankData.findIndex(item => 
+//       item.unqObjectId.toString() === unqUserObjectId.toString()
+//     ) + 1;
+
+//     // If user not found in ranking, assign last rank + 1
+//     if (userRank === 0) {
+//       userRank = rankData.length + 1;
+//     }
+
+//     // Get date range for gamification details (current month)
+//     const currentDate = new Date();
+//     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+//     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    
+//     // Get month-wise points
+//     const monthPoints = await GamificationUserPoint.find({
+//       unqObjectId: unqUserObjectId,
+//       gamificationDate: {
+//         $gte: startOfMonth,
+//         $lte: endOfMonth
+//       },
+//       isPointClaimed: true
+//     });
+
+//     let monthTotalPoint = 0;
+//     const monthPointsClassification = {
+//       selfAttendance: 0,
+//       studentAttendance: 0,
+//       uploadPdf: 0,
+//       callingAbsentee: 0,
+//       marks: 0,
+//       disciplinary: 0
+//     };
+
+//     monthPoints.forEach(point => {
+//       const pointValue = point.pointValue || 0;
+//       monthTotalPoint += pointValue;
+
+//       switch (point.pointType) {
+//         case "selfAttendance":
+//           monthPointsClassification.selfAttendance += pointValue;
+//           break;
+//         case "studentAttendance":
+//           monthPointsClassification.studentAttendance += pointValue;
+//           break;
+//         case "uploadPdf":
+//           monthPointsClassification.uploadPdf += pointValue;
+//           break;
+//         case "callingAbsentee":
+//           monthPointsClassification.callingAbsentee += pointValue;
+//           break;
+//         case "marks":
+//           monthPointsClassification.marks += pointValue;
+//           break;
+//         case "disciplinary":
+//           monthPointsClassification.disciplinary += pointValue;
+//           break;
+//         default:
+//           break;
+//       }
+//     });
+
+//     // Prepare final response
+//     const response = {
+//       name: user.name || "",
+//       role: user.role || "",
+//       regionDetails: regionDetails,
+//       batch: batches,
+//       gamificationDetail: {
+//         startDate: startOfMonth.toISOString().split('T')[0],
+//         endDate: endOfMonth.toISOString().split('T')[0],
+//         totalPoint: monthTotalPoint,
+//         pointsClassification: monthPointsClassification,
+//         todayPoints: totalPoint,
+//         todayPointsClassification: pointsClassification,
+//         rank: userRank
+//       }
+//     };
+
+//     return res.status(200).json({
+//       success: true,
+//       data: response
+//     });
+
+//   } catch (error) {
+//     console.error("Error in GamificationRankDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+// export const GamificationRankDashboard = async (req, res) => {
+//   try {
+//     const { unqUserObjectId, gamificationDate } = req.body;
+
+//     if (!unqUserObjectId) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "unqUserObjectId is required"
+//       });
+//     }
+
+//     // Get current date in UTC
+//     const today = new Date();
+    
+//     // Parse gamificationDate if provided, else use today
+//     let targetDate = today;
+//     if (gamificationDate) {
+//       // Parse the date string (YYYY-MM-DD) in UTC
+//       const dateParts = gamificationDate.split('-');
+//       if (dateParts.length === 3) {
+//         targetDate = new Date(Date.UTC(
+//           parseInt(dateParts[0]),
+//           parseInt(dateParts[1]) - 1,
+//           parseInt(dateParts[2])
+//         ));
+//       }
+//     }
+    
+//     // Start of day in UTC (00:00:00 UTC)
+//     const startOfDay = new Date(Date.UTC(
+//       targetDate.getFullYear(),
+//       targetDate.getMonth(),
+//       targetDate.getDate()
+//     ));
+//     // End of day in UTC (23:59:59.999 UTC)
+//     const endOfDay = new Date(Date.UTC(
+//       targetDate.getFullYear(),
+//       targetDate.getMonth(),
+//       targetDate.getDate() + 1
+//     ));
+
+//     // Get user details from users collection
+//     const user = await User.findById(unqUserObjectId);
+//     if (!user) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User not found"
+//       });
+//     }
+
+//     // Get user access details
+//     const userAccess = await UserAccess.findOne({ unqObjectId: unqUserObjectId });
+//     if (!userAccess) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "User access not found"
+//       });
+//     }
+
+//     // Get gamification contestant details
+//     const contestant = await GamificationContestant.findOne({ unqUserObjectId: unqUserObjectId });
+//     if (!contestant) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Gamification contestant not found"
+//       });
+//     }
+
+//     // Get region details from district_block_schools
+//     let regionDetails = {
+//       district: "",
+//       districtId: "",
+//       school: "",
+//       schoolId: ""
+//     };
+
+//     if (userAccess.region && userAccess.region.length > 0) {
+//       const region = userAccess.region[0];
+//       const districtId = region.districtId;
+      
+//       if (region.blockIds && region.blockIds.length > 0) {
+//         const block = region.blockIds[0];
+//         if (block.schoolIds && block.schoolIds.length > 0) {
+//           const schoolId = block.schoolIds[0].schoolId;
+          
+//           const schoolData = await District_Block_School.findOne({ 
+//             districtId: districtId, 
+//             schoolId: schoolId 
+//           });
+          
+//           if (schoolData) {
+//             regionDetails = {
+//               district: schoolData.districtName || "",
+//               districtId: schoolData.districtId || "",
+//               school: schoolData.schoolName || "",
+//               schoolId: schoolData.schoolId || ""
+//             };
+//           }
+//         }
+//       }
+//     }
+
+//     // Get batches from contestant
+//     const batches = contestant.batch || [];
+
+//     // Get gamification points for the user for the target date
+//     const userPoints = await GamificationUserPoint.find({
+//       unqObjectId: unqUserObjectId,
+//       gamificationDate: {
+//         $gte: startOfDay,
+//         $lt: endOfDay
+//       },
+//       isPointClaimed: true
+//     });
+
+//     // Calculate total points and points classification for target date
+//     let totalPoint = 0;
+//     const pointsClassification = {
+//       selfAttendance: 0,
+//       studentAttendance: 0,
+//       uploadPdf: 0,
+//       callingAbsentee: 0,
+//       marks: 0,
+//       disciplinary: 0
+//     };
+
+//     userPoints.forEach(point => {
+//       const pointValue = point.pointValue || 0;
+//       totalPoint += pointValue;
+
+//       switch (point.pointType) {
+//         case "selfAttendance":
+//           pointsClassification.selfAttendance += pointValue;
+//           break;
+//         case "studentAttendance":
+//           pointsClassification.studentAttendance += pointValue;
+//           break;
+//         case "uploadPdf":
+//           pointsClassification.uploadPdf += pointValue;
+//           break;
+//         case "callingAbsentee":
+//           pointsClassification.callingAbsentee += pointValue;
+//           break;
+//         case "marks":
+//           pointsClassification.marks += pointValue;
+//           break;
+//         case "disciplinary":
+//           pointsClassification.disciplinary += pointValue;
+//           break;
+//         default:
+//           break;
+//       }
+//     });
+
+//     // Calculate user rank for the target date
+//     const allContestants = await GamificationContestant.find({});
+//     const rankData = [];
+
+//     for (const contestant of allContestants) {
+//       const targetDatePoints = await GamificationUserPoint.find({
+//         unqObjectId: contestant.unqUserObjectId,
+//         gamificationDate: {
+//           $gte: startOfDay,
+//           $lt: endOfDay
+//         },
+//         isPointClaimed: true
+//       });
+
+//       let totalTargetDatePoints = 0;
+//       targetDatePoints.forEach(point => {
+//         totalTargetDatePoints += (point.pointValue || 0);
+//       });
+
+//       // Get earliest selfAttendance createdAt time for tie-breaking
+//       let earliestSelfAttendanceTime = null;
+//       const selfAttendancePoints = targetDatePoints.filter(point => point.pointType === "selfAttendance");
+//       if (selfAttendancePoints.length > 0) {
+//         selfAttendancePoints.sort((a, b) => a.createdAt - b.createdAt);
+//         earliestSelfAttendanceTime = selfAttendancePoints[0].createdAt;
+//       }
+
+//       rankData.push({
+//         unqObjectId: contestant.unqUserObjectId,
+//         totalPoints: totalTargetDatePoints,
+//         earliestSelfAttendanceTime: earliestSelfAttendanceTime
+//       });
+//     }
+
+//     // Sort by totalPoints descending, then by earliestSelfAttendanceTime ascending
+//     rankData.sort((a, b) => {
+//       if (a.totalPoints !== b.totalPoints) {
+//         return b.totalPoints - a.totalPoints;
+//       }
+//       if (a.earliestSelfAttendanceTime && b.earliestSelfAttendanceTime) {
+//         return a.earliestSelfAttendanceTime - b.earliestSelfAttendanceTime;
+//       }
+//       if (a.earliestSelfAttendanceTime) return -1;
+//       if (b.earliestSelfAttendanceTime) return 1;
+//       return 0;
+//     });
+
+//     // Find user's rank
+//     let userRank = rankData.findIndex(item => 
+//       item.unqObjectId.toString() === unqUserObjectId.toString()
+//     ) + 1;
+
+//     if (userRank === 0) {
+//       userRank = rankData.length + 1;
+//     }
+
+//     // Get date range for gamification details (current month in UTC)
+//     const currentDate = new Date();
+//     // Start of month in UTC: 1st day 00:00:00 UTC
+//     const startOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), 1));
+//     // End of month in UTC: last day 23:59:59.999 UTC
+//     const endOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999));
+    
+//     // Get month-wise points
+//     const monthPoints = await GamificationUserPoint.find({
+//       unqObjectId: unqUserObjectId,
+//       gamificationDate: {
+//         $gte: startOfMonth,
+//         $lte: endOfMonth
+//       },
+//       isPointClaimed: true
+//     });
+
+//     let monthTotalPoint = 0;
+//     const monthPointsClassification = {
+//       selfAttendance: 0,
+//       studentAttendance: 0,
+//       uploadPdf: 0,
+//       callingAbsentee: 0,
+//       marks: 0,
+//       disciplinary: 0
+//     };
+
+//     monthPoints.forEach(point => {
+//       const pointValue = point.pointValue || 0;
+//       monthTotalPoint += pointValue;
+
+//       switch (point.pointType) {
+//         case "selfAttendance":
+//           monthPointsClassification.selfAttendance += pointValue;
+//           break;
+//         case "studentAttendance":
+//           monthPointsClassification.studentAttendance += pointValue;
+//           break;
+//         case "uploadPdf":
+//           monthPointsClassification.uploadPdf += pointValue;
+//           break;
+//         case "callingAbsentee":
+//           monthPointsClassification.callingAbsentee += pointValue;
+//           break;
+//         case "marks":
+//           monthPointsClassification.marks += pointValue;
+//           break;
+//         case "disciplinary":
+//           monthPointsClassification.disciplinary += pointValue;
+//           break;
+//         default:
+//           break;
+//       }
+//     });
+
+//     // Format dates
+//     const startDateStr = startOfMonth.toISOString().split('T')[0];
+//     const endDateStr = endOfMonth.toISOString().split('T')[0];
+//     const targetDateStr = targetDate.toISOString().split('T')[0];
+
+//     // Prepare final response
+//     const response = {
+//       name: user.name || "",
+//       role: user.role || "",
+//       regionDetails: regionDetails,
+//       batch: batches,
+//       gamificationDetail: {
+//         startDate: startDateStr,
+//         endDate: endDateStr,
+//         totalPoint: monthTotalPoint,
+//         pointsClassification: monthPointsClassification,
+//         targetDate: targetDateStr,
+//         targetDatePoints: totalPoint,
+//         targetDatePointsClassification: pointsClassification,
+//         rank: userRank
+//       }
+//     };
+
+//     return res.status(200).json({
+//       success: true,
+//       data: response
+//     });
+
+//   } catch (error) {
+//     console.error("Error in GamificationRankDashboard:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+
+
+
+
+
 export const GamificationRankDashboard = async (req, res) => {
-  const { startDate, unqUserObjectId } = req.body;
-
   try {
-    // ───────────────────────────────────────────────────────────────────────
-    // 1️⃣ BUILD DATE FILTER
-    // ───────────────────────────────────────────────────────────────────────
-    let dateFilter = {};
-    let isMonthly = false;
+    const { unqUserObjectId, gamificationDate } = req.body;
 
-    if (startDate) {
-      // ✅ If startDate is provided, fetch for that specific date
-      const start = new Date(startDate);
-      start.setUTCHours(0, 0, 0, 0);
-      const end = new Date(startDate);
-      end.setUTCHours(23, 59, 59, 999);
-
-      dateFilter = {
-        gamificationDate: {
-          $gte: start,
-          $lte: end
-        }
-      };
-    } else {
-      // ✅ If no startDate, fetch current month (1st to last day)
-      isMonthly = true;
-      const now = new Date();
-      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      firstDay.setUTCHours(0, 0, 0, 0);
-      lastDay.setUTCHours(23, 59, 59, 999);
-
-      dateFilter = {
-        gamificationDate: {
-          $gte: firstDay,
-          $lte: lastDay
-        }
-      };
-    }
-
-    // ───────────────────────────────────────────────────────────────────────
-    // 2️⃣ BUILD PIPELINE FOR USER POINTS WITH RANKING
-    // ───────────────────────────────────────────────────────────────────────
-    const pipeline = [];
-
-    // ✅ Match stage - filter by date
-    const matchStage = {
-      $match: {
-        ...dateFilter,
-        isPointClaimed: true
-      }
-    };
-
-    // ✅ If specific user is requested
-    if (unqUserObjectId) {
-      matchStage.$match.unqObjectId = new mongoose.Types.ObjectId(unqUserObjectId);
-    }
-
-    pipeline.push(matchStage);
-
-    // ✅ Group by user and pointType (for pointType separation)
-    pipeline.push({
-      $group: {
-        _id: {
-          unqObjectId: "$unqObjectId",
-          pointType: "$pointType"
-        },
-        totalPoints: { $sum: "$pointValue" },
-        firstAchieved: { $min: "$createdAt" },
-        lastAchieved: { $max: "$createdAt" },
-        count: { $sum: 1 },
-        pointValues: { $push: "$pointValue" }
-      }
-    });
-
-    // ✅ Group again to get total points per user
-    pipeline.push({
-      $group: {
-        _id: "$_id.unqObjectId",
-        totalPoints: { $sum: "$totalPoints" },
-        firstAchieved: { $min: "$firstAchieved" },
-        pointTypes: {
-          $push: {
-            pointType: "$_id.pointType",
-            points: "$totalPoints",
-            count: "$count",
-            firstAchieved: "$firstAchieved"
-          }
-        }
-      }
-    });
-
-    // ✅ Sort by totalPoints DESC, then by firstAchieved ASC (tie-breaker)
-    pipeline.push({
-      $sort: {
-        totalPoints: -1,
-        firstAchieved: 1
-      }
-    });
-
-    // ✅ Add rank field using $rank (supports multiple sort fields)
-    pipeline.push({
-      $setWindowFields: {
-        partitionBy: null,
-        sortBy: {
-          totalPoints: -1,
-          firstAchieved: 1
-        },
-        output: {
-          rank: {
-            $rank: {}
-          }
-        }
-      }
-    });
-
-    // ✅ Lookup user details from User collection
-    pipeline.push({
-      $lookup: {
-        from: "users",
-        localField: "_id",
-        foreignField: "_id",
-        as: "userDetails"
-      }
-    });
-
-    // ✅ Unwind userDetails
-    pipeline.push({
-      $unwind: {
-        path: "$userDetails",
-        preserveNullAndEmptyArrays: true
-      }
-    });
-
-    // ✅ Lookup contestant details from GamificationContestant
-    pipeline.push({
-      $lookup: {
-        from: "gamificationcontestants",
-        localField: "_id",
-        foreignField: "unqUserObjectId",
-        as: "contestantDetails"
-      }
-    });
-
-    // ✅ Unwind contestantDetails
-    pipeline.push({
-      $unwind: {
-        path: "$contestantDetails",
-        preserveNullAndEmptyArrays: true
-      }
-    });
-
-    // ✅ Lookup school info from District_Block_School
-    pipeline.push({
-      $lookup: {
-        from: "district_block_schools",
-        let: { schoolIds: "$contestantDetails.schoolId" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $in: ["$schoolId", "$$schoolIds"]
-              }
-            }
-          },
-          {
-            $project: {
-              _id: 0,
-              schoolId: 1,
-              schoolName: 1,
-              blockId: 1,
-              blockName: 1,
-              districtId: 1,
-              districtName: 1
-            }
-          }
-        ],
-        as: "schoolInfo"
-      }
-    });
-
-    // ✅ Project final output
-    pipeline.push({
-      $project: {
-        _id: 1,
-        userId: "$userDetails.userId",
-        name: "$userDetails.name",
-        email: "$userDetails.email",
-        role: "$userDetails.role",
-        contact: "$userDetails.contact1",
-        rank: 1,
-        totalPoints: 1,
-        firstAchieved: 1,
-        pointTypes: 1,
-        batches: "$contestantDetails.batch",
-        schoolIds: "$contestantDetails.schoolId",
-        schoolInfo: 1,
-        isContestant: { $cond: [{ $ifNull: ["$contestantDetails", false] }, true, false] }
-      }
-    });
-
-    // ───────────────────────────────────────────────────────────────────────
-    // 3️⃣ EXECUTE PIPELINE
-    // ───────────────────────────────────────────────────────────────────────
-    const results = await GamificationUserPoint.aggregate(pipeline);
-
-    // ───────────────────────────────────────────────────────────────────────
-    // 4️⃣ FORMAT RESPONSE BASED ON REQUEST TYPE
-    // ───────────────────────────────────────────────────────────────────────
-    let responseData = [];
-
-    if (unqUserObjectId) {
-      // ✅ Single user request - show detailed pointType separation
-      const userData = results[0] || null;
-      if (userData) {
-        responseData = {
-          user: {
-            _id: userData._id,
-            userId: userData.userId,
-            name: userData.name,
-            email: userData.email,
-            role: userData.role,
-            contact: userData.contact,
-            rank: userData.rank,
-            totalPoints: userData.totalPoints,
-            batches: userData.batches || [],
-            schools: userData.schoolInfo || [],
-            isContestant: userData.isContestant
-          },
-          pointTypeBreakdown: userData.pointTypes || [],
-          dateRange: startDate ? `Specific Date: ${startDate}` : `Current Month: ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`
-        };
-      } else {
-        responseData = {
-          message: "No data found for this user",
-          user: null,
-          pointTypeBreakdown: []
-        };
-      }
-    } else {
-      // ✅ All users request - show ranking with summary
-      responseData = results.map(user => ({
-        rank: user.rank,
-        _id: user._id,
-        userId: user.userId,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        contact: user.contact,
-        totalPoints: user.totalPoints,
-        batches: user.batches || [],
-        schools: user.schoolInfo || [],
-        isContestant: user.isContestant,
-        pointTypeSummary: user.pointTypes || []
-      }));
-    }
-
-    // ───────────────────────────────────────────────────────────────────────
-    // 5️⃣ SEND RESPONSE
-    // ───────────────────────────────────────────────────────────────────────
-    res.status(200).json({
-      status: "Success",
-      data: responseData,
-      metadata: {
-        totalUsers: results.length,
-        dateRange: startDate ? `Specific Date: ${startDate}` : `Current Month: ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`,
-        isMonthly: isMonthly,
-        rankType: "Points based with tie-breaker (first achieved)"
-      }
-    });
-
-  } catch (error) {
-    console.error("❌ Error in GamificationRankDashboard:", error);
-    res.status(500).json({
-      status: "Failed",
-      message: error.message || "Internal server error"
-    });
-  }
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// ✅ API: Get User's Monthly Points Summary (For Profile/Dashboard)
-// ─────────────────────────────────────────────────────────────────────────────
-export const getUserMonthlyPoints = async (req, res) => {
-  const { unqUserObjectId, month, year } = req.body;
-
-  try {
     if (!unqUserObjectId) {
       return res.status(400).json({
-        status: "Failed",
+        success: false,
         message: "unqUserObjectId is required"
       });
     }
 
-    // ✅ Set date range
-    const targetMonth = month !== undefined ? parseInt(month) : new Date().getMonth();
-    const targetYear = year || new Date().getFullYear();
+    // Get current date in UTC
+    const today = new Date();
+    const monthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    
+    // Parse gamificationDate if provided, else use today
+    let targetDate = today;
+    if (gamificationDate) {
+      const dateParts = gamificationDate.split('-');
+      if (dateParts.length === 3) {
+        targetDate = new Date(Date.UTC(
+          parseInt(dateParts[0]),
+          parseInt(dateParts[1]) - 1,
+          parseInt(dateParts[2])
+        ));
+      }
+    }
+    
+    // Start of day in UTC for target date
+    const startOfDay = new Date(Date.UTC(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate()
+    ));
+    const endOfDay = new Date(Date.UTC(
+      targetDate.getFullYear(),
+      targetDate.getMonth(),
+      targetDate.getDate() + 1
+    ));
 
-    const firstDay = new Date(targetYear, targetMonth, 1);
-    const lastDay = new Date(targetYear, targetMonth + 1, 0);
-    firstDay.setUTCHours(0, 0, 0, 0);
-    lastDay.setUTCHours(23, 59, 59, 999);
+    // Get user details - parallel queries
+    const [user, userAccess, contestant, rankingData] = await Promise.all([
+      User.findById(unqUserObjectId),
+      UserAccess.findOne({ unqObjectId: unqUserObjectId }),
+      GamificationContestant.findOne({ unqUserObjectId: unqUserObjectId }),
+      GamfificationRank.findOne({ 
+        unqUserObjectId: unqUserObjectId, 
+        month: monthKey 
+      })
+    ]);
 
-    // ✅ Aggregate daily points for the user
-    const dailyPoints = await GamificationUserPoint.aggregate([
+    if (!user || !userAccess || !contestant) {
+      return res.status(404).json({
+        success: false,
+        message: "User, UserAccess or Contestant not found"
+      });
+    }
+
+    // Get region details
+    let regionDetails = {
+      district: "",
+      districtId: "",
+      school: "",
+      schoolId: ""
+    };
+
+    if (userAccess.region && userAccess.region.length > 0) {
+      const region = userAccess.region[0];
+      const districtId = region.districtId;
+      
+      if (region.blockIds && region.blockIds.length > 0) {
+        const block = region.blockIds[0];
+        if (block.schoolIds && block.schoolIds.length > 0) {
+          const schoolId = block.schoolIds[0].schoolId;
+          
+          const schoolData = await District_Block_School.findOne({ 
+            districtId: districtId, 
+            schoolId: schoolId 
+          });
+          
+          if (schoolData) {
+            regionDetails = {
+              district: schoolData.districtName || "",
+              districtId: schoolData.districtId || "",
+              school: schoolData.schoolName || "",
+              schoolId: schoolData.schoolId || ""
+            };
+          }
+        }
+      }
+    }
+
+    const batches = contestant.batch || [];
+
+    // Get date range for current month
+    const currentDate = new Date();
+    const startOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), 1));
+    const endOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999));
+
+    // Get user's daily points only from GamificationUserPoint
+    const userDailyPoints = await GamificationUserPoint.aggregate([
       {
         $match: {
           unqObjectId: new mongoose.Types.ObjectId(unqUserObjectId),
-          gamificationDate: {
-            $gte: firstDay,
-            $lte: lastDay
-          },
+          gamificationDate: { $gte: startOfDay, $lt: endOfDay },
           isPointClaimed: true
         }
       },
       {
         $group: {
-          _id: {
-            date: { $dateToString: { format: "%Y-%m-%d", date: "$gamificationDate" } },
-            pointType: "$pointType"
-          },
-          totalPoints: { $sum: "$pointValue" },
-          count: { $sum: 1 }
+          _id: "$pointType",
+          total: { $sum: "$pointValue" }
         }
-      },
-      {
-        $group: {
-          _id: "$_id.date",
-          pointTypes: {
-            $push: {
-              pointType: "$_id.pointType",
-              points: "$totalPoints",
-              count: "$count"
-            }
-          },
-          dailyTotal: { $sum: "$totalPoints" }
-        }
-      },
-      {
-        $sort: { _id: 1 }
       }
     ]);
 
-    // ✅ Calculate monthly total
-    const monthlyTotal = dailyPoints.reduce((sum, day) => sum + day.dailyTotal, 0);
-
-    res.status(200).json({
-      status: "Success",
-      data: {
-        user: unqUserObjectId,
-        month: `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}`,
-        monthlyTotal: monthlyTotal,
-        dailyBreakdown: dailyPoints
+    // Calculate daily points classification (target date)
+    const dailyPointsClassification = {
+      selfAttendance: 0,
+      studentAttendance: 0,
+      uploadPdf: 0,
+      callingAbsentee: 0,
+      marks: 0,
+      disciplinary: 0
+    };
+    
+    let dailyTotal = 0;
+    userDailyPoints.forEach(item => {
+      const type = item._id;
+      const value = item.total || 0;
+      dailyTotal += value;
+      if (dailyPointsClassification.hasOwnProperty(type)) {
+        dailyPointsClassification[type] = value;
       }
     });
 
+    // Get rank from pre-calculated GamfificationRank collection
+    let userRank = rankingData?.rank || 0;
+    let monthlyTotal = rankingData?.totalPoints || 0;
+    let monthlyPointsClassification = rankingData?.pointsClassification || {
+      selfAttendance: 0,
+      studentAttendance: 0,
+      uploadPdf: 0,
+      callingAbsentee: 0,
+      marks: 0,
+      disciplinary: 0
+    };
+
+    // Prepare response
+    const startDateStr = startOfMonth.toISOString().split('T')[0];
+    const endDateStr = endOfMonth.toISOString().split('T')[0];
+    const targetDateStr = targetDate.toISOString().split('T')[0];
+
+    const response = {
+      unqUserObjectId: unqUserObjectId,
+      name: user.name || "",
+      role: user.role || "",
+      regionDetails: regionDetails,
+      batch: batches,
+      gamificationDetail: {
+        startDate: startDateStr,
+        endDate: endDateStr,
+        totalPoint: monthlyTotal,
+        pointsClassification: monthlyPointsClassification,
+        targetDate: targetDateStr,
+        targetDatePoints: dailyTotal,
+        targetDatePointsClassification: dailyPointsClassification,
+        rank: userRank
+      }
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: response
+    });
+
   } catch (error) {
-    console.error("❌ Error in getUserMonthlyPoints:", error);
-    res.status(500).json({
-      status: "Failed",
-      message: error.message || "Internal server error"
+    console.error("Error in GamificationRankDashboard:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
     });
   }
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ✅ API: Get Leaderboard with Filters (Batch, School, District)
-// ─────────────────────────────────────────────────────────────────────────────
-export const getLeaderboard = async (req, res) => {
-  const { batch, schoolId, districtId, startDate, endDate } = req.body;
 
+
+
+
+
+
+
+
+//General dashboard
+
+// export const GamificationRankDashboardGeneral = async (req, res) => {
+//   console.log("i am in Gamification.controller.js, api: GamificationRankDashboardGeneral")
+//   try {
+//     // Get current date
+//     const currentDate = new Date();
+//     const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    
+//     // Get date range for current month
+//     const startOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), 1));
+//     const endOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999));
+
+//     // Get all rankings from pre-calculated GamfificationRank collection
+//     const allRankings = await GamfificationRank.find({ 
+//       month: monthKey 
+//     }).sort({ rank: 1 });
+
+//     if (!allRankings.length) {
+//       return res.status(200).json({
+//         success: true,
+//         message: "No rankings found for this month",
+//         data: {
+//           month: monthKey,
+//           totalUsers: 0,
+//           rankings: []
+//         }
+//       });
+//     }
+
+//     // Get all user details in parallel
+//     const userIds = allRankings.map(item => item.unqUserObjectId);
+//     const users = await User.find({ 
+//       _id: { $in: userIds } 
+//     });
+
+//     // Create a map for quick user lookup
+//     const userMap = {};
+//     users.forEach(user => {
+//       userMap[user._id.toString()] = user;
+//     });
+
+//     // Get all user access details for region information
+//     const userAccesses = await UserAccess.find({ 
+//       unqObjectId: { $in: userIds } 
+//     });
+
+//     const userAccessMap = {};
+//     userAccesses.forEach(access => {
+//       userAccessMap[access.unqObjectId.toString()] = access;
+//     });
+
+//     // Get all contestant details for batch information
+//     const contestants = await GamificationContestant.find({ 
+//       unqUserObjectId: { $in: userIds } 
+//     });
+
+//     const contestantMap = {};
+//     contestants.forEach(contestant => {
+//       contestantMap[contestant.unqUserObjectId.toString()] = contestant;
+//     });
+
+//     // Get all school details for region
+//     const schoolIds = [];
+//     Object.values(userAccessMap).forEach(access => {
+//       if (access.region && access.region.length > 0) {
+//         const region = access.region[0];
+//         if (region.blockIds && region.blockIds.length > 0) {
+//           const block = region.blockIds[0];
+//           if (block.schoolIds && block.schoolIds.length > 0) {
+//             schoolIds.push(block.schoolIds[0].schoolId);
+//           }
+//         }
+//       }
+//     });
+
+//     const schools = await District_Block_School.find({ 
+//       schoolId: { $in: schoolIds } 
+//     });
+
+//     const schoolMap = {};
+//     schools.forEach(school => {
+//       schoolMap[school.schoolId] = school;
+//     });
+
+//     // Prepare response data
+//     const rankingsData = allRankings.map(ranking => {
+//       const userId = ranking.unqUserObjectId.toString();
+//       const user = userMap[userId] || {};
+//       const userAccess = userAccessMap[userId] || {};
+//       const contestant = contestantMap[userId] || {};
+
+//       // Get region details
+//       let regionDetails = {
+//         district: "",
+//         districtId: "",
+//         school: "",
+//         schoolId: ""
+//       };
+
+//       if (userAccess.region && userAccess.region.length > 0) {
+//         const region = userAccess.region[0];
+//         const districtId = region.districtId;
+        
+//         if (region.blockIds && region.blockIds.length > 0) {
+//           const block = region.blockIds[0];
+//           if (block.schoolIds && block.schoolIds.length > 0) {
+//             const schoolId = block.schoolIds[0].schoolId;
+//             const schoolData = schoolMap[schoolId];
+            
+//             if (schoolData) {
+//               regionDetails = {
+//                 district: schoolData.districtName || "",
+//                 districtId: schoolData.districtId || "",
+//                 school: schoolData.schoolName || "",
+//                 schoolId: schoolData.schoolId || ""
+//               };
+//             }
+//           }
+//         }
+//       }
+
+//       return {
+//         unqUserObjectId: ranking.unqUserObjectId,
+//         name: user.name || "",
+//         role: user.role || "",
+//         regionDetails: regionDetails,
+//         batch: contestant.batch || [],
+//         totalPoint: ranking.totalPoints || 0,
+//         pointsClassification: ranking.pointsClassification || {
+//           selfAttendance: 0,
+//           studentAttendance: 0,
+//           uploadPdf: 0,
+//           callingAbsentee: 0,
+//           marks: 0,
+//           disciplinary: 0
+//         },
+//         rank: ranking.rank || 0
+//       };
+//     });
+
+//     // Prepare response
+//     const startDateStr = startOfMonth.toISOString().split('T')[0];
+//     const endDateStr = endOfMonth.toISOString().split('T')[0];
+
+//     const response = {
+//       month: monthKey,
+//       startDate: startDateStr,
+//       endDate: endDateStr,
+//       totalUsers: rankingsData.length,
+//       rankings: rankingsData
+//     };
+
+//     return res.status(200).json({
+//       success: true,
+//       data: response
+//     });
+
+//   } catch (error) {
+//     console.error("Error in GamificationRankDashboardGeneral:", error);
+//     return res.status(500).json({
+//       success: false,
+//       message: "Internal server error",
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
+
+
+// General dashboard - Modified to show all contestants
+export const GamificationRankDashboardGeneral = async (req, res) => {
+  console.log("i am in Gamification.controller.js, api: GamificationRankDashboardGeneral")
   try {
-    // ✅ Build date filter
-    let dateFilter = {};
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      start.setUTCHours(0, 0, 0, 0);
-      const end = new Date(endDate);
-      end.setUTCHours(23, 59, 59, 999);
-      dateFilter = {
-        gamificationDate: { $gte: start, $lte: end }
-      };
-    } else if (startDate) {
-      const start = new Date(startDate);
-      start.setUTCHours(0, 0, 0, 0);
-      const end = new Date(startDate);
-      end.setUTCHours(23, 59, 59, 999);
-      dateFilter = {
-        gamificationDate: { $gte: start, $lte: end }
-      };
-    }
+    const currentDate = new Date();
+    const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    const startOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), 1));
+    const endOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999));
 
-    // ✅ Build match stage
-    const matchStage = {
-      $match: {
-        ...dateFilter,
-        isPointClaimed: true
+    // Get ALL contestants first
+    const allContestants = await GamificationContestant.find({});
+    const contestantUserIds = allContestants.map(c => c.unqUserObjectId);
+
+    // Get rankings only for users who have points
+    const allRankings = await GamfificationRank.find({ 
+      month: monthKey 
+    }).sort({ rank: 1 });
+
+    // Create a map of rankings
+    const rankingMap = {};
+    allRankings.forEach(rank => {
+      rankingMap[rank.unqUserObjectId.toString()] = rank;
+    });
+
+    // Get all user details
+    const users = await User.find({ 
+      _id: { $in: contestantUserIds } 
+    });
+
+    const userMap = {};
+    users.forEach(user => {
+      userMap[user._id.toString()] = user;
+    });
+
+    // Get user access details
+    const userAccesses = await UserAccess.find({ 
+      unqObjectId: { $in: contestantUserIds } 
+    });
+
+    const userAccessMap = {};
+    userAccesses.forEach(access => {
+      userAccessMap[access.unqObjectId.toString()] = access;
+    });
+
+    // Get contestant details
+    const contestantMap = {};
+    allContestants.forEach(contestant => {
+      contestantMap[contestant.unqUserObjectId.toString()] = contestant;
+    });
+
+    // Get school details
+    const schoolIds = [];
+    Object.values(userAccessMap).forEach(access => {
+      if (access.region && access.region.length > 0) {
+        const region = access.region[0];
+        if (region.blockIds && region.blockIds.length > 0) {
+          const block = region.blockIds[0];
+          if (block.schoolIds && block.schoolIds.length > 0) {
+            schoolIds.push(block.schoolIds[0].schoolId);
+          }
+        }
       }
+    });
+
+    const schools = await District_Block_School.find({ 
+      schoolId: { $in: schoolIds } 
+    });
+
+    const schoolMap = {};
+    schools.forEach(school => {
+      schoolMap[school.schoolId] = school;
+    });
+
+    // Prepare response data for ALL contestants
+    const rankingsData = allContestants.map(contestant => {
+      const userId = contestant.unqUserObjectId.toString();
+      const user = userMap[userId] || {};
+      const userAccess = userAccessMap[userId] || {};
+      const ranking = rankingMap[userId] || {};
+
+      // Get region details
+      let regionDetails = {
+        district: "",
+        districtId: "",
+        school: "",
+        schoolId: ""
+      };
+
+      if (userAccess.region && userAccess.region.length > 0) {
+        const region = userAccess.region[0];
+        const districtId = region.districtId;
+        
+        if (region.blockIds && region.blockIds.length > 0) {
+          const block = region.blockIds[0];
+          if (block.schoolIds && block.schoolIds.length > 0) {
+            const schoolId = block.schoolIds[0].schoolId;
+            const schoolData = schoolMap[schoolId];
+            
+            if (schoolData) {
+              regionDetails = {
+                district: schoolData.districtName || "",
+                districtId: schoolData.districtId || "",
+                school: schoolData.schoolName || "",
+                schoolId: schoolData.schoolId || ""
+              };
+            }
+          }
+        }
+      }
+
+      return {
+        unqUserObjectId: contestant.unqUserObjectId,
+        name: user.name || "",
+        role: user.role || "",
+        regionDetails: regionDetails,
+        batch: contestant.batch || [],
+        totalPoint: ranking.totalPoints || 0,
+        pointsClassification: ranking.pointsClassification || {
+          selfAttendance: 0,
+          studentAttendance: 0,
+          uploadPdf: 0,
+          callingAbsentee: 0,
+          marks: 0,
+          disciplinary: 0
+        },
+        rank: ranking.rank || 0
+      };
+    });
+
+    // Sort by rank (0 points wale last mein aayenge)
+    rankingsData.sort((a, b) => {
+      if (a.rank === 0 && b.rank === 0) return 0;
+      if (a.rank === 0) return 1;
+      if (b.rank === 0) return -1;
+      return a.rank - b.rank;
+    });
+
+    const startDateStr = startOfMonth.toISOString().split('T')[0];
+    const endDateStr = endOfMonth.toISOString().split('T')[0];
+
+    const response = {
+      month: monthKey,
+      startDate: startDateStr,
+      endDate: endDateStr,
+      totalUsers: rankingsData.length,
+      rankings: rankingsData
     };
 
-    // ✅ Add batch filter
-    if (batch) {
-      // First get users with this batch from GamificationContestant
-      const contestantUsers = await GamificationContestant.find({
-        batch: { $in: [batch] }
-      }).distinct('unqUserObjectId');
+    return res.status(200).json({
+      success: true,
+      data: response
+    });
 
-      matchStage.$match.unqObjectId = { $in: contestantUsers };
-    }
+  } catch (error) {
+    console.error("Error in GamificationRankDashboardGeneral:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
 
-    // ✅ Add school filter
-    if (schoolId) {
-      const contestantUsers = await GamificationContestant.find({
-        schoolId: { $in: [schoolId] }
-      }).distinct('unqUserObjectId');
 
-      if (matchStage.$match.unqObjectId) {
-        matchStage.$match.unqObjectId = {
-          $in: matchStage.$match.unqObjectId.$in.filter(id => 
-            contestantUsers.some(cId => cId.toString() === id.toString())
-          )
-        };
-      } else {
-        matchStage.$match.unqObjectId = { $in: contestantUsers };
-      }
-    }
 
-    // ✅ Aggregate pipeline
-    const pipeline = [
-      matchStage,
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+export const updateMonthlyRankings = async (req, res) => {
+
+  console.log('I am in Gamification.controller.js, api: updateMonthlyRankings')
+
+  try {
+    // console.log(`🔄 Starting monthly rankings update at ${new Date().toISOString()}`);
+    
+    const currentDate = new Date();
+    const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+    
+    // Get start and end of month
+    const startOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth(), 1));
+    const endOfMonth = new Date(Date.UTC(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59, 999));
+    
+    // Calculate all users' monthly points using aggregation
+    const rankings = await GamificationUserPoint.aggregate([
+      {
+        $match: {
+          gamificationDate: { $gte: startOfMonth, $lte: endOfMonth },
+          isPointClaimed: true
+        }
+      },
       {
         $group: {
           _id: "$unqObjectId",
           totalPoints: { $sum: "$pointValue" },
-          firstAchieved: { $min: "$createdAt" },
-          pointTypes: {
+          points: {
             $push: {
-              pointType: "$pointType",
-              points: "$pointValue"
+              type: "$pointType",
+              value: "$pointValue"
             }
           }
         }
       },
       {
-        $sort: {
-          totalPoints: -1,
-          firstAchieved: 1
-        }
+        $sort: { totalPoints: -1 }
       },
       {
-        $setWindowFields: {
-          partitionBy: null,
-          sortBy: {
-            totalPoints: -1,
-            firstAchieved: 1
-          },
-          output: {
-            rank: { $rank: {} }
-          }
-        }
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "_id",
-          foreignField: "_id",
-          as: "userDetails"
-        }
-      },
-      {
-        $unwind: {
-          path: "$userDetails",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: "gamificationcontestants",
-          localField: "_id",
-          foreignField: "unqUserObjectId",
-          as: "contestantDetails"
-        }
-      },
-      {
-        $unwind: {
-          path: "$contestantDetails",
-          preserveNullAndEmptyArrays: true
-        }
-      },
-      {
-        $lookup: {
-          from: "district_block_schools",
-          let: { schoolIds: "$contestantDetails.schoolId" },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $in: ["$schoolId", "$$schoolIds"]
-                }
-              }
-            },
-            {
-              $project: {
-                _id: 0,
-                schoolId: 1,
-                schoolName: 1,
-                blockId: 1,
-                blockName: 1,
-                districtId: 1,
-                districtName: 1
-              }
+        $group: {
+          _id: null,
+          rankings: {
+            $push: {
+              userId: "$_id",
+              totalPoints: "$totalPoints",
+              points: "$points"
             }
-          ],
-          as: "schoolInfo"
-        }
-      },
-      {
-        $project: {
-          _id: 1,
-          userId: "$userDetails.userId",
-          name: "$userDetails.name",
-          email: "$userDetails.email",
-          role: "$userDetails.role",
-          rank: 1,
-          totalPoints: 1,
-          batches: "$contestantDetails.batch",
-          schools: "$schoolInfo",
-          pointTypes: 1
+          }
         }
       }
-    ];
+    ]);
 
-    const results = await GamificationUserPoint.aggregate(pipeline);
+    if (!rankings.length || !rankings[0].rankings.length) {
+      return res.status(200).json({
+        success: true,
+        message: 'No rankings data found to update',
+        data: {
+          totalUsersUpdated: 0,
+          month: monthKey
+        }
+      });
+    }
 
-    res.status(200).json({
-      status: "Success",
-      data: results,
-      metadata: {
-        totalUsers: results.length,
-        filters: { batch, schoolId, districtId }
+    const bulkOps = [];
+    const allRankings = rankings[0].rankings;
+
+    allRankings.forEach((item, index) => {
+      // Calculate points classification
+      const classification = {
+        selfAttendance: 0,
+        studentAttendance: 0,
+        uploadPdf: 0,
+        callingAbsentee: 0,
+        marks: 0,
+        disciplinary: 0
+      };
+
+      item.points.forEach(point => {
+        if (classification.hasOwnProperty(point.type)) {
+          classification[point.type] += point.value;
+        }
+      });
+
+      // Prepare bulk operation
+      bulkOps.push({
+        updateOne: {
+          filter: { 
+            unqUserObjectId: item.userId,
+            month: monthKey
+          },
+          update: {
+            $set: {
+              unqUserObjectId: item.userId,
+              month: monthKey,
+              totalPoints: item.totalPoints,
+              pointsClassification: classification,
+              rank: index + 1,
+              calculatedAt: new Date()
+            }
+          },
+          upsert: true
+        }
+      });
+    });
+
+    // Bulk write to GamfificationRank collection
+    let rankUpdateResult = null;
+    if (bulkOps.length > 0) {
+      rankUpdateResult = await GamfificationRank.bulkWrite(bulkOps);
+      console.log(`✅ Rankings updated for ${bulkOps.length} users`);
+    }
+
+    // Also update user collection with rank for faster access
+    const userBulkOps = allRankings.map((item, index) => ({
+      updateOne: {
+        filter: { _id: item.userId },
+        update: { 
+          $set: { 
+            monthlyRank: index + 1,
+            monthlyPoints: item.totalPoints,
+            rankUpdatedAt: new Date()
+          }
+        }
+      }
+    }));
+
+    const userUpdateResult = await User.bulkWrite(userBulkOps);
+    console.log('✅ User ranks updated successfully');
+
+    return res.status(200).json({
+      success: true,
+      message: 'Rankings updated successfully',
+      data: {
+        totalUsersUpdated: allRankings.length,
+        month: monthKey,
+        rankUpdateResult: {
+          matched: rankUpdateResult?.matchedCount || 0,
+          modified: rankUpdateResult?.modifiedCount || 0,
+          upserted: rankUpdateResult?.upsertedCount || 0
+        },
+        userUpdateResult: {
+          matched: userUpdateResult?.matchedCount || 0,
+          modified: userUpdateResult?.modifiedCount || 0
+        },
+        timestamp: new Date().toISOString()
       }
     });
 
   } catch (error) {
-    console.error("❌ Error in getLeaderboard:", error);
-    res.status(500).json({
-      status: "Failed",
-      message: error.message || "Internal server error"
+    console.error('❌ Error updating rankings:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update rankings',
+      error: error.message
     });
   }
 };
