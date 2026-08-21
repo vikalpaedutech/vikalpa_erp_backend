@@ -49,12 +49,14 @@ export const createPost = async (req, res) => {
 
 export const GetDistrictBlockSchoolByParams = async (req, res) =>{
 
+  console.log('i am in district_block_school.controller.js, api: GetDistrictBlockSchoolByParams')
+
   //user ke role basis pr, dynamically centerId, blockId, districtId query krunga.
 
   const {districtId, blockId, schoolId, role} = req.body;
 
 
-  console.log(districtId)
+  console.log(req.body)
 console.log('I am inside district_block_school.controller.js and api: GetDistrictBlockSchoolByParams ')
 
   
